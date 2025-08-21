@@ -1,0 +1,853 @@
+/* Import AuzLand styles */
+@import './auzland/index.css';
+
+/* Dark Theme CSS Variables for Employee Portal Only */
+:root {
+  --dark-bg-primary: #0b0f14;
+  --dark-bg-secondary: #0f1720;
+  --dark-bg-tertiary: #111827;
+  --dark-bg-card: #0f1720;
+  --dark-bg-input: #111827;
+  --dark-bg-button: #1f2937; /* neutral, not blue */
+  --dark-bg-button-hover: #111827;
+  --dark-bg-button-danger: #991b1b;
+  --dark-bg-button-danger-hover: #7f1d1d;
+  --dark-bg-success: #16a34a;
+  --dark-bg-error: #991b1b;
+  --dark-bg-warning: #a16207;
+  
+  --dark-text-primary: #e5e7eb;
+  --dark-text-secondary: #cbd5e1;
+  --dark-text-muted: #94a3b8;
+  --dark-text-accent: #d1d5db; /* neutral accent */
+  
+  --dark-border-primary: #1f2937;
+  --dark-border-secondary: #374151;
+  --dark-border-accent: #334155;
+  
+  --dark-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --dark-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.6);
+  --dark-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.65), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+  --dark-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.65), 0 10px 10px -5px rgba(0, 0, 0, 0.6);
+  
+  --dark-gradient-primary: none; /* avoid blue gradients */
+  --dark-gradient-secondary: none;
+  --dark-gradient-accent: none;
+}
+
+/* Employee Portal Dark Theme - Scoped to specific components */
+.employee-portal {
+  background-color: var(--dark-bg-primary);
+  color: var(--dark-text-primary);
+}
+
+/* Loading Container - Employee Portal Only */
+.employee-portal .loading-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-bg-primary);
+  gap: 1rem;
+}
+
+.employee-portal .loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--dark-bg-tertiary);
+  border-top: 4px solid var(--dark-text-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Dashboard Container - Employee Portal Only */
+.employee-portal .dashboard-container {
+  min-height: 100vh;
+  background: var(--dark-bg-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navigation Header - Employee Portal Only */
+.employee-portal .dashboard-nav {
+  background: #0f1720;
+  color: var(--dark-text-primary);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .nav-brand h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.employee-portal .nav-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.employee-portal .username {
+  font-weight: 500;
+}
+
+.employee-portal .user-role {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+}
+
+/* Main Content Layout - Employee Portal Only */
+.employee-portal .dashboard-main {
+  display: flex;
+  min-height: calc(100vh - 80px);
+}
+
+/* Filters Sidebar - Employee Portal Only */
+.employee-portal .filters-sidebar {
+  width: 320px;
+  background: var(--dark-bg-card);
+  color: var(--dark-text-primary);
+  padding: 1.5rem;
+  overflow-y: auto;
+  box-shadow: var(--dark-shadow-md);
+}
+
+.employee-portal .sidebar-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.employee-portal .logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.employee-portal .logo-icon {
+  font-size: 1rem;
+  background: #111827;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text-primary);
+  border: 1px solid var(--dark-border-primary);
+  font-weight: 700;
+}
+
+.employee-portal .logo h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-text-secondary);
+}
+
+.employee-portal .filters-section h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dark-text-primary);
+  border-bottom: 2px solid var(--dark-border-primary);
+  padding-bottom: 0.5rem;
+}
+
+.employee-portal .filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.employee-portal .filter-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--dark-text-secondary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.employee-portal .filter-group select,
+.employee-portal .filter-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--dark-border-primary);
+  border-radius: 8px;
+  background: var(--dark-bg-input);
+  color: var(--dark-text-primary);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .filter-group select:focus,
+.employee-portal .filter-group input:focus {
+  outline: none;
+  border-color: var(--dark-border-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.employee-portal .filter-group select option {
+  background: var(--dark-bg-input);
+  color: var(--dark-text-primary);
+}
+
+.employee-portal .search-input {
+  position: relative;
+}
+
+.employee-portal .search-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-text-muted);
+  pointer-events: none;
+}
+
+/* Admin Section - Employee Portal Only */
+.employee-portal .admin-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .admin-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark-text-primary);
+}
+
+.employee-portal .add-user-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--dark-gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.employee-portal .add-user-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--dark-shadow-lg);
+}
+
+.employee-portal .button-icon {
+  font-size: 1rem;
+}
+
+/* Properties Main Content - Employee Portal Only */
+.employee-portal .properties-main {
+  flex: 1;
+  background: var(--dark-bg-secondary);
+  overflow-y: auto;
+}
+
+/* Properties Navigation - Employee Portal Only */
+.employee-portal .properties-nav {
+  background: var(--dark-bg-card);
+  border-bottom: 1px solid var(--dark-border-primary);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-portal .nav-tabs {
+  display: flex;
+  gap: 0;
+}
+
+.employee-portal .nav-tab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--dark-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .nav-tab:hover {
+  color: var(--dark-text-primary);
+}
+
+.employee-portal .nav-tab.active {
+  color: var(--dark-text-primary);
+  border-bottom-color: var(--dark-border-accent);
+}
+
+.employee-portal .nav-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.employee-portal .user-avatar {
+  width: 40px;
+  height: 40px;
+  background: #111827;
+  color: var(--dark-text-primary);
+  border-radius: 8px;
+  border: 1px solid var(--dark-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.employee-portal .signout-button {
+  padding: 0.5rem 1rem;
+  background: var(--dark-bg-button-danger);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .signout-button:hover {
+  background: var(--dark-bg-button-danger-hover);
+  transform: translateY(-1px);
+}
+
+/* Results Header - Employee Portal Only */
+.employee-portal .results-header {
+  background: var(--dark-bg-card);
+  border-bottom: 1px solid var(--dark-border-primary);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-portal .results-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.employee-portal .results-count {
+  font-weight: 600;
+  color: var(--dark-text-primary);
+}
+
+.employee-portal .sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--dark-text-secondary);
+  font-size: 0.875rem;
+}
+
+.employee-portal .sort-select {
+  padding: 0.5rem;
+  border: 1px solid var(--dark-border-primary);
+  border-radius: 6px;
+  background: var(--dark-bg-input);
+  color: var(--dark-text-primary);
+  font-size: 0.875rem;
+}
+
+.employee-portal .sort-order-btn {
+  padding: 0.5rem;
+  background: var(--dark-bg-tertiary);
+  border: 1px solid var(--dark-border-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .sort-order-btn:hover {
+  background: var(--dark-bg-input);
+}
+
+.employee-portal .export-button {
+  padding: 0.75rem 1.5rem;
+  background: var(--dark-bg-success);
+  color: var(--dark-text-primary);
+  border: 1px solid #14532d;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .export-button:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+/* Properties Table - Employee Portal Only */
+.employee-portal .properties-table-container {
+  padding: 2rem;
+}
+
+.employee-portal .properties-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0f1720;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .properties-table th {
+  background: #111827;
+  color: var(--dark-text-primary);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .properties-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--dark-border-primary);
+  color: var(--dark-text-secondary);
+  font-size: 0.875rem;
+}
+
+.employee-portal .properties-table tr:hover {
+  background: var(--dark-bg-tertiary);
+}
+
+.employee-portal .properties-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Empty State - Employee Portal Only */
+.employee-portal .no-data td {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.employee-portal .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--dark-text-muted);
+}
+
+.employee-portal .empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.employee-portal .empty-state p {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.employee-portal .empty-subtitle {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* Action Buttons - Employee Portal Only */
+.employee-portal .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.employee-portal .edit-btn,
+.employee-portal .delete-btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.employee-portal .edit-btn {
+  background: var(--dark-bg-button);
+  color: white;
+}
+
+.employee-portal .edit-btn:hover {
+  background: var(--dark-bg-button-hover);
+  transform: translateY(-1px);
+}
+
+.employee-portal .delete-btn {
+  background: var(--dark-bg-button-danger);
+  color: white;
+}
+
+.employee-portal .delete-btn:hover {
+  background: var(--dark-bg-button-danger-hover);
+  transform: translateY(-1px);
+}
+
+/* Modal Styles - Employee Portal Only */
+.employee-portal .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.employee-portal .modal {
+  background: var(--dark-bg-card);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--dark-shadow-xl);
+  border: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.employee-portal .modal-header h3 {
+  margin: 0;
+  color: var(--dark-text-primary);
+}
+
+.employee-portal .close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--dark-text-muted);
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .close-button:hover {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-primary);
+}
+
+.employee-portal .modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.employee-portal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.employee-portal .form-group label {
+  font-weight: 500;
+  color: var(--dark-text-secondary);
+}
+
+.employee-portal .form-group input {
+  padding: 0.75rem;
+  border: 1px solid var(--dark-border-primary);
+  border-radius: 8px;
+  background: var(--dark-bg-input);
+  color: var(--dark-text-primary);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.employee-portal .form-group input:focus {
+  outline: none;
+  border-color: var(--dark-border-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.employee-portal .modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.employee-portal .cancel-button,
+.employee-portal .submit-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.employee-portal .cancel-button {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-secondary);
+}
+
+.employee-portal .cancel-button:hover {
+  background: var(--dark-bg-input);
+}
+
+.employee-portal .submit-button {
+  background: var(--dark-bg-success);
+  color: white;
+}
+
+.employee-portal .submit-button:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.employee-portal .submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Message Styles - Employee Portal Only */
+.employee-portal .message {
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.employee-portal .message.success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.employee-portal .message.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Password Change Component Styles - Employee Portal Only */
+.employee-portal .password-change-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-bg-primary);
+  padding: 20px;
+}
+
+.employee-portal .password-change-card {
+  background: var(--dark-bg-card);
+  border-radius: 20px;
+  box-shadow: var(--dark-shadow-xl);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  border: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .password-change-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.employee-portal .password-change-header h2 {
+  color: var(--dark-text-primary);
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.employee-portal .password-change-header p {
+  color: var(--dark-text-secondary);
+  font-size: 1rem;
+}
+
+.employee-portal .password-change-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.employee-portal .form-text {
+  color: var(--dark-text-muted);
+  font-size: 0.8rem;
+}
+
+.employee-portal .password-change-button {
+  padding: 14px;
+  background: var(--dark-bg-success);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.employee-portal .password-change-button:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: var(--dark-shadow-lg);
+}
+
+.employee-portal .password-change-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Login Component Styles - Employee Portal Only */
+.employee-portal .login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-bg-primary);
+  padding: 20px;
+}
+
+.employee-portal .login-card {
+  background: var(--dark-bg-card);
+  border-radius: 20px;
+  box-shadow: var(--dark-shadow-xl);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  border: 1px solid var(--dark-border-primary);
+}
+
+.employee-portal .login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.employee-portal .login-header h1 {
+  color: var(--dark-text-primary);
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.employee-portal .login-header p {
+  color: var(--dark-text-secondary);
+  font-size: 1rem;
+}
+
+.employee-portal .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.employee-portal .login-button {
+  padding: 14px;
+  background: var(--dark-bg-success);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.employee-portal .login-button:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: var(--dark-shadow-lg);
+}
+
+.employee-portal .login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.employee-portal .login-footer {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--dark-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Responsive Design - Employee Portal Only */
+@media (max-width: 1024px) {
+  .employee-portal .dashboard-main {
+    flex-direction: column;
+  }
+  
+  .employee-portal .filters-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  
+  .employee-portal .properties-main {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .employee-portal .dashboard-nav {
+    padding: 1rem;
+  }
+  
+  .employee-portal .nav-brand h2 {
+    font-size: 1.25rem;
+  }
+  
+  .employee-portal .properties-nav,
+  .employee-portal .results-header {
+    padding: 1rem;
+  }
+  
+  .employee-portal .properties-table-container {
+    padding: 1rem;
+  }
+  
+  .employee-portal .properties-table {
+    font-size: 0.75rem;
+  }
+  
+  .employee-portal .properties-table th,
+  .employee-portal .properties-table td {
+    padding: 0.75rem 0.5rem;
+  }
+}
