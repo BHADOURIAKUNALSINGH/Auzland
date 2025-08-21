@@ -30,12 +30,9 @@ export const useAuth = () => {
 /** Get Cognito groups from the ID token payload */
 const getUserGroups = async (): Promise<string[]> => {
   try {
-    console.log('Fetching user groups...');
     const session = await fetchAuthSession();
-    console.log('Session:', session);
     
     const groups = (session.tokens?.idToken?.payload?.['cognito:groups'] as string[] | undefined) ?? [];
-    console.log('User groups:', groups);
     
     return groups;
   } catch (error) {
@@ -46,8 +43,30 @@ const getUserGroups = async (): Promise<string[]> => {
 
 /** Get the raw ID token string for Authorization header */
 const getIdTokenString = async (): Promise<string | null> => {
-  const session = await fetchAuthSession();
-  return session.tokens?.idToken?.toString() ?? null;
+  try {
+    const session = await fetchAuthSession();
+    
+    // Check if token is expired
+    if (session.tokens?.idToken?.payload?.exp) {
+      const expiryTime = session.tokens.idToken.payload.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+      const timeUntilExpiry = expiryTime - currentTime;
+      
+      if (timeUntilExpiry <= 0) {
+        throw new Error('Authentication token has expired. Please sign in again.');
+      }
+      
+      if (timeUntilExpiry < 5 * 60 * 1000) { // Less than 5 minutes
+        console.warn('Token will expire soon:', Math.round(timeUntilExpiry / 1000 / 60), 'minutes');
+      }
+    }
+    
+    const tokenString = session.tokens?.idToken?.toString() ?? null;
+    
+    return tokenString;
+  } catch (error) {
+    throw error;
+  }
 };
 
 // --- Provider --------------------------------------------------------
@@ -83,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setUser({ username: current.username, email, groups });
       setIsAuthenticated(true);
-    } catch {
+    } catch (error: any) {
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -166,10 +185,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Expose a convenience method for APIs
   const getAuthHeader = async (): Promise<Record<string, string>> => {
     ensureAmplifyConfigured();
-    const idToken = await getIdTokenString();
-    if (!idToken) throw new Error('Not authenticated');
-    return { Authorization: `Bearer ${idToken}` };
+    
+    try {
+      const idToken = await getIdTokenString();
+      
+      if (!idToken) {
+        throw new Error('Not authenticated');
+      }
+      
+      const authHeader = { Authorization: `Bearer ${idToken}` };
+      
+      return authHeader;
+    } catch (error: any) {
+      // If token is expired, suggest re-authentication
+      if (error.message?.includes('expired')) {
+        // You could trigger a re-authentication flow here
+      }
+      
+      throw error;
+    }
   };
+
+
 
   const value: AuthContextType = {
     user,

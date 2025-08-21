@@ -563,98 +563,102 @@
   white-space: nowrap;
 }
 
-/* Dynamic column widths - Updated for new column order with SUBURB */
-.properties-table th:nth-child(1),  /* LOT */
+/* Dynamic column widths - Updated for new column order */
+.properties-table th:nth-child(1),  /* PROPERTY TYPE */
 .properties-table td:nth-child(1) {
-  min-width: 60px;
-  max-width: 80px;
+  min-width: 120px;
+  max-width: 160px;
 }
 
-.properties-table th:nth-child(2),  /* ADDRESS */
+.properties-table th:nth-child(2),  /* LOT */
 .properties-table td:nth-child(2) {
-  min-width: 150px;
+  min-width: 80px;
+  max-width: 100px;
+}
+
+.properties-table th:nth-child(3),  /* ADDRESS */
+.properties-table td:nth-child(3) {
+  min-width: 200px;
   max-width: 300px;
 }
 
-.properties-table th:nth-child(3),  /* SUBURB */
-.properties-table td:nth-child(3) {
-  min-width: 100px;
-  max-width: 150px;
-}
-
-.properties-table th:nth-child(4),  /* PRICE GUIDE */
+.properties-table th:nth-child(4),  /* SUBURB */
 .properties-table td:nth-child(4) {
   min-width: 120px;
-  max-width: 180px;
+  max-width: 160px;
 }
 
-.properties-table th:nth-child(5),  /* LAND */
+.properties-table th:nth-child(5),  /* AVAILABILITY */
 .properties-table td:nth-child(5) {
-  min-width: 60px;
-  max-width: 100px;
+  min-width: 120px;
+  max-width: 150px;
+  font-weight: 600;
+  color: #fbbf24;
 }
 
-.properties-table th:nth-child(6),  /* BUILD */
+.properties-table th:nth-child(6),  /* FRONTAGE */
 .properties-table td:nth-child(6) {
-  min-width: 60px;
+  min-width: 80px;
   max-width: 100px;
 }
 
-.properties-table th:nth-child(7),  /* FRONTAGE */
+.properties-table th:nth-child(7),  /* LAND SIZE */
 .properties-table td:nth-child(7) {
-  min-width: 80px;
+  min-width: 100px;
   max-width: 120px;
 }
 
-.properties-table th:nth-child(8),  /* SIZE */
+.properties-table th:nth-child(8),  /* BUILD SIZE */
 .properties-table td:nth-child(8) {
-  min-width: 60px;
-  max-width: 100px;
+  min-width: 100px;
+  max-width: 120px;
 }
 
 .properties-table th:nth-child(9),  /* BED */
 .properties-table td:nth-child(9) {
-  min-width: 50px;
-  max-width: 70px;
+  min-width: 60px;
+  max-width: 80px;
 }
 
 .properties-table th:nth-child(10), /* BATH */
 .properties-table td:nth-child(10) {
-  min-width: 50px;
-  max-width: 70px;
+  min-width: 60px;
+  max-width: 80px;
 }
 
 .properties-table th:nth-child(11), /* GARAGE */
 .properties-table td:nth-child(11) {
-  min-width: 60px;
+  min-width: 80px;
   max-width: 100px;
 }
 
-.properties-table th:nth-child(12), /* TYPE OF PROPERTY */
+.properties-table th:nth-child(12), /* REGO DUE */
 .properties-table td:nth-child(12) {
+  min-width: 100px;
+  max-width: 130px;
+}
+
+.properties-table th:nth-child(13), /* READY BY */
+.properties-table td:nth-child(13) {
+  min-width: 100px;
+  max-width: 130px;
+  font-weight: 600;
+  color: #34d399;
+}
+
+.properties-table th:nth-child(14), /* PRICE */
+.properties-table td:nth-child(14) {
   min-width: 120px;
+  max-width: 150px;
+}
+
+.properties-table th:nth-child(15), /* MEDIA */
+.properties-table td:nth-child(15) {
+  min-width: 150px;
   max-width: 200px;
 }
 
-.properties-table th:nth-child(13), /* DP */
-.properties-table td:nth-child(13) {
-  min-width: 50px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(14), /* REGO DUE */
-.properties-table td:nth-child(14) {
-  min-width: 100px;
-  max-width: 150px;
-}
-
-.properties-table th:nth-child(15), /* READY BY */
-.properties-table td:nth-child(15) {
-  min-width: 100px;
-  max-width: 150px;
-}
-
-.properties-table th:nth-child(16), /* MEDIA */
+.properties-table th:nth-child(16), /* REMARK */
 .properties-table td:nth-child(16) {
   min-width: 150px;
   max-width: 250px;
@@ -662,15 +666,17 @@
 
 .properties-table th:nth-child(17), /* ACTIONS */
 .properties-table td:nth-child(17) {
-  min-width: 100px;
+  min-width: 120px;
   max-width: 150px;
 }
 
 /* Allow text wrapping for longer content in dynamic columns */
-.properties-table td:nth-child(2),  /* ADDRESS */
-.properties-table td:nth-child(3),  /* SUBURB */
-.properties-table td:nth-child(12), /* TYPE OF PROPERTY */
-.properties-table td:nth-child(16)  /* MEDIA */
+.properties-table td:nth-child(1),  /* PROPERTY TYPE */
+.properties-table td:nth-child(3),  /* ADDRESS */
+.properties-table td:nth-child(4),  /* SUBURB */
+.properties-table td:nth-child(5),  /* AVAILABILITY */
+.properties-table td:nth-child(15), /* MEDIA */
+.properties-table td:nth-child(16)  /* REMARK */
 {
   white-space: normal;
   word-wrap: break-word;
@@ -678,7 +684,7 @@
 }
 
 /* Keep other columns with nowrap for better alignment */
-.properties-table td:not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(12)):not(:nth-child(16)) {
+.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(15)):not(:nth-child(16)) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -695,6 +701,33 @@
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+/* Highlight important columns in headers */
+.properties-table th:nth-child(5) {  /* AVAILABILITY */
+  background: #374151;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.properties-table th:nth-child(13) { /* READY BY */
+  background: #374151;
+  color: #34d399;
+  font-weight: 700;
+}
+
+/* Additional styling for availability column */
+.properties-table td:nth-child(5) {
+  background: rgba(251, 191, 36, 0.1);
+  border-left: 2px solid #fbbf24;
+  padding-left: 0.75rem;
+}
+
+/* Additional styling for ready by column */
+.properties-table td:nth-child(13) {
+  background: rgba(52, 211, 153, 0.1);
+  border-left: 2px solid #34d399;
+  padding-left: 0.75rem;
 }
 
 /* Table row hover effects */
@@ -752,16 +785,22 @@
   }
   
   /* Reduce some column widths on smaller screens */
-  .properties-table th:nth-child(5),  /* ADDRESS */
-  .properties-table td:nth-child(5) {
+  .properties-table th:nth-child(3),  /* ADDRESS */
+  .properties-table td:nth-child(3) {
     width: 150px;
     min-width: 150px;
   }
   
-  .properties-table th:nth-child(14), /* MEDIA */
-  .properties-table td:nth-child(14) {
+  .properties-table th:nth-child(15), /* MEDIA */
+  .properties-table td:nth-child(15) {
     width: 140px;
     min-width: 140px;
+  }
+  
+  .properties-table th:nth-child(16), /* REMARK */
+  .properties-table td:nth-child(16) {
+    width: 120px;
+    min-width: 120px;
   }
 }
 
@@ -911,7 +950,8 @@
   color: #cbd5e1;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 0.75rem;
   border: 1px solid #1f2937;
   border-radius: 8px;
@@ -921,7 +961,61 @@
   color: #e5e7eb;
 }
 
-.form-group input:focus {
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group select option {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 0.5rem;
+}
+
+/* Enhanced select styling for property type */
+.form-group select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Property type dropdown specific styling */
+.form-group select[id="propertyType"] {
+  background: linear-gradient(135deg, #1e293b 0%, #111827 100%);
+  border: 2px solid #475569;
+  font-weight: 500;
+  min-height: 48px;
+}
+
+.form-group select[id="propertyType"]:focus {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+}
+
+.form-group select[id="propertyType"] option {
+  background: #1e293b;
+  color: #e5e7eb;
+  font-weight: 500;
+  padding: 8px 12px;
+}
+
+.form-group select[id="propertyType"] option:disabled {
+  background: #374151;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.form-group select[id="propertyType"] option:hover {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* Better placeholder visibility */
+.form-group select[id="propertyType"]:invalid {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: #334155;
   box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.3);

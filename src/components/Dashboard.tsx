@@ -21,39 +21,64 @@ const Dashboard: React.FC = () => {
     group.toLowerCase() === 'edit-access'
   );
 
-  // Debug: Log user role information
-  console.log('User authentication info:', {
-    user: user,
-    groups: user?.groups,
-    hasEditAccess: hasEditAccess
-  });
+
+
+
+
+
+
+  // Function to verify authentication before user creation
+  const verifyAuthBeforeUserCreation = async (): Promise<boolean> => {
+    try {
+      // Check if user has edit access
+      if (!hasEditAccess) {
+        setMessage({ type: 'error', text: 'You do not have permission to create users. Only administrators can add users.' });
+        return false;
+      }
+
+      // Try to get auth header to verify token is valid
+      try {
+        await getAuthHeader();
+        return true;
+      } catch (error: any) {
+        if (error.message?.includes('expired')) {
+          setMessage({ type: 'error', text: 'Your authentication has expired. Please sign in again.' });
+        } else {
+          setMessage({ type: 'error', text: 'Authentication failed. Please sign in again.' });
+        }
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Auth verification failed:', error);
+      setMessage({ type: 'error', text: `Authentication verification failed: ${error.message}` });
+      return false;
+    }
+  };
 
   // Filter states
   const [filters, setFilters] = useState({
     quickSearch: '',
-    address: '',
-    state: '',
-    region: '',
-    priceMin: '',
-    priceMax: '',
     propertyType: '',
-    marketingCategory: '',
-    contractType: '',
-    bedroomsMin: '',
-    bedroomsMax: '',
-    settings: '',
-    bathroomsMin: '',
-    bathroomsMax: '',
+    lot: '',
+    address: '',
+    suburb: '',
+    availability: '',
+    frontageMin: '',
+    frontageMax: '',
     landSizeMin: '',
     landSizeMax: '',
     buildSizeMin: '',
     buildSizeMax: '',
+    bedMin: '',
+    bedMax: '',
+    bathMin: '',
+    bathMax: '',
     garageMin: '',
     garageMax: '',
-    frontageMin: '',
-    frontageMax: '',
-    sizeMin: '',
-    sizeMax: '',
+    priceMin: '',
+    priceMax: '',
+    regoDue: '',
+    readyBy: ''
   });
 
   // Property data and editing states
@@ -67,22 +92,22 @@ const Dashboard: React.FC = () => {
   const [showPropertyForm, setShowPropertyForm] = useState(false);
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [propertyForm, setPropertyForm] = useState<any>({
+    propertyType: '',
     lot: '',
-    frontage: '',
-    bath: '',
-    size: '',
     address: '',
     suburb: '',
-    priceGuide: '',
-    regoDue: '',
-    dp: '',
-    typeOfProperty: '',
-    land: '',
-    build: '',
+    availability: '',
+    frontage: '',
+    landSize: '',
+    buildSize: '',
     bed: '',
+    bath: '',
     garage: '',
-    media: '',
+    regoDue: '',
     readyBy: '',
+    price: '',
+    media: '',
+    remark: ''
   });
 
   // Tab state
@@ -103,6 +128,7 @@ const Dashboard: React.FC = () => {
   const [excelSheets, setExcelSheets] = useState<string[]>([]);
   const [selectedSheet, setSelectedSheet] = useState<string>('');
   const [showSheetSelector, setShowSheetSelector] = useState(false);
+
 
   // Media viewer states
   const [showMediaViewer, setShowMediaViewer] = useState(false);
@@ -174,56 +200,35 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    // State filter
-    if (filters.state) {
-      filtered = filtered.filter(property => {
-        const address = property.address?.toLowerCase() || '';
-        return address.includes(filters.state.toLowerCase());
-      });
+
+
+    // Lot filter
+    if (filters.lot.trim()) {
+      const lotTerm = filters.lot.toLowerCase().trim();
+      filtered = filtered.filter(property => 
+        property.lot?.toLowerCase().includes(lotTerm)
+      );
     }
 
-    // Region filter (based on address patterns)
-    if (filters.region) {
-      filtered = filtered.filter(property => {
-        const address = property.address?.toLowerCase() || '';
-        if (filters.region === 'metro') {
-          return address.includes('sydney') || address.includes('melbourne') || 
-                 address.includes('brisbane') || address.includes('perth') ||
-                 address.includes('adelaide') || address.includes('canberra');
-        } else if (filters.region === 'regional') {
-          return !address.includes('sydney') && !address.includes('melbourne') &&
-                 !address.includes('brisbane') && !address.includes('perth') &&
-                 !address.includes('adelaide') && !address.includes('canberra');
-        }
-        return true;
-      });
+    // Suburb filter
+    if (filters.suburb.trim()) {
+      const suburbTerm = filters.suburb.toLowerCase().trim();
+      filtered = filtered.filter(property => 
+        property.suburb?.toLowerCase().includes(suburbTerm)
+      );
     }
 
-    // Settings filter (based on address patterns)
-    if (filters.settings) {
-      filtered = filtered.filter(property => {
-        const address = property.address?.toLowerCase() || '';
-        if (filters.settings === 'urban') {
-          return address.includes('cbd') || address.includes('city') || 
-                 address.includes('downtown') || address.includes('central');
-        } else if (filters.settings === 'suburban') {
-          return address.includes('street') || address.includes('road') || 
-                 address.includes('avenue') || address.includes('drive');
-        } else if (filters.settings === 'coastal') {
-          return address.includes('beach') || address.includes('coast') || 
-                 address.includes('bay') || address.includes('harbour');
-        } else if (filters.settings === 'rural') {
-          return address.includes('lane') || address.includes('way') || 
-                 address.includes('close') || address.includes('court');
-        }
-        return true;
-      });
+    // Availability filter
+    if (filters.availability) {
+      filtered = filtered.filter(property => 
+        property.availability?.toLowerCase() === filters.availability.toLowerCase()
+      );
     }
 
     // Property type filter
     if (filters.propertyType) {
       filtered = filtered.filter(property => 
-        property.typeOfProperty?.toLowerCase() === filters.propertyType.toLowerCase()
+        property.propertyType?.toLowerCase() === filters.propertyType.toLowerCase()
       );
     }
 
@@ -235,96 +240,53 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    // Bedrooms filter (min/max)
-    if (filters.bedroomsMin || filters.bedroomsMax) {
+    // Frontage filter (min/max)
+    if (filters.frontageMin || filters.frontageMax) {
       filtered = filtered.filter(property => {
-        const beds = property.bed || 0;
-        const min = filters.bedroomsMin ? parseInt(filters.bedroomsMin) : 0;
-        const max = filters.bedroomsMax ? parseInt(filters.bedroomsMax) : Infinity;
-        return beds >= min && beds <= max;
-      });
-    }
-
-    // Bathrooms filter (min/max)
-    if (filters.bathroomsMin || filters.bathroomsMax) {
-      filtered = filtered.filter(property => {
-        const baths = property.bath || 0;
-        const min = filters.bathroomsMin ? parseInt(filters.bathroomsMin) : 0;
-        const max = filters.bathroomsMax ? parseInt(filters.bathroomsMax) : Infinity;
-        return baths >= min && baths <= max;
-      });
-    }
-
-    // Price filter (min/max)
-    if (filters.priceMin || filters.priceMax) {
-      filtered = filtered.filter(property => {
-        const price = property.priceGuide || 0;
-        const min = filters.priceMin ? parseInt(filters.priceMin) : 0;
-        const max = filters.priceMax ? parseInt(filters.priceMax) : Infinity;
-        return price >= min && price <= max;
-      });
-    }
-
-    // Marketing category filter (based on property characteristics)
-    if (filters.marketingCategory) {
-      filtered = filtered.filter(property => {
-        const land = property.land || 0;
-        const build = property.build || 0;
-        const price = property.priceGuide || 0;
-        
-        if (filters.marketingCategory === 'investment') {
-          return land > 500 || price > 800000; // Large land or high value
-        } else if (filters.marketingCategory === 'owner-occupied') {
-          return build > 150 && land < 800; // Good build size, moderate land
-        } else if (filters.marketingCategory === 'development') {
-          return land > 600 && build < 100; // Large land, small build
-        } else if (filters.marketingCategory === 'first-home') {
-          return price <= 600000 && build <= 150; // Affordable, smaller
-        } else if (filters.marketingCategory === 'downsizer') {
-          return build > 200 && land < 500; // Large build, smaller land
-        }
-        return true;
-      });
-    }
-
-    // Contract type filter (based on property status)
-    if (filters.contractType) {
-      filtered = filtered.filter(property => {
-        const readyBy = property.readyBy;
-        const regoDue = property.regoDue;
-        
-        if (filters.contractType === '2-part') {
-          return readyBy && regoDue; // Has both dates
-        } else if (filters.contractType === 'standard') {
-          return !readyBy && !regoDue; // No special dates
-        } else if (filters.contractType === 'off-plan') {
-          return readyBy && !regoDue; // Has ready by but no rego
-        } else if (filters.contractType === 'auction') {
-          return !readyBy && !regoDue; // No special dates, likely auction
-        } else if (filters.contractType === 'tender') {
-          return !readyBy && !regoDue; // No special dates, likely tender
-        }
-        return true;
+        const frontage = property.frontage || 0;
+        const min = filters.frontageMin ? parseFloat(filters.frontageMin) : 0;
+        const max = filters.frontageMax ? parseFloat(filters.frontageMax) : Infinity;
+        return frontage >= min && frontage <= max;
       });
     }
 
     // Land size filter (min/max)
     if (filters.landSizeMin || filters.landSizeMax) {
       filtered = filtered.filter(property => {
-        const land = property.land || 0;
-        const min = filters.landSizeMin ? parseInt(filters.landSizeMin) : 0;
-        const max = filters.landSizeMax ? parseInt(filters.landSizeMax) : Infinity;
-        return land >= min && land <= max;
+        const landSize = property.landSize || 0;
+        const min = filters.landSizeMin ? parseFloat(filters.landSizeMin) : 0;
+        const max = filters.landSizeMax ? parseFloat(filters.landSizeMax) : Infinity;
+        return landSize >= min && landSize <= max;
       });
     }
 
     // Build size filter (min/max)
     if (filters.buildSizeMin || filters.buildSizeMax) {
       filtered = filtered.filter(property => {
-        const build = property.build || 0;
-        const min = filters.buildSizeMin ? parseInt(filters.buildSizeMin) : 0;
-        const max = filters.buildSizeMax ? parseInt(filters.buildSizeMax) : Infinity;
-        return build >= min && build <= max;
+        const buildSize = property.buildSize || 0;
+        const min = filters.buildSizeMin ? parseFloat(filters.buildSizeMin) : 0;
+        const max = filters.buildSizeMax ? parseFloat(filters.buildSizeMax) : Infinity;
+        return buildSize >= min && buildSize <= max;
+      });
+    }
+
+    // Bedrooms filter (min/max)
+    if (filters.bedMin || filters.bedMax) {
+      filtered = filtered.filter(property => {
+        const beds = property.bed || 0;
+        const min = filters.bedMin ? parseInt(filters.bedMin) : 0;
+        const max = filters.bedMax ? parseInt(filters.bedMax) : Infinity;
+        return beds >= min && beds <= max;
+      });
+    }
+
+    // Bathrooms filter (min/max)
+    if (filters.bathMin || filters.bathMax) {
+      filtered = filtered.filter(property => {
+        const baths = property.bath || 0;
+        const min = filters.bathMin ? parseInt(filters.bathMin) : 0;
+        const max = filters.bathMax ? parseInt(filters.bathMax) : Infinity;
+        return baths >= min && baths <= max;
       });
     }
 
@@ -338,24 +300,28 @@ const Dashboard: React.FC = () => {
       });
     }
 
-    // Frontage filter (min/max)
-    if (filters.frontageMin || filters.frontageMax) {
+    // Price filter (min/max)
+    if (filters.priceMin || filters.priceMax) {
       filtered = filtered.filter(property => {
-        const frontage = property.frontage || 0;
-        const min = filters.frontageMin ? parseInt(filters.frontageMin) : 0;
-        const max = filters.frontageMax ? parseInt(filters.frontageMax) : Infinity;
-        return frontage >= min && frontage <= max;
+        const price = property.price || 0;
+        const min = filters.priceMin ? parseFloat(filters.priceMin) : 0;
+        const max = filters.priceMax ? parseFloat(filters.priceMax) : Infinity;
+        return price >= min && price <= max;
       });
     }
 
-    // Size filter (min/max)
-    if (filters.sizeMin || filters.sizeMax) {
-      filtered = filtered.filter(property => {
-        const size = property.size || 0;
-        const min = filters.sizeMin ? parseInt(filters.sizeMin) : 0;
-        const max = filters.sizeMax ? parseInt(filters.sizeMax) : Infinity;
-        return size >= min && size <= max;
-      });
+    // Rego due filter
+    if (filters.regoDue) {
+      filtered = filtered.filter(property => 
+        property.regoDue === filters.regoDue
+      );
+    }
+
+    // Ready by filter
+    if (filters.readyBy) {
+      filtered = filtered.filter(property => 
+        property.readyBy === filters.readyBy
+      );
     }
 
     // Apply sorting
@@ -486,22 +452,23 @@ const Dashboard: React.FC = () => {
       const rows = parseCsv(csv);
       const mapped = rows.map((r) => ({
         id: r.id,
+        propertyType: r.propertyType || r.property_type || '',
         lot: r.lot,
-        frontage: toNumber(r.frontage_m),
-        bath: toNumber(r.bath),
-        size: toNumber(r.size_sqm),
         address: r.address,
-        priceGuide: toNumber(r.price_guide),
-        regoDue: r.rego_due,
-        dp: r.dp,
-        typeOfProperty: r.property_type,
-        land: toNumber(r.land_area_sqm),
-        build: toNumber(r.build_area_sqm),
+        suburb: r.suburb || '',
+        availability: r.availability || '',
+        frontage: toNumber(r.frontage) || toNumber(r.frontage_m),
+        landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
+        buildSize: toNumber(r.buildSize) || toNumber(r.build_area_sqm),
         bed: toNumber(r.bed),
+        bath: toNumber(r.bath),
         garage: toNumber(r.garage),
-        media: r.media_url,
-        readyBy: r.ready_by,
-        updatedAt: r.updated_at,
+        regoDue: r.regoDue || r.rego_due || '',
+        readyBy: r.readyBy || r.ready_by || '',
+        price: toNumber(r.price) || toNumber(r.price_guide),
+        media: r.media || r.media_url || '',
+        remark: r.remark || '',
+        updatedAt: r.updatedAt || r.updated_at || '',
       })).filter((p) => p.lot || p.address);
       setProperties(mapped);
       setMessage(null);
@@ -515,22 +482,22 @@ const Dashboard: React.FC = () => {
 
   const CSV_HEADERS = [
     'id',
+    'propertyType',
     'lot',
-    'frontage_m',
-    'bath',
-    'size_sqm',
     'address',
     'suburb',
-    'price_guide',
-    'rego_due',
-    'dp',
-    'property_type',
-    'land_area_sqm',
-    'build_area_sqm',
+    'availability',
+    'frontage',
+    'landSize',
+    'buildSize',
     'bed',
+    'bath',
     'garage',
-    'media_url',
-    'ready_by',
+    'regoDue',
+    'readyBy',
+    'price',
+    'media',
+    'remark',
     'updated_at',
   ];
 
@@ -547,22 +514,22 @@ const Dashboard: React.FC = () => {
     for (const p of items) {
       const row = [
         p.id ?? '',
+        p.propertyType ?? '',
         p.lot ?? '',
-        p.frontage ?? '',
-        p.bath ?? '',
-        p.size ?? '',
         p.address ?? '',
         p.suburb ?? '',
-        p.priceGuide ?? '',
-        p.regoDue ?? '',
-        p.dp ?? '',
-        p.typeOfProperty ?? '',
-        p.land ?? '',
-        p.build ?? '',
+        p.availability ?? '',
+        p.frontage ?? '',
+        p.landSize ?? '',
+        p.buildSize ?? '',
         p.bed ?? '',
+        p.bath ?? '',
         p.garage ?? '',
-        p.media ?? '',
+        p.regoDue ?? '',
         p.readyBy ?? '',
+        p.price ?? '',
+        p.media ?? '',
+        p.remark ?? '',
         p.updatedAt ?? '',
       ].map(csvEscape);
       lines.push(row.join(','));
@@ -571,104 +538,31 @@ const Dashboard: React.FC = () => {
   };
 
   // CSV upload handling functions
-  const handleCsvFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.name.toLowerCase().endsWith('.csv') && !file.name.toLowerCase().endsWith('.xlsx')) {
-        setCsvUploadError('Please select a valid CSV or Excel (.xlsx) file');
-        return;
-      }
-      
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setCsvUploadError('File size must be less than 10MB');
-        return;
-      }
-      
-      setCsvFile(file);
-      setCsvUploadError(null);
-      
-      // If it's an Excel file, read the sheets
-      if (file.name.toLowerCase().endsWith('.xlsx')) {
-        readExcelSheets(file);
-      } else {
-        setExcelSheets([]);
-        setSelectedSheet('');
-        setShowSheetSelector(false);
-      }
-    }
-  };
-
-  const readExcelSheets = async (file: File) => {
-    try {
-      // We'll need to use a library like SheetJS to read Excel files
-      // For now, we'll show a message that Excel support is being implemented
-      setExcelSheets(['Sheet1']); // Placeholder
-      setSelectedSheet('Sheet1');
-      setShowSheetSelector(true);
-    } catch (error: any) {
-      setCsvUploadError(`Error reading Excel file: ${error.message}`);
-    }
-  };
-
-  const processExcelUpload = async () => {
-    if (!csvFile || !selectedSheet) return;
-    
-    setCsvUploadProgress(0);
-    setCsvUploadError(null);
-    
-    try {
-      // This would use SheetJS to read the specific sheet
-      // For now, we'll show a placeholder implementation
-      setCsvUploadProgress(100);
-      setCsvUploadError('Excel file processing is being implemented. Please use CSV files for now.');
-    } catch (error: any) {
-      console.error('Error processing Excel file:', error);
-      setCsvUploadError(error.message || 'Failed to process Excel file');
-      setCsvUploadProgress(0);
-    }
-  };
-
-  const clearCsvUpload = () => {
-    setCsvFile(null);
-    setCsvUploadProgress(0);
-    setCsvUploadError(null);
-    setShowCsvUploadModal(false);
-  };
 
 
-  const handleExport = () => {
-    const csvText = generateCsvFromProperties(filteredProperties);
-    const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'listings.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+
+
 
   // Property editing handlers
   const handleEditProperty = (property: any) => {
     setEditingProperty(property);
     setPropertyForm({
+      propertyType: property.typeOfProperty || '',
       lot: property.lot || '',
-      frontage: property.frontage || '',
-      bath: property.bath || '',
-      size: property.size || '',
       address: property.address || '',
       suburb: property.suburb || '',
-      priceGuide: property.priceGuide || '',
-      regoDue: property.regoDue || '',
-      dp: property.dp || '',
-      typeOfProperty: property.typeOfProperty || '',
-      land: property.land || '',
-      build: property.build || '',
+      availability: '',
+      frontage: property.frontage || '',
+      landSize: property.land || '',
+      buildSize: property.build || '',
       bed: property.bed || '',
+      bath: property.bath || '',
       garage: property.garage || '',
-      media: property.media || '',
+      regoDue: property.regoDue || '',
       readyBy: property.readyBy || '',
+      price: property.priceGuide || '',
+      media: property.media || '',
+      remark: ''
     });
     setShowPropertyForm(true);
   };
@@ -676,21 +570,22 @@ const Dashboard: React.FC = () => {
   const handleNewProperty = () => {
     setEditingProperty(null);
     setPropertyForm({
+      propertyType: '',
       lot: '',
-      frontage: '',
-      bath: '',
-      size: '',
       address: '',
-      priceGuide: '',
-      regoDue: '',
-      dp: '',
-      typeOfProperty: '',
-      land: '',
-      build: '',
+      suburb: '',
+      availability: '',
+      frontage: '',
+      landSize: '',
+      buildSize: '',
       bed: '',
+      bath: '',
       garage: '',
-      media: '',
+      regoDue: '',
       readyBy: '',
+      price: '',
+      media: '',
+      remark: ''
     });
     setShowPropertyForm(true);
   };
@@ -742,21 +637,22 @@ const Dashboard: React.FC = () => {
 
       // Clear form and media files
       setPropertyForm({
+        propertyType: '',
         lot: '',
-        frontage: '',
-        bath: '',
-        size: '',
         address: '',
-        priceGuide: '',
-        regoDue: '',
-        dp: '',
-        typeOfProperty: '',
-        land: '',
-        build: '',
+        suburb: '',
+        availability: '',
+        frontage: '',
+        landSize: '',
+        buildSize: '',
         bed: '',
+        bath: '',
         garage: '',
+        regoDue: '',
+        readyBy: '',
+        price: '',
         media: '',
-        readyBy: ''
+        remark: ''
       });
       setMediaFiles([]);
       setMediaUploadProgress({});
@@ -1138,29 +1034,27 @@ const Dashboard: React.FC = () => {
   const clearAllFilters = () => {
     setFilters({
       quickSearch: '',
-      address: '',
-      state: '',
-      region: '',
-      priceMin: '',
-      priceMax: '',
       propertyType: '',
-      marketingCategory: '',
-      contractType: '',
-      bedroomsMin: '',
-      bedroomsMax: '',
-      settings: '',
-      bathroomsMin: '',
-      bathroomsMax: '',
+      lot: '',
+      address: '',
+      suburb: '',
+      availability: '',
+      frontageMin: '',
+      frontageMax: '',
       landSizeMin: '',
       landSizeMax: '',
       buildSizeMin: '',
       buildSizeMax: '',
+      bedMin: '',
+      bedMax: '',
+      bathMin: '',
+      bathMax: '',
       garageMin: '',
       garageMax: '',
-      frontageMin: '',
-      frontageMax: '',
-      sizeMin: '',
-      sizeMax: '',
+      priceMin: '',
+      priceMax: '',
+      regoDue: '',
+      readyBy: ''
     });
   };
 
@@ -1185,6 +1079,13 @@ const Dashboard: React.FC = () => {
     setMessage(null);
 
     try {
+      // Verify authentication before proceeding
+      const isAuthValid = await verifyAuthBeforeUserCreation();
+      if (!isAuthValid) {
+        setIsLoading(false);
+        return;
+      }
+      
       // Call protected backend endpoint to create user in Cognito
       const authHeaders = await getAuthHeader();
       
@@ -1194,17 +1095,6 @@ const Dashboard: React.FC = () => {
         password: newUser.password
         // Group is automatically assigned by Lambda to "View-access"
       };
-      
-      // Log the request being sent
-      console.log('Sending request to Lambda:', {
-        url: 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/create_view_user',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders
-        },
-        body: requestBody
-      });
       
       const response = await fetch('https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/create_view_user', {
         method: 'POST',
@@ -1217,22 +1107,10 @@ const Dashboard: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Lambda Error Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorData: errorData
-        });
         throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
-      
-      // Log the successful response to console
-      console.log('Lambda success response:', {
-        status: response.status,
-        result: result,
-        fullResponse: response
-      });
       
       setMessage({ 
         type: 'success', 
@@ -1312,45 +1190,34 @@ const Dashboard: React.FC = () => {
         <div className="filter-category">
           <h4>Location & Area</h4>
           <div className="filter-group">
-            <label>State</label>
-            <select 
-              value={filters.state} 
-              onChange={(e) => handleFilterChange('state', e.target.value)}
-            >
-              <option value="">All States</option>
-              <option value="NSW">NSW</option>
-              <option value="VIC">VIC</option>
-              <option value="QLD">QLD</option>
-              <option value="WA">WA</option>
-              <option value="SA">SA</option>
-              <option value="TAS">TAS</option>
-              <option value="NT">NT</option>
-              <option value="ACT">ACT</option>
-            </select>
+            <label>Lot</label>
+            <input
+              type="text"
+              placeholder="Search by lot number..."
+              value={filters.lot}
+              onChange={(e) => handleFilterChange('lot', e.target.value)}
+            />
           </div>
           <div className="filter-group">
-            <label>Region</label>
-            <select 
-              value={filters.region} 
-              onChange={(e) => handleFilterChange('region', e.target.value)}
-            >
-              <option value="">All Regions</option>
-              <option value="metro">Metropolitan</option>
-              <option value="regional">Regional</option>
-              <option value="rural">Rural</option>
-            </select>
+            <label>Suburb</label>
+            <input
+              type="text"
+              placeholder="Search by suburb..."
+              value={filters.suburb}
+              onChange={(e) => handleFilterChange('suburb', e.target.value)}
+            />
           </div>
           <div className="filter-group">
-            <label>Area Setting</label>
+            <label>Availability</label>
             <select 
-              value={filters.settings} 
-              onChange={(e) => handleFilterChange('settings', e.target.value)}
+              value={filters.availability} 
+              onChange={(e) => handleFilterChange('availability', e.target.value)}
             >
-              <option value="">All Settings</option>
-              <option value="urban">Urban</option>
-              <option value="suburban">Suburban</option>
-              <option value="coastal">Coastal</option>
-              <option value="rural">Rural</option>
+              <option value="">All Availability</option>
+              <option value="For Sale">For Sale</option>
+              <option value="Under Contract">Under Contract</option>
+              <option value="Sold">Sold</option>
+              <option value="Rent">Rent</option>
             </select>
           </div>
         </div>
@@ -1365,13 +1232,85 @@ const Dashboard: React.FC = () => {
               onChange={(e) => handleFilterChange('propertyType', e.target.value)}
             >
               <option value="">All Types</option>
-              <option value="house">House</option>
-              <option value="apartment">Apartment</option>
-              <option value="townhouse">Townhouse</option>
-              <option value="land">Land</option>
-              <option value="duplex">Duplex</option>
-              <option value="villa">Villa</option>
+              <option value="Land only">Land only</option>
+              <option value="Single story">Single story</option>
+              <option value="Double story">Double story</option>
+              <option value="Dual occupancy">Dual occupancy</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Townhouse">Townhouse</option>
             </select>
+          </div>
+          <div className="filter-group">
+            <label>Frontage (m)</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.frontageMin}
+                onChange={(e) => handleFilterChange('frontageMin', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+              <span className="range-separator">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.frontageMax}
+                onChange={(e) => handleFilterChange('frontageMax', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Land Size (sqm)</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.landSizeMin}
+                onChange={(e) => handleFilterChange('landSizeMin', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+              <span className="range-separator">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.landSizeMax}
+                onChange={(e) => handleFilterChange('landSizeMax', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Build Size (sqm)</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.buildSizeMin}
+                onChange={(e) => handleFilterChange('buildSizeMin', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+              <span className="range-separator">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.buildSizeMax}
+                onChange={(e) => handleFilterChange('buildSizeMax', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
           </div>
           <div className="filter-group">
             <label>Bedrooms</label>
@@ -1379,8 +1318,8 @@ const Dashboard: React.FC = () => {
               <input
                 type="number"
                 placeholder="Min"
-                value={filters.bedroomsMin}
-                onChange={(e) => handleFilterChange('bedroomsMin', e.target.value)}
+                value={filters.bedMin}
+                onChange={(e) => handleFilterChange('bedMin', e.target.value)}
                 className="range-input"
                 min="0"
               />
@@ -1388,8 +1327,8 @@ const Dashboard: React.FC = () => {
               <input
                 type="number"
                 placeholder="Max"
-                value={filters.bedroomsMax}
-                onChange={(e) => handleFilterChange('bedroomsMax', e.target.value)}
+                value={filters.bedMax}
+                onChange={(e) => handleFilterChange('bedMax', e.target.value)}
                 className="range-input"
                 min="0"
               />
@@ -1401,8 +1340,8 @@ const Dashboard: React.FC = () => {
               <input
                 type="number"
                 placeholder="Min"
-                value={filters.bathroomsMin}
-                onChange={(e) => handleFilterChange('bathroomsMin', e.target.value)}
+                value={filters.bathMin}
+                onChange={(e) => handleFilterChange('bathMin', e.target.value)}
                 className="range-input"
                 min="0"
               />
@@ -1410,103 +1349,15 @@ const Dashboard: React.FC = () => {
               <input
                 type="number"
                 placeholder="Max"
-                value={filters.bathroomsMax}
-                onChange={(e) => handleFilterChange('bathroomsMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Financial Details */}
-        <div className="filter-category">
-          <h4>Price & Market</h4>
-          <div className="filter-group">
-            <label>Price Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min $"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                className="range-input"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max $"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                className="range-input"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Investment Category</label>
-            <select 
-              value={filters.marketingCategory} 
-              onChange={(e) => handleFilterChange('marketingCategory', e.target.value)}
-            >
-              <option value="">All Categories</option>
-              <option value="investment">Investment</option>
-              <option value="owner-occupied">Owner Occupied</option>
-              <option value="development">Development</option>
-              <option value="first-home">First Home Buyer</option>
-              <option value="downsizer">Downsizer</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Property Size */}
-        <div className="filter-category">
-          <h4>Dimensions & Space</h4>
-          <div className="filter-group">
-            <label>Land Area (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min sqm"
-                value={filters.landSizeMin}
-                onChange={(e) => handleFilterChange('landSizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max sqm"
-                value={filters.landSizeMax}
-                onChange={(e) => handleFilterChange('landSizeMax', e.target.value)}
+                value={filters.bathMax}
+                onChange={(e) => handleFilterChange('bathMax', e.target.value)}
                 className="range-input"
                 min="0"
               />
             </div>
           </div>
           <div className="filter-group">
-            <label>Build Area (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min sqm"
-                value={filters.buildSizeMin}
-                onChange={(e) => handleFilterChange('buildSizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max sqm"
-                value={filters.buildSizeMax}
-                onChange={(e) => handleFilterChange('buildSizeMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Garage Spaces</label>
+            <label>Garage</label>
             <div className="range-inputs">
               <input
                 type="number"
@@ -1528,13 +1379,13 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="filter-group">
-            <label>Frontage (m)</label>
+            <label>Price Range</label>
             <div className="range-inputs">
               <input
                 type="number"
-                placeholder="Min m"
-                value={filters.frontageMin}
-                onChange={(e) => handleFilterChange('frontageMin', e.target.value)}
+                placeholder="Min"
+                value={filters.priceMin}
+                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
                 className="range-input"
                 min="0"
                 step="0.01"
@@ -1542,9 +1393,9 @@ const Dashboard: React.FC = () => {
               <span className="range-separator">to</span>
               <input
                 type="number"
-                placeholder="Max m"
-                value={filters.frontageMax}
-                onChange={(e) => handleFilterChange('frontageMax', e.target.value)}
+                placeholder="Max"
+                value={filters.priceMax}
+                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
                 className="range-input"
                 min="0"
                 step="0.01"
@@ -1552,49 +1403,24 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="filter-group">
-            <label>Size (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min sqm"
-                value={filters.sizeMin}
-                onChange={(e) => handleFilterChange('sizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max sqm"
-                value={filters.sizeMax}
-                onChange={(e) => handleFilterChange('sizeMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
+            <label>Rego Due</label>
+            <input
+              type="date"
+              value={filters.regoDue}
+              onChange={(e) => handleFilterChange('regoDue', e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
+            <label>Ready By</label>
+            <input
+              type="date"
+              value={filters.readyBy}
+              onChange={(e) => handleFilterChange('readyBy', e.target.value)}
+            />
           </div>
         </div>
 
-        {/* Additional Options */}
-        <div className="filter-category">
-          <h4>Contract & Sale</h4>
-          <div className="filter-group">
-            <label>Contract Type</label>
-            <select 
-              value={filters.contractType} 
-              onChange={(e) => handleFilterChange('contractType', e.target.value)}
-            >
-              <option value="">All Contracts</option>
-              <option value="2-part">2-part Contract</option>
-              <option value="standard">Standard</option>
-              <option value="off-plan">Off Plan</option>
-              <option value="auction">Auction</option>
-              <option value="tender">Tender</option>
-            </select>
-          </div>
-        </div>
+
       </div>
     </aside>
   );
@@ -1612,16 +1438,18 @@ const Dashboard: React.FC = () => {
               onChange={(e) => setSortBy(e.target.value)}
               className="sort-select"
             >
+              <option value="propertyType">Property Type</option>
               <option value="lot">Lot</option>
               <option value="address">Address</option>
-              <option value="priceGuide">Price Guide</option>
-              <option value="land">Land Area</option>
-              <option value="build">Build Area</option>
+              <option value="suburb">Suburb</option>
+              <option value="availability">Availability</option>
               <option value="frontage">Frontage</option>
-              <option value="size">Size</option>
+              <option value="landSize">Land Size</option>
+              <option value="buildSize">Build Size</option>
               <option value="bed">Bedrooms</option>
               <option value="bath">Bathrooms</option>
               <option value="garage">Garage</option>
+              <option value="price">Price</option>
               <option value="regoDue">Rego Due</option>
               <option value="readyBy">Ready By</option>
             </select>
@@ -1656,29 +1484,29 @@ const Dashboard: React.FC = () => {
         <table className="properties-table">
           <thead>
             <tr>
+              <th>PROPERTY TYPE</th>
               <th>LOT</th>
               <th>ADDRESS</th>
               <th>SUBURB</th>
-              <th>PRICE GUIDE</th>
-              <th>LAND</th>
-              <th>BUILD</th>
+              <th>AVAILABILITY</th>
               <th>FRONTAGE</th>
-              <th>SIZE</th>
+              <th>LAND SIZE</th>
+              <th>BUILD SIZE</th>
               <th>BED</th>
               <th>BATH</th>
               <th>GARAGE</th>
-              <th>TYPE OF PROPERTY</th>
-              <th>DP</th>
               <th>REGO DUE</th>
               <th>READY BY</th>
+              <th>PRICE</th>
               <th>MEDIA</th>
+              <th>REMARK</th>
               {hasEditAccess && <th>ACTIONS</th>}
             </tr>
           </thead>
           <tbody>
             {filteredProperties.length === 0 ? (
               <tr className="no-data">
-                <td colSpan={hasEditAccess ? 16 : 15}>
+                <td colSpan={hasEditAccess ? 17 : 16}>
                   <div className="empty-state">
                     <p>No properties found</p>
                     <p className="empty-subtitle">Properties will appear here once data is loaded from the API</p>
@@ -1688,22 +1516,22 @@ const Dashboard: React.FC = () => {
             ) : (
               filteredProperties.map((property, index) => (
                 <tr key={index}>
+                  <td>{property.propertyType || '-'}</td>
                   <td>{property.lot}</td>
                   <td>{property.address}</td>
                   <td>{property.suburb || '-'}</td>
-                  <td>${property.priceGuide?.toLocaleString()}</td>
-                  <td>{property.land}</td>
-                  <td>{property.build}</td>
-                  <td>{property.frontage}</td>
-                  <td>{property.size}</td>
-                  <td>{property.bed}</td>
-                  <td>{property.bath}</td>
-                  <td>{property.garage}</td>
-                  <td>{property.typeOfProperty}</td>
-                  <td>{property.dp}</td>
-                  <td>{property.regoDue}</td>
-                  <td>{property.readyBy}</td>
+                  <td>{property.availability || '-'}</td>
+                  <td>{property.frontage || '-'}</td>
+                  <td>{property.landSize || '-'}</td>
+                  <td>{property.buildSize || '-'}</td>
+                  <td>{property.bed || '-'}</td>
+                  <td>{property.bath || '-'}</td>
+                  <td>{property.garage || '-'}</td>
+                  <td>{property.regoDue || '-'}</td>
+                  <td>{property.readyBy || '-'}</td>
+                  <td>${property.price?.toLocaleString() || '-'}</td>
                   {renderMediaColumn(property)}
+                  <td>{property.remark || '-'}</td>
                   {hasEditAccess && (
                     <td>
                       <div className="action-buttons">
@@ -1737,24 +1565,174 @@ const Dashboard: React.FC = () => {
         >
           Add New User
         </button>
-
-        <h3>System Settings</h3>
-        <p>Configure application settings and data import/export.</p>
-        <button 
-          className="export-button"
-          onClick={handleExport}
-        >
-          Export All Properties
-        </button>
-        <button 
-          className="import-button"
-          onClick={() => setShowCsvUploadModal(true)}
-        >
-          Import Properties (CSV)
-        </button>
       </div>
     </main>
   );
+
+  const handleCsvFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.name.toLowerCase().endsWith('.csv') && !file.name.toLowerCase().endsWith('.xlsx')) {
+        setCsvUploadError('Please select a valid CSV or Excel (.xlsx) file');
+        return;
+      }
+      
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setCsvUploadError('File size must be less than 10MB');
+        return;
+      }
+      
+      setCsvFile(file);
+      setCsvUploadError(null);
+      
+      // If it's an Excel file, read the sheets
+      if (file.name.toLowerCase().endsWith('.xlsx')) {
+        readExcelSheets(file);
+      } else {
+        setExcelSheets([]);
+        setSelectedSheet('');
+        setShowSheetSelector(false);
+      }
+    }
+  };
+
+  const readExcelSheets = async (file: File) => {
+    try {
+      // We'll need to use a library like SheetJS to read Excel files
+      // For now, we'll show a message that Excel support is being implemented
+      setExcelSheets(['Sheet1']); // Placeholder
+      setSelectedSheet('Sheet1');
+      setShowSheetSelector(true);
+    } catch (error: any) {
+      setCsvUploadError(`Error reading Excel file: ${error.message}`);
+    }
+  };
+
+  // Process CSV data with fuzzy matching for property types
+  const processCsvData = (csvText: string) => {
+    const lines = csvText.split('\n');
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    
+    const processedData = lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+      const row: any = {};
+      
+      headers.forEach((header, index) => {
+        let value = values[index] || '';
+        
+        // Apply fuzzy matching for property type column
+        if (header.toLowerCase().includes('property') && header.toLowerCase().includes('type')) {
+          value = fuzzyMatchPropertyType(value);
+        }
+        
+        row[header] = value;
+      });
+      
+      return row;
+    });
+    
+    return processedData;
+  };
+
+  // Fuzzy matching function for property types
+  const fuzzyMatchPropertyType = (input: string): string => {
+    if (!input) return '';
+    
+    const normalizedInput = input.toLowerCase().trim().replace(/\s+/g, ' ');
+    const propertyTypes = [
+      'Land only',
+      'Single story', 
+      'Double story',
+      'Dual occupancy',
+      'Apartment',
+      'Townhouse'
+    ];
+    
+    // Exact match first
+    for (const type of propertyTypes) {
+      if (type.toLowerCase() === normalizedInput) {
+        return type;
+      }
+    }
+    
+    // Partial match
+    for (const type of propertyTypes) {
+      const normalizedType = type.toLowerCase();
+      if (normalizedType.includes(normalizedInput) || normalizedInput.includes(normalizedType)) {
+        return type;
+      }
+    }
+    
+    // Fuzzy match using similarity
+    let bestMatch = '';
+    let bestScore = 0;
+    
+    for (const type of propertyTypes) {
+      const normalizedType = type.toLowerCase();
+      let score = 0;
+      
+      // Check for common variations
+      if (normalizedInput.includes('land') || normalizedType.includes('land')) score += 3;
+      if (normalizedInput.includes('single') || normalizedType.includes('single')) score += 3;
+      if (normalizedInput.includes('double') || normalizedType.includes('double')) score += 3;
+      if (normalizedInput.includes('dual') || normalizedType.includes('dual')) score += 3;
+      if (normalizedInput.includes('apartment') || normalizedType.includes('apartment')) score += 3;
+      if (normalizedInput.includes('townhouse') || normalizedType.includes('townhouse')) score += 3;
+      if (normalizedInput.includes('story') || normalizedType.includes('story')) score += 2;
+      if (normalizedInput.includes('occupancy') || normalizedType.includes('occupancy')) score += 2;
+      
+      // Check for common abbreviations
+      if (normalizedInput.includes('apt') && normalizedType.includes('apartment')) score += 2;
+      if (normalizedInput.includes('town') && normalizedType.includes('townhouse')) score += 2;
+      if (normalizedInput.includes('1') && normalizedType.includes('single')) score += 1;
+      if (normalizedInput.includes('2') && normalizedType.includes('double')) score += 1;
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = type;
+      }
+    }
+    
+    return bestScore >= 2 ? bestMatch : input; // Return original if no good match
+  };
+
+  const processExcelUpload = async () => {
+    if (!csvFile || !selectedSheet) return;
+    
+    setCsvUploadProgress(0);
+    setCsvUploadError(null);
+    
+    try {
+      // This would use SheetJS to read the specific sheet
+      // For now, we'll show a placeholder implementation
+      setCsvUploadProgress(100);
+      setCsvUploadError('Excel file processing is being implemented. Please use CSV files for now.');
+    } catch (error: any) {
+      console.error('Error processing Excel file:', error);
+      setCsvUploadError(error.message || 'Failed to process Excel file');
+      setCsvUploadProgress(0);
+    }
+  };
+
+  const clearCsvUpload = () => {
+    setCsvFile(null);
+    setCsvUploadProgress(0);
+    setCsvUploadError(null);
+    setShowCsvUploadModal(false);
+  };
+
+  const handleExport = () => {
+    const csvText = generateCsvFromProperties(filteredProperties);
+    const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'listings.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="dashboard-container">
@@ -1934,6 +1912,28 @@ const Dashboard: React.FC = () => {
             <form onSubmit={handlePropertyFormSubmit} className="modal-form">
               <div className="form-row">
                 <div className="form-group">
+                  <label htmlFor="propertyType">Property Type *</label>
+                  <select
+                    id="propertyType"
+                    value={propertyForm.propertyType}
+                    onChange={(e) => handlePropertyFormChange('propertyType', e.target.value)}
+                    required
+                    style={{
+                      color: propertyForm.propertyType ? '#e5e7eb' : '#94a3b8'
+                    }}
+                  >
+                    <option value="" disabled style={{ color: '#94a3b8' }}>
+                      -- Select Property Type --
+                    </option>
+                    <option value="Land only">Land only</option>
+                    <option value="Single story">Single story</option>
+                    <option value="Double story">Double story</option>
+                    <option value="Dual occupancy">Dual occupancy</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Townhouse">Townhouse</option>
+                  </select>
+                </div>
+                <div className="form-group">
                   <label htmlFor="lot">Lot *</label>
                   <input
                     type="text"
@@ -1942,6 +1942,43 @@ const Dashboard: React.FC = () => {
                     onChange={(e) => handlePropertyFormChange('lot', e.target.value)}
                     placeholder="Lot number"
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="address">Address *</label>
+                  <input
+                    type="text"
+                    id="address"
+                    value={propertyForm.address}
+                    onChange={(e) => handlePropertyFormChange('address', e.target.value)}
+                    placeholder="Property address"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="suburb">Suburb</label>
+                  <input
+                    type="text"
+                    id="suburb"
+                    value={propertyForm.suburb}
+                    onChange={(e) => handlePropertyFormChange('suburb', e.target.value)}
+                    placeholder="Suburb name"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="availability">Availability</label>
+                  <input
+                    type="text"
+                    id="availability"
+                    value={propertyForm.availability}
+                    onChange={(e) => handlePropertyFormChange('availability', e.target.value)}
+                    placeholder="e.g., For Sale, Under Contract"
                   />
                 </div>
                 <div className="form-group">
@@ -1959,122 +1996,24 @@ const Dashboard: React.FC = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="bath">Bathrooms</label>
+                  <label htmlFor="landSize">Land Area (sqm)</label>
                   <input
                     type="number"
-                    id="bath"
-                    value={propertyForm.bath}
-                    onChange={(e) => handlePropertyFormChange('bath', e.target.value)}
-                    placeholder="Number of bathrooms"
-                    min="0"
-                    step="1"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="size">Size (sqm)</label>
-                  <input
-                    type="number"
-                    id="size"
-                    value={propertyForm.size}
-                    onChange={(e) => handlePropertyFormChange('size', e.target.value)}
-                    placeholder="Size in square meters"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="address">Address *</label>
-                <input
-                  type="text"
-                  id="address"
-                  value={propertyForm.address}
-                  onChange={(e) => handlePropertyFormChange('address', e.target.value)}
-                  placeholder="Property address"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="suburb">Suburb</label>
-                <input
-                  type="text"
-                  id="suburb"
-                  value={propertyForm.suburb}
-                  onChange={(e) => handlePropertyFormChange('suburb', e.target.value)}
-                  placeholder="Suburb name"
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="priceGuide">Price Guide</label>
-                  <input
-                    type="number"
-                    id="priceGuide"
-                    value={propertyForm.priceGuide}
-                    onChange={(e) => handlePropertyFormChange('priceGuide', e.target.value)}
-                    placeholder="Price in dollars"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="regoDue">Rego Due</label>
-                  <input
-                    type="date"
-                    id="regoDue"
-                    value={propertyForm.regoDue}
-                    onChange={(e) => handlePropertyFormChange('regoDue', e.target.value)}
-                    placeholder="Registration due date"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="dp">DP</label>
-                  <input
-                    type="text"
-                    id="dp"
-                    value={propertyForm.dp}
-                    onChange={(e) => handlePropertyFormChange('dp', e.target.value)}
-                    placeholder="DP number"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="typeOfProperty">Property Type</label>
-                  <input
-                    type="text"
-                    id="typeOfProperty"
-                    value={propertyForm.typeOfProperty}
-                    onChange={(e) => handlePropertyFormChange('typeOfProperty', e.target.value)}
-                    placeholder="e.g., House, Apartment"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="land">Land Area (sqm)</label>
-                  <input
-                    type="number"
-                    id="land"
-                    value={propertyForm.land}
-                    onChange={(e) => handlePropertyFormChange('land', e.target.value)}
+                    id="landSize"
+                    value={propertyForm.landSize}
+                    onChange={(e) => handlePropertyFormChange('landSize', e.target.value)}
                     placeholder="Land area in square meters"
                     min="0"
                     step="0.01"
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="build">Build Area (sqm)</label>
+                  <label htmlFor="buildSize">Build Area (sqm)</label>
                   <input
                     type="number"
-                    id="build"
-                    value={propertyForm.build}
-                    onChange={(e) => handlePropertyFormChange('build', e.target.value)}
+                    id="buildSize"
+                    value={propertyForm.buildSize}
+                    onChange={(e) => handlePropertyFormChange('buildSize', e.target.value)}
                     placeholder="Build area in square meters"
                     min="0"
                     step="0.01"
@@ -2096,6 +2035,21 @@ const Dashboard: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
+                  <label htmlFor="bath">Bathrooms</label>
+                  <input
+                    type="number"
+                    id="bath"
+                    value={propertyForm.bath}
+                    onChange={(e) => handlePropertyFormChange('bath', e.target.value)}
+                    placeholder="Number of bathrooms"
+                    min="0"
+                    step="1"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
                   <label htmlFor="garage">Garage</label>
                   <input
                     type="number"
@@ -2105,6 +2059,41 @@ const Dashboard: React.FC = () => {
                     placeholder="Number of garage spaces"
                     min="0"
                     step="1"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="regoDue">Rego Due</label>
+                  <input
+                    type="date"
+                    id="regoDue"
+                    value={propertyForm.regoDue}
+                    onChange={(e) => handlePropertyFormChange('regoDue', e.target.value)}
+                    placeholder="Registration due date"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="readyBy">Ready By</label>
+                  <input
+                    type="date"
+                    id="readyBy"
+                    value={propertyForm.readyBy}
+                    onChange={(e) => handlePropertyFormChange('readyBy', e.target.value)}
+                    placeholder="Ready by date"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="price">Price</label>
+                  <input
+                    type="number"
+                    id="price"
+                    value={propertyForm.price}
+                    onChange={(e) => handlePropertyFormChange('price', e.target.value)}
+                    placeholder="Price in dollars"
+                    min="0"
+                    step="0.01"
                   />
                 </div>
               </div>
@@ -2162,14 +2151,13 @@ const Dashboard: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="readyBy">Ready By</label>
-                <input
-                  type="date"
-                  id="readyBy"
-                  value={propertyForm.readyBy}
-                  onChange={(e) => handlePropertyFormChange('readyBy', e.target.value)}
-                  placeholder="Ready by date"
-                />
+                <label htmlFor="remark">Remark</label>
+                <textarea
+                  id="remark"
+                  value={propertyForm.remark}
+                  onChange={(e) => handlePropertyFormChange('remark', e.target.value)}
+                  placeholder="Additional remarks"
+                ></textarea>
               </div>
 
               <div className="modal-footer">
@@ -2309,6 +2297,9 @@ const Dashboard: React.FC = () => {
                     <li>CSV should have headers matching the expected format</li>
                     <li>Required columns: lot, address</li>
                     <li>This will replace all existing properties</li>
+                    <li><strong>Smart Property Type Matching:</strong> Property types are automatically matched using fuzzy logic</li>
+                    <li>Examples: "land", "single story", "double story", "dual occupancy", "apartment", "townhouse"</li>
+                    <li>Variations like "apt", "town", "1 story", "2 story" are automatically detected</li>
                   </ul>
                 </div>
 
@@ -2316,12 +2307,12 @@ const Dashboard: React.FC = () => {
                   <input
                     type="file"
                     id="csv-upload"
-                    accept=".csv"
+                    accept=".csv,.xlsx"
                     onChange={handleCsvFileSelect}
                     style={{ display: 'none' }}
                   />
                   <label htmlFor="csv-upload" className="file-upload-button">
-                    📁 Select CSV File
+                    📁 Select CSV/Excel File
                   </label>
                   
                   {csvFile && (
