@@ -22,8 +22,7 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # TEMP: ignore CRA warnings in CI so build doesn't fail
-      # Remove CI=false after you clean up ESLint warnings.
+      # TEMP: ignore CRA warnings; remove CI=false after fixing ESLint warnings
       - name: Build
         env:
           CI: false
@@ -36,7 +35,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Upload all assets with long cache lifetime
       - name: Sync static assets (immutable cache)
         run: |
           OUT_DIR="build"
@@ -45,16 +43,14 @@ jobs:
             --exclude index.html \
             --cache-control "public, max-age=31536000, immutable"
 
-      # Upload index.html with no-cache so updates show immediately
       - name: Upload index.html (no-cache)
         run: |
           OUT_DIR="build"
           aws s3 cp "$OUT_DIR/index.html" "s3://${{ secrets.S3_BUCKET }}/index.html" \
             --cache-control "no-store"
 
-      # Optional: invalidate CloudFront (set CF_DISTRIBUTION_ID secret to enable)
       - name: Invalidate CloudFront
-        if: secrets.CF_DISTRIBUTION_ID != ''
+        if: ${{ secrets.CF_DISTRIBUTION_ID != '' }}
         run: |
           aws cloudfront create-invalidation \
             --distribution-id "${{ secrets.CF_DISTRIBUTION_ID }}" \
