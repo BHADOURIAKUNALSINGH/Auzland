@@ -65,14 +65,5 @@ jobs:
           aws s3 cp "$OUT_DIR/index.html" "s3://${{ secrets.S3_BUCKET }}/index.html" \
             --cache-control "no-cache, no-store, must-revalidate"
 
-      # Export CloudFront distribution id into env (optional)
-      - name: Export CF_DISTRIBUTION_ID to env
-        run: echo "CF_DISTRIBUTION_ID=${{ secrets.CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
-
-      # Invalidate CloudFront if CF_DISTRIBUTION_ID is set (optional)
-      - name: Invalidate CloudFront
-        if: ${{ env.CF_DISTRIBUTION_ID != '' }}
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id "$CF_DISTRIBUTION_ID" \
-            --paths "/*"
+      
+     
