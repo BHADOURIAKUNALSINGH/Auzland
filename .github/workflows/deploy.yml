@@ -10,24 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Build exactly the commit that triggered the run
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
-      - name: Use Node.js 18
+      # Use Node 20 (your deps warn that >=20 is preferred)
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install deps
         run: npm ci
 
-      # TEMP: ignore CRA warnings; remove CI=false after fixing ESLint warnings
+      # TEMP: ignore CRA ESLint warnings; remove CI=false once fixed
       - name: Build
         env:
-          CI: false
+            CI: false
         run: npm run build
 
+      # Optional sanity check: make sure the built bundle contains your headline
+      - name: Sanity check built files contain headline
+        run: |
+          grep -R "Selling cars" -n build || (echo "Text not found in build output" && exit 1)
+
+      # AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -35,6 +45,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # Optional: clear bucket first so nothing stale lingers
+      - name: Clear S3 bucket (fresh deploy)
+        run: aws s3 rm s3://${{ secrets.S3_BUCKET }} --recursive
+
+      # Upload versioned assets with long cache
       - name: Sync static assets (immutable cache)
         run: |
           OUT_DIR="build"
@@ -43,16 +58,18 @@ jobs:
             --exclude index.html \
             --cache-control "public, max-age=31536000, immutable"
 
+      # Upload index.html with no-cache so browsers re-fetch it
       - name: Upload index.html (no-cache)
         run: |
           OUT_DIR="build"
           aws s3 cp "$OUT_DIR/index.html" "s3://${{ secrets.S3_BUCKET }}/index.html" \
-            --cache-control "no-store"
+            --cache-control "no-cache, no-store, must-revalidate"
 
-      # Make the CF ID available via env so we can test it in 'if:'
+      # Export CloudFront distribution id into env (optional)
       - name: Export CF_DISTRIBUTION_ID to env
         run: echo "CF_DISTRIBUTION_ID=${{ secrets.CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
 
+      # Invalidate CloudFront if CF_DISTRIBUTION_ID is set (optional)
       - name: Invalidate CloudFront
         if: ${{ env.CF_DISTRIBUTION_ID != '' }}
         run: |
