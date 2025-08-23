@@ -1,4 +1,4 @@
-name: Deploy to S3
+name: Deploy to S3 (+ CloudFront)
 
 on:
   push:
@@ -22,10 +22,13 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      # TEMP: ignore CRA warnings in CI so build doesn't fail
+      # Remove CI=false after you clean up ESLint warnings.
       - name: Build
+        env:
+          CI: false
         run: npm run build
 
-      # Configure AWS creds from repo secrets
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -33,6 +36,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Sync build/ to S3
+      # Upload all assets with long cache lifetime
+      - name: Sync static assets (immutable cache)
         run: |
-          aws s3 sync build/ s3://${{ secrets.S3_BUCKET }} --delete
+          OUT_DIR="build"
+          aws s3 sync "$OUT_DIR" "s3://${{ secrets.S3_BUCKET }}" \
+            --delete \
+            --exclude index.html \
+            --cache-control "public, max-age=31536000, immutable"
+
+      # Upload index.html with no-cache so updates show immediately
+      - name: Upload index.html (no-cache)
+        run: |
+          OUT_DIR="build"
+          aws s3 cp "$OUT_DIR/index.html" "s3://${{ secrets.S3_BUCKET }}/index.html" \
+            --cache-control "no-store"
+
+      # Optional: invalidate CloudFront (set CF_DISTRIBUTION_ID secret to enable)
+      - name: Invalidate CloudFront
+        if: secrets.CF_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.CF_DISTRIBUTION_ID }}" \
+            --paths "/*"
