@@ -20,7 +20,7 @@ const Hero = () => {
       <div className="container">
         <div className="hero-content">
           <h1 className="hero-title">
-            Selling raand like no other
+            Selling properties like no other
           </h1>
           
           <form className="hero-search" onSubmit={handleSearch}>
