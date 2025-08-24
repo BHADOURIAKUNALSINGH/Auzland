@@ -1407,15 +1407,13 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="export-button" onClick={handleExport}>Export</button>
-          {hasEditAccess && (
-            <>
-              <button className="export-button" onClick={handleNewProperty}>Add New Entry</button>
-              <button className="import-button" onClick={() => setShowCsvUploadModal(true)}>Import CSV</button>
-            </>
-          )}
-        </div>
+        {hasEditAccess && (
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="export-button" onClick={handleExport}>Export</button>
+            <button className="export-button" onClick={handleNewProperty}>Add New Entry</button>
+            <button className="import-button" onClick={() => setShowCsvUploadModal(true)}>Import CSV</button>
+          </div>
+        )}
       </div>
 
       {/* Properties Table */}
@@ -1951,11 +1949,6 @@ const Dashboard: React.FC = () => {
             <span className="user-role">
               {hasEditAccess ? 'Administrator' : 'View Access'}
             </span>
-            {!hasEditAccess && (
-              <span className="role-warning">
-                ⚠️ You only have view access. Delete/Edit functions are disabled.
-              </span>
-            )}
           </div>
         </div>
       </nav>
