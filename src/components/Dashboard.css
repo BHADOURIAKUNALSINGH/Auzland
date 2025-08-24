@@ -621,8 +621,10 @@
   overflow: auto;
   background: #0f1720;
   border-radius: 8px;
-  margin: 1rem;
+  margin: 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  min-width: 0;
 }
 
 /* Text selection prevention for view-only users */
@@ -637,7 +639,8 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
-  table-layout: auto;
+  table-layout: fixed;
+  min-width: 1200px;
 }
 
 /* Text selection prevention for view-only users */
@@ -671,76 +674,64 @@
 /* Dynamic column widths - Updated for new column order */
 .properties-table th:nth-child(1),  /* PROPERTY TYPE */
 .properties-table td:nth-child(1) {
-  min-width: 120px;
-  max-width: 160px;
+  width: 10%;
 }
 
 .properties-table th:nth-child(2),  /* LOT */
 .properties-table td:nth-child(2) {
-  min-width: 80px;
-  max-width: 100px;
+  width: 6%;
 }
 
 .properties-table th:nth-child(3),  /* ADDRESS */
 .properties-table td:nth-child(3) {
-  min-width: 200px;
-  max-width: 300px;
+  width: 20%;
 }
 
 .properties-table th:nth-child(4),  /* SUBURB */
 .properties-table td:nth-child(4) {
-  min-width: 120px;
-  max-width: 160px;
+  width: 10%;
 }
 
 .properties-table th:nth-child(5),  /* AVAILABILITY */
 .properties-table td:nth-child(5) {
-  min-width: 120px;
-  max-width: 150px;
+  width: 10%;
   font-weight: 600;
   color: #fbbf24;
 }
 
 .properties-table th:nth-child(6),  /* FRONTAGE */
 .properties-table td:nth-child(6) {
-  min-width: 80px;
-  max-width: 100px;
+  width: 7%;
 }
 
 .properties-table th:nth-child(7),  /* LAND SIZE */
 .properties-table td:nth-child(7) {
-  min-width: 100px;
-  max-width: 120px;
+  width: 8%;
 }
 
 .properties-table th:nth-child(8),  /* BUILD SIZE */
 .properties-table td:nth-child(8) {
-  min-width: 100px;
-  max-width: 120px;
+  width: 8%;
 }
 
 .properties-table th:nth-child(9),  /* BED */
 .properties-table td:nth-child(9) {
-  min-width: 60px;
-  max-width: 80px;
+  width: 5%;
 }
 
 .properties-table th:nth-child(10), /* BATH */
 .properties-table td:nth-child(10) {
-  min-width: 60px;
-  max-width: 80px;
+  width: 5%;
 }
 
 .properties-table th:nth-child(11), /* GARAGE */
 .properties-table td:nth-child(11) {
-  min-width: 80px;
-  max-width: 100px;
+  width: 6%;
 }
 
 .properties-table th:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
 .properties-table td:nth-child(12) {
-  min-width: 180px;
-  max-width: 220px;
+  width: 12%;
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -748,26 +739,22 @@
 
 .properties-table th:nth-child(13), /* PRICE */
 .properties-table td:nth-child(13) {
-  min-width: 120px;
-  max-width: 150px;
+  width: 8%;
 }
 
 .properties-table th:nth-child(14), /* MEDIA */
 .properties-table td:nth-child(14) {
-  min-width: 150px;
-  max-width: 200px;
+  width: 10%;
 }
 
 .properties-table th:nth-child(15), /* REMARK */
 .properties-table td:nth-child(15) {
-  min-width: 150px;
-  max-width: 250px;
+  width: 12%;
 }
 
 .properties-table th:nth-child(16), /* ACTIONS */
 .properties-table td:nth-child(16) {
-  min-width: 120px;
-  max-width: 150px;
+  width: 8%;
 }
 
 /* Allow text wrapping for longer content in dynamic columns */
