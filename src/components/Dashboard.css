@@ -220,6 +220,59 @@
   font-weight: 400;
 }
 
+/* Universal Search Input Styles */
+.search-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.universal-search-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #475569;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: #0f1720;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.universal-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  background: #1e293b;
+}
+
+.universal-search-input:hover {
+  border-color: #64748b;
+  background: #1e293b;
+}
+
+.search-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  color: #94a3b8;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  border: 1px solid #475569;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.search-input-container:hover .search-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* Range input row for min/max fields */
 .range-inputs {
   display: grid;

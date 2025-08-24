@@ -59,9 +59,6 @@ const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState({
     quickSearch: '',
     propertyType: '',
-    lot: '',
-    address: '',
-    suburb: '',
     availability: '',
     frontageMin: '',
     frontageMax: '',
@@ -187,34 +184,27 @@ const Dashboard: React.FC = () => {
   const applyFilters = () => {
     let filtered = [...properties];
 
-    // Quick search filter (address, lot, or any text field)
+    // Universal quick search filter (searches across multiple fields)
     if (filters.quickSearch.trim()) {
       const searchTerm = filters.quickSearch.toLowerCase().trim();
       filtered = filtered.filter(property => 
+        // Property type search
+        property.propertyType?.toLowerCase().includes(searchTerm) ||
+        // Address and location search
         property.address?.toLowerCase().includes(searchTerm) ||
+        property.suburb?.toLowerCase().includes(searchTerm) ||
+        // Lot and property identification
         property.lot?.toLowerCase().includes(searchTerm) ||
-        property.dp?.toLowerCase().includes(searchTerm) ||
-        property.typeOfProperty?.toLowerCase().includes(searchTerm)
+        // Additional property details
+        property.availability?.toLowerCase().includes(searchTerm) ||
+        property.registrationConstructionStatus?.toLowerCase().includes(searchTerm) ||
+        property.remark?.toLowerCase().includes(searchTerm)
       );
     }
 
 
 
-    // Lot filter
-    if (filters.lot.trim()) {
-      const lotTerm = filters.lot.toLowerCase().trim();
-      filtered = filtered.filter(property => 
-        property.lot?.toLowerCase().includes(lotTerm)
-      );
-    }
 
-    // Suburb filter
-    if (filters.suburb.trim()) {
-      const suburbTerm = filters.suburb.toLowerCase().trim();
-      filtered = filtered.filter(property => 
-        property.suburb?.toLowerCase().includes(suburbTerm)
-      );
-    }
 
     // Availability filter
     if (filters.availability) {
@@ -230,13 +220,7 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    // Address filter
-    if (filters.address.trim()) {
-      const addressTerm = filters.address.toLowerCase().trim();
-      filtered = filtered.filter(property => 
-        property.address?.toLowerCase().includes(addressTerm)
-      );
-    }
+
 
     // Frontage filter (min/max)
     if (filters.frontageMin || filters.frontageMax) {
@@ -1020,9 +1004,6 @@ const Dashboard: React.FC = () => {
     setFilters({
       quickSearch: '',
       propertyType: '',
-      lot: '',
-      address: '',
-      suburb: '',
       availability: '',
       frontageMin: '',
       frontageMax: '',
@@ -1143,44 +1124,23 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Search & Location */}
+        {/* Universal Search */}
         <div className="filter-category">
-          <h4>Search & Location</h4>
+          <h4>Search Properties</h4>
           <div className="filter-group">
             <label>Quick Search</label>
-            <input
-              type="text"
-              placeholder="Address, lot, DP, or property type..."
-              value={filters.quickSearch}
-              onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
-            />
-          </div>
-          <div className="filter-group">
-            <label>Address</label>
-            <input
-              type="text"
-              placeholder="Search by address..."
-              value={filters.address}
-              onChange={(e) => handleFilterChange('address', e.target.value)}
-            />
-          </div>
-          <div className="filter-group">
-            <label>Lot</label>
-            <input
-              type="text"
-              placeholder="Search by lot number..."
-              value={filters.lot}
-              onChange={(e) => handleFilterChange('lot', e.target.value)}
-            />
-          </div>
-          <div className="filter-group">
-            <label>Suburb</label>
-            <input
-              type="text"
-              placeholder="Search by suburb..."
-              value={filters.suburb}
-              onChange={(e) => handleFilterChange('suburb', e.target.value)}
-            />
+            <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
+              <input
+                type="text"
+                placeholder="Search by property type, address, suburb, lot, or any property details..."
+                value={filters.quickSearch}
+                onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
+                className="universal-search-input"
+              />
+              <div className="search-tooltip">
+                💡 Search across property type, address, suburb, lot number, and more
+              </div>
+            </div>
           </div>
         </div>
 
