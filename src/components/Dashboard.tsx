@@ -77,8 +77,7 @@ const Dashboard: React.FC = () => {
     garageMax: '',
     priceMin: '',
     priceMax: '',
-    regoDue: '',
-    readyBy: ''
+    registrationConstructionStatus: ''
   });
 
   // Property data and editing states
@@ -103,8 +102,7 @@ const Dashboard: React.FC = () => {
     bed: '',
     bath: '',
     garage: '',
-    regoDue: '',
-    readyBy: '',
+    registrationConstructionStatus: '',
     price: '',
     media: '',
     remark: ''
@@ -310,17 +308,10 @@ const Dashboard: React.FC = () => {
       });
     }
 
-    // Rego due filter
-    if (filters.regoDue) {
+    // Registration & Construction Status filter
+    if (filters.registrationConstructionStatus) {
       filtered = filtered.filter(property => 
-        property.regoDue === filters.regoDue
-      );
-    }
-
-    // Ready by filter
-    if (filters.readyBy) {
-      filtered = filtered.filter(property => 
-        property.readyBy === filters.readyBy
+        property.registrationConstructionStatus === filters.registrationConstructionStatus
       );
     }
 
@@ -493,8 +484,7 @@ const Dashboard: React.FC = () => {
     'bed',
     'bath',
     'garage',
-    'regoDue',
-    'readyBy',
+    'registrationConstructionStatus',
     'price',
     'media',
     'remark',
@@ -525,8 +515,7 @@ const Dashboard: React.FC = () => {
         p.bed ?? '',
         p.bath ?? '',
         p.garage ?? '',
-        p.regoDue ?? '',
-        p.readyBy ?? '',
+        p.registrationConstructionStatus ?? '',
         p.price ?? '',
         p.media ?? '',
         p.remark ?? '',
@@ -558,8 +547,7 @@ const Dashboard: React.FC = () => {
       bed: property.bed || '',
       bath: property.bath || '',
       garage: property.garage || '',
-      regoDue: property.regoDue || '',
-      readyBy: property.readyBy || '',
+      registrationConstructionStatus: property.registrationConstructionStatus || '',
       price: property.priceGuide || '',
       media: property.media || '',
       remark: ''
@@ -581,8 +569,7 @@ const Dashboard: React.FC = () => {
       bed: '',
       bath: '',
       garage: '',
-      regoDue: '',
-      readyBy: '',
+      registrationConstructionStatus: '',
       price: '',
       media: '',
       remark: ''
@@ -648,8 +635,7 @@ const Dashboard: React.FC = () => {
         bed: '',
         bath: '',
         garage: '',
-        regoDue: '',
-        readyBy: '',
+        registrationConstructionStatus: '',
         price: '',
         media: '',
         remark: ''
@@ -1053,8 +1039,7 @@ const Dashboard: React.FC = () => {
       garageMax: '',
       priceMin: '',
       priceMax: '',
-      regoDue: '',
-      readyBy: ''
+      registrationConstructionStatus: ''
     });
   };
 
@@ -1403,20 +1388,17 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="filter-group">
-            <label>Rego Due</label>
-            <input
-              type="date"
-              value={filters.regoDue}
-              onChange={(e) => handleFilterChange('regoDue', e.target.value)}
-            />
-          </div>
-          <div className="filter-group">
-            <label>Ready By</label>
-            <input
-              type="date"
-              value={filters.readyBy}
-              onChange={(e) => handleFilterChange('readyBy', e.target.value)}
-            />
+            <label>Registration & Construction Status</label>
+            <select
+              value={filters.registrationConstructionStatus}
+              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="Registered">Registered</option>
+              <option value="Un-Registered">Un-Registered</option>
+              <option value="Under Construction">Under Construction</option>
+              <option value="Constructed">Constructed</option>
+            </select>
           </div>
         </div>
 
@@ -1450,8 +1432,7 @@ const Dashboard: React.FC = () => {
               <option value="bath">Bathrooms</option>
               <option value="garage">Garage</option>
               <option value="price">Price</option>
-              <option value="regoDue">Rego Due</option>
-              <option value="readyBy">Ready By</option>
+              <option value="registrationConstructionStatus">Registration & Construction Status</option>
             </select>
             <button 
               className={`sort-order-btn ${sortOrder === 'asc' ? 'active-asc' : 'active-desc'}`}
@@ -1495,8 +1476,7 @@ const Dashboard: React.FC = () => {
               <th>BED</th>
               <th>BATH</th>
               <th>GARAGE</th>
-              <th>REGO DUE</th>
-              <th>READY BY</th>
+              <th>REGISTRATION & CONSTRUCTION STATUS</th>
               <th>PRICE</th>
               <th>MEDIA</th>
               <th>REMARK</th>
@@ -1506,7 +1486,7 @@ const Dashboard: React.FC = () => {
           <tbody>
             {filteredProperties.length === 0 ? (
               <tr className="no-data">
-                <td colSpan={hasEditAccess ? 17 : 16}>
+                <td colSpan={hasEditAccess ? 16 : 15}>
                   <div className="empty-state">
                     <p>No properties found</p>
                     <p className="empty-subtitle">Properties will appear here once data is loaded from the API</p>
@@ -1527,8 +1507,7 @@ const Dashboard: React.FC = () => {
                   <td>{property.bed || '-'}</td>
                   <td>{property.bath || '-'}</td>
                   <td>{property.garage || '-'}</td>
-                  <td>{property.regoDue || '-'}</td>
-                  <td>{property.readyBy || '-'}</td>
+                  <td>{property.registrationConstructionStatus || '-'}</td>
                   <td>${property.price?.toLocaleString() || '-'}</td>
                   {renderMediaColumn(property)}
                   <td>{property.remark || '-'}</td>
@@ -2076,28 +2055,27 @@ const Dashboard: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="regoDue">Rego Due</label>
-                  <input
-                    type="date"
-                    id="regoDue"
-                    value={propertyForm.regoDue}
-                    onChange={(e) => handlePropertyFormChange('regoDue', e.target.value)}
-                    placeholder="Registration due date"
-                  />
+                  <label htmlFor="registrationConstructionStatus">Registration & Construction Status</label>
+                  <select
+                    id="registrationConstructionStatus"
+                    value={propertyForm.registrationConstructionStatus}
+                    onChange={(e) => handlePropertyFormChange('registrationConstructionStatus', e.target.value)}
+                    style={{
+                      color: propertyForm.registrationConstructionStatus ? '#e5e7eb' : '#94a3b8'
+                    }}
+                  >
+                    <option value="" disabled style={{ color: '#94a3b8' }}>
+                      -- Select Status --
+                    </option>
+                    <option value="Registered">Registered</option>
+                    <option value="Un-Registered">Un-Registered</option>
+                    <option value="Under Construction">Under Construction</option>
+                    <option value="Constructed">Constructed</option>
+                  </select>
                 </div>
               </div>
 
               <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="readyBy">Ready By</label>
-                  <input
-                    type="date"
-                    id="readyBy"
-                    value={propertyForm.readyBy}
-                    onChange={(e) => handlePropertyFormChange('readyBy', e.target.value)}
-                    placeholder="Ready by date"
-                  />
-                </div>
                 <div className="form-group">
                   <label htmlFor="price">Price</label>
                   <input
