@@ -909,11 +909,13 @@
   background: #0f1720;
   border-radius: 12px;
   padding: 2rem;
-  width: 90%;
-  max-width: 800px;
+  width: 95%;
+  max-width: 1000px;
+  min-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   border: 1px solid #1f2937;
+  box-sizing: border-box;
 }
 
 .modal-header {
@@ -2158,8 +2160,9 @@
 
 .field-mapping-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
 .field-column {
@@ -2188,6 +2191,44 @@
   font-size: 0.75rem;
   margin-bottom: 0.25rem;
   font-family: 'Courier New', monospace;
+}
+
+/* Responsive modal adjustments */
+@media (max-width: 1200px) {
+  .modal {
+    width: 95%;
+    max-width: 900px;
+    min-width: 700px;
+  }
+  
+  .field-mapping-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .modal {
+    width: 95%;
+    max-width: 800px;
+    min-width: 600px;
+  }
+  
+  .field-mapping-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .modal {
+    width: 95%;
+    max-width: none;
+    min-width: auto;
+    padding: 1rem;
+  }
+  
+  .field-mapping-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .csv-upload-section {
   padding: 1rem;
