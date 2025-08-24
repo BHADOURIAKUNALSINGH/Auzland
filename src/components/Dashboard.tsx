@@ -454,8 +454,7 @@ const Dashboard: React.FC = () => {
         bed: toNumber(r.bed),
         bath: toNumber(r.bath),
         garage: toNumber(r.garage),
-        regoDue: r.regoDue || r.rego_due || '',
-        readyBy: r.readyBy || r.ready_by || '',
+        registrationConstructionStatus: r.registrationConstructionStatus || r.regoDue || r.rego_due || r.readyBy || r.ready_by || '',
         price: toNumber(r.price) || toNumber(r.price_guide),
         media: r.media || r.media_url || '',
         remark: r.remark || '',
@@ -536,21 +535,21 @@ const Dashboard: React.FC = () => {
   const handleEditProperty = (property: any) => {
     setEditingProperty(property);
     setPropertyForm({
-      propertyType: property.typeOfProperty || '',
+      propertyType: property.propertyType || property.typeOfProperty || '',
       lot: property.lot || '',
       address: property.address || '',
       suburb: property.suburb || '',
-      availability: '',
+      availability: property.availability || '',
       frontage: property.frontage || '',
-      landSize: property.land || '',
-      buildSize: property.build || '',
+      landSize: property.landSize || property.land || '',
+      buildSize: property.buildSize || property.build || '',
       bed: property.bed || '',
       bath: property.bath || '',
       garage: property.garage || '',
-      registrationConstructionStatus: property.registrationConstructionStatus || '',
-      price: property.priceGuide || '',
+      registrationConstructionStatus: property.registrationConstructionStatus || property.regoDue || property.readyBy || '',
+      price: property.price || property.priceGuide || '',
       media: property.media || '',
-      remark: ''
+      remark: property.remark || ''
     });
     setShowPropertyForm(true);
   };

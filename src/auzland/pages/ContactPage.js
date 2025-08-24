@@ -89,8 +89,9 @@ const ContactPage = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3>Address</h3>
-                    <p>108 Ingleburn Rd, Leppington NSW 2179, Australia</p>
+                    <h3>Addresses</h3>
+                    <p><strong>Office 1:</strong> Unit 107, 3 Fordham Way, Oran Park NSW 2570</p>
+                    <p><strong>Office 2:</strong> 172 Eight Avenue, Austral NSW 2179</p>
                   </div>
                 </div>
                 
