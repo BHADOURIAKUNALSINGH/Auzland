@@ -623,6 +623,11 @@
   border-radius: 8px;
   margin: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Prevent text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .properties-table {
@@ -630,6 +635,11 @@
   border-collapse: collapse;
   font-size: 0.875rem;
   table-layout: auto;
+  /* Prevent text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .properties-table th,
@@ -641,6 +651,11 @@
   word-wrap: break-word;
   overflow: visible;
   white-space: nowrap;
+  /* Prevent text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Dynamic column widths - Updated for new column order */
