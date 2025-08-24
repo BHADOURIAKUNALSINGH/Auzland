@@ -568,7 +568,7 @@ const Dashboard: React.FC = () => {
     e.preventDefault();
     
     if (!propertyForm.address) {
-      alert('Address is a required field.');
+      setMessage({ type: 'error', text: 'Address is a required field.' });
       return;
     }
 
@@ -638,7 +638,7 @@ const Dashboard: React.FC = () => {
       
     } catch (error: any) {
       console.error('Error saving property:', error);
-      alert(`Error saving property: ${error.message}`);
+      setMessage({ type: 'error', text: `Error saving property: ${error.message}` });
     }
   };
 
@@ -649,7 +649,7 @@ const Dashboard: React.FC = () => {
     
     if (!hasEditAccess) {
       console.log('User does not have edit access');
-      alert('You do not have permission to delete properties');
+      setMessage({ type: 'error', text: 'You do not have permission to delete properties' });
       return;
     }
     
@@ -668,7 +668,7 @@ const Dashboard: React.FC = () => {
         console.log('Property deleted successfully');
       } catch (error: any) {
         console.error('Error deleting property:', error);
-        alert(`Error deleting property: ${error.message}`);
+        setMessage({ type: 'error', text: `Error deleting property: ${error.message}` });
       }
     }
   };
@@ -1976,9 +1976,6 @@ const Dashboard: React.FC = () => {
             </div>
             
             <div className="nav-user">
-              <div className="user-avatar">
-                {user?.username?.charAt(0).toUpperCase()}
-              </div>
               <button onClick={signOut} className="signout-button">
                 Sign Out
               </button>
