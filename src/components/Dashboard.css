@@ -632,40 +632,35 @@
   max-width: 100px;
 }
 
-.properties-table th:nth-child(12), /* REGO DUE */
+.properties-table th:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
 .properties-table td:nth-child(12) {
-  min-width: 100px;
-  max-width: 130px;
+  min-width: 180px;
+  max-width: 220px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.properties-table th:nth-child(13), /* READY BY */
+.properties-table th:nth-child(13), /* PRICE */
 .properties-table td:nth-child(13) {
-  min-width: 100px;
-  max-width: 130px;
-  font-weight: 600;
-  color: #34d399;
-}
-
-.properties-table th:nth-child(14), /* PRICE */
-.properties-table td:nth-child(14) {
   min-width: 120px;
   max-width: 150px;
 }
 
-.properties-table th:nth-child(15), /* MEDIA */
-.properties-table td:nth-child(15) {
+.properties-table th:nth-child(14), /* MEDIA */
+.properties-table td:nth-child(14) {
   min-width: 150px;
   max-width: 200px;
 }
 
-.properties-table th:nth-child(16), /* REMARK */
-.properties-table td:nth-child(16) {
+.properties-table th:nth-child(15), /* REMARK */
+.properties-table td:nth-child(15) {
   min-width: 150px;
   max-width: 250px;
 }
 
-.properties-table th:nth-child(17), /* ACTIONS */
-.properties-table td:nth-child(17) {
+.properties-table th:nth-child(16), /* ACTIONS */
+.properties-table td:nth-child(16) {
   min-width: 120px;
   max-width: 150px;
 }
@@ -675,8 +670,9 @@
 .properties-table td:nth-child(3),  /* ADDRESS */
 .properties-table td:nth-child(4),  /* SUBURB */
 .properties-table td:nth-child(5),  /* AVAILABILITY */
-.properties-table td:nth-child(15), /* MEDIA */
-.properties-table td:nth-child(16)  /* REMARK */
+.properties-table td:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
+.properties-table td:nth-child(14), /* MEDIA */
+.properties-table td:nth-child(15)  /* REMARK */
 {
   white-space: normal;
   word-wrap: break-word;
@@ -684,7 +680,7 @@
 }
 
 /* Keep other columns with nowrap for better alignment */
-.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(15)):not(:nth-child(16)) {
+.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(12)):not(:nth-child(14)):not(:nth-child(15)) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -710,11 +706,7 @@
   font-weight: 700;
 }
 
-.properties-table th:nth-child(13) { /* READY BY */
-  background: #374151;
-  color: #34d399;
-  font-weight: 700;
-}
+
 
 /* Additional styling for availability column */
 .properties-table td:nth-child(5) {
@@ -723,12 +715,7 @@
   padding-left: 0.75rem;
 }
 
-/* Additional styling for ready by column */
-.properties-table td:nth-child(13) {
-  background: rgba(52, 211, 153, 0.1);
-  border-left: 2px solid #34d399;
-  padding-left: 0.75rem;
-}
+
 
 /* Table row hover effects */
 .properties-table tr:hover {
@@ -791,14 +778,14 @@
     min-width: 150px;
   }
   
-  .properties-table th:nth-child(15), /* MEDIA */
-  .properties-table td:nth-child(15) {
+  .properties-table th:nth-child(14), /* MEDIA */
+  .properties-table td:nth-child(14) {
     width: 140px;
     min-width: 140px;
   }
   
-  .properties-table th:nth-child(16), /* REMARK */
-  .properties-table td:nth-child(16) {
+  .properties-table th:nth-child(15), /* REMARK */
+  .properties-table td:nth-child(15) {
     width: 120px;
     min-width: 120px;
   }
