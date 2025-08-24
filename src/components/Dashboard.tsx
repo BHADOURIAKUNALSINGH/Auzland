@@ -573,8 +573,8 @@ const Dashboard: React.FC = () => {
     }
 
     // Check for duplicate addresses
-    if (isDuplicateAddress(propertyForm.address, propertyForm.lot, properties, editingProperty?.id)) {
-      setMessage({ type: 'error', text: 'Address already exists! Please use a different address or edit the existing property.' });
+    if (isDuplicateAddress(propertyForm.address, propertyForm.lot, propertyForm.suburb, properties, editingProperty?.id)) {
+      setMessage({ type: 'error', text: 'Address already exists in this suburb! Please use a different address or edit the existing property.' });
       return;
     }
 
@@ -1681,11 +1681,12 @@ const Dashboard: React.FC = () => {
   };
 
   // Check for duplicate addresses using fuzzy matching
-  const isDuplicateAddress = (newAddress: string, newLot: string, existingProperties: any[], excludeId?: string): boolean => {
+  const isDuplicateAddress = (newAddress: string, newLot: string, newSuburb: string, existingProperties: any[], excludeId?: string): boolean => {
     if (!newAddress || !newAddress.trim()) return false;
     
     const normalizedNewAddress = newAddress.toLowerCase().trim();
     const normalizedNewLot = newLot ? newLot.toLowerCase().trim() : '';
+    const normalizedNewSuburb = newSuburb ? newSuburb.toLowerCase().trim() : '';
     
     return existingProperties.some(property => {
       // Skip the property being edited (if any)
@@ -1695,20 +1696,28 @@ const Dashboard: React.FC = () => {
       
       const existingAddress = property.address.toLowerCase().trim();
       const existingLot = property.lot ? property.lot.toLowerCase().trim() : '';
+      const existingSuburb = property.suburb ? property.suburb.toLowerCase().trim() : '';
       
-      // Exact match on both address and lot
-      if (existingAddress === normalizedNewAddress && existingLot === normalizedNewLot) return true;
-      
-      // If lot is provided, check for exact address match with different lot (this is OK)
-      if (normalizedNewLot && existingLot && existingAddress === normalizedNewAddress && existingLot !== normalizedNewLot) {
-        return false; // Different lot numbers are not duplicates
+      // Check for exact duplicate: same address AND same suburb
+      if (existingAddress === normalizedNewAddress && existingSuburb === normalizedNewSuburb) {
+        // If both have lot numbers, they must be different to not be duplicates
+        if (normalizedNewLot && existingLot) {
+          return normalizedNewLot === existingLot; // Only duplicate if lot numbers are the same
+        }
+        // If one or both don't have lot numbers, consider it a duplicate
+        return true;
       }
       
-      // Fuzzy matching for similar addresses (only if lot numbers are the same or not provided)
-      if (existingAddress === normalizedNewAddress || 
-          (normalizedNewLot === existingLot || (!normalizedNewLot && !existingLot))) {
+      // Fuzzy matching for very similar addresses in the same suburb
+      if (existingSuburb === normalizedNewSuburb && normalizedNewSuburb) {
         const similarity = calculateAddressSimilarity(normalizedNewAddress, existingAddress);
-        return similarity > 0.8; // 80% similarity threshold
+        if (similarity > 0.9) { // Higher threshold for fuzzy matching
+          // If both have lot numbers, they must be different to not be duplicates
+          if (normalizedNewLot && existingLot) {
+            return normalizedNewLot === existingLot;
+          }
+          return true;
+        }
       }
       
       return false;
@@ -1869,9 +1878,9 @@ const Dashboard: React.FC = () => {
       const duplicateCount = { count: 0, addresses: [] as string[] };
       
       for (const property of mappedProperties) {
-        if (isDuplicateAddress(property.address, property.lot, existingProperties)) {
+        if (isDuplicateAddress(property.address, property.lot, property.suburb, existingProperties)) {
           duplicateCount.count++;
-          duplicateCount.addresses.push(property.address);
+          duplicateCount.addresses.push(`${property.address}, ${property.suburb}`);
         } else {
           newProperties.push(property);
         }
