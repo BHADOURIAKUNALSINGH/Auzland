@@ -150,44 +150,47 @@ const Dashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [properties, filters, sortBy, sortOrder]);
 
-  // Prevent copy-paste operations on the entire dashboard
+  // Prevent copy-paste operations only for view-only users
   useEffect(() => {
-    const preventCopyPaste = (e: KeyboardEvent) => {
-      // Prevent Ctrl+C (copy)
-      if (e.ctrlKey && e.key === 'c') {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-      // Prevent Ctrl+V (paste)
-      if (e.ctrlKey && e.key === 'v') {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-      // Prevent Ctrl+A (select all)
-      if (e.ctrlKey && e.key === 'a') {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
+    // Only apply restrictions if user doesn't have edit access
+    if (!hasEditAccess) {
+      const preventCopyPaste = (e: KeyboardEvent) => {
+        // Prevent Ctrl+C (copy)
+        if (e.ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+        // Prevent Ctrl+V (paste)
+        if (e.ctrlKey && e.key === 'v') {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+        // Prevent Ctrl+A (select all)
+        if (e.ctrlKey && e.key === 'a') {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      };
 
-    const preventContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      return false;
-    };
+      const preventContextMenu = (e: MouseEvent) => {
+        e.preventDefault();
+        return false;
+      };
 
-    // Add event listeners
-    document.addEventListener('keydown', preventCopyPaste);
-    document.addEventListener('contextmenu', preventContextMenu);
+      // Add event listeners
+      document.addEventListener('keydown', preventCopyPaste);
+      document.addEventListener('contextmenu', preventContextMenu);
 
-    // Cleanup
-    return () => {
-      document.removeEventListener('keydown', preventCopyPaste);
-      document.removeEventListener('contextmenu', preventContextMenu);
-    };
-  }, []);
+      // Cleanup
+      return () => {
+        document.removeEventListener('keydown', preventCopyPaste);
+        document.removeEventListener('contextmenu', preventContextMenu);
+      };
+    }
+  }, [hasEditAccess]);
 
   // Handle keyboard navigation for media viewer
   useEffect(() => {
@@ -1460,8 +1463,8 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Properties Table */}
-      <div className="properties-table-container">
-        <table className="properties-table">
+      <div className={`properties-table-container ${!hasEditAccess ? 'view-only' : ''}`}>
+        <table className={`properties-table ${!hasEditAccess ? 'view-only' : ''}`}>
           <thead>
             <tr>
               <th>PROPERTY TYPE</th>
