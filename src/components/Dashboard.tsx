@@ -2387,55 +2387,51 @@ const Dashboard: React.FC = () => {
             <div className="modal-content">
               <div className="csv-upload-section">
                 <div className="upload-instructions">
-                  <h4>Instructions:</h4>
+                  <h4>Quick Guide:</h4>
                   <ul>
-                    <li>Upload a CSV or Excel (.xlsx) file with property data</li>
-                    <li>File must be less than 10MB</li>
-                    <li><strong>Required columns:</strong> lot OR address (at least one must be present)</li>
-                    <li><strong>Optional columns:</strong> All other fields will be imported if present, ignored if missing</li>
-                    <li><strong>This will replace all existing properties</strong> - make sure to backup your data first!</li>
-                    <li><strong>Smart Property Type Matching:</strong> Property types are automatically matched using fuzzy logic</li>
-                    <li><strong>Supported Property Types:</strong> Land only, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home and Land Packages</li>
-                    <li><strong>Field Mapping:</strong> The system automatically maps common column names and variations</li>
+                    <li>Upload CSV or Excel file (max 10MB)</li>
+                    <li><strong>Required:</strong> lot OR address</li>
+                    <li><strong>Optional:</strong> All other fields</li>
+                    <li><strong>Warning:</strong> This replaces existing properties</li>
+                    <li><strong>Property Types:</strong> Land, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home and Land Packages</li>
                   </ul>
                   
                   <div className="field-mapping-info">
-                    <h5>Expected Field Names (case-insensitive):</h5>
+                    <h5>Column Names (any case):</h5>
                     <div className="field-mapping-grid">
                       <div className="field-column">
-                        <strong>Basic Info:</strong>
+                        <strong>Basic:</strong>
                         <ul>
-                          <li>propertyType / Property Type</li>
-                          <li>lot / Lot</li>
-                          <li>address / Address</li>
-                          <li>suburb / Suburb</li>
-                          <li>availability / Availability</li>
+                          <li>propertyType</li>
+                          <li>lot</li>
+                          <li>address</li>
+                          <li>suburb</li>
+                          <li>availability</li>
                         </ul>
                       </div>
                       <div className="field-column">
-                        <strong>Dimensions:</strong>
+                        <strong>Size:</strong>
                         <ul>
-                          <li>frontage / Frontage</li>
-                          <li>landSize / Land Size</li>
-                          <li>buildSize / Build Size</li>
+                          <li>frontage</li>
+                          <li>landSize</li>
+                          <li>buildSize</li>
                         </ul>
                       </div>
                       <div className="field-column">
-                        <strong>Rooms & Price:</strong>
+                        <strong>Details:</strong>
                         <ul>
-                          <li>bed / Bed / Bedrooms</li>
-                          <li>bath / Bath / Bathrooms</li>
-                          <li>garage / Garage</li>
-                          <li>price / Price / Price Guide</li>
+                          <li>bed</li>
+                          <li>bath</li>
+                          <li>garage</li>
+                          <li>price</li>
                         </ul>
                       </div>
                       <div className="field-column">
-                        <strong>Status & Media:</strong>
+                        <strong>Other:</strong>
                         <ul>
-                          <li>registrationConstructionStatus</li>
-                          <li>regoDue / Ready By</li>
-                          <li>media / Media</li>
-                          <li>remark / Remark</li>
+                          <li>registrationStatus</li>
+                          <li>media</li>
+                          <li>remark</li>
                         </ul>
                       </div>
                     </div>
