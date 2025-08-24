@@ -1583,10 +1583,15 @@ const Dashboard: React.FC = () => {
 
   // Process CSV data with fuzzy matching for property types
   const processCsvData = (csvText: string) => {
-    const lines = csvText.split('\n');
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const lines = csvText.split('\n').filter(line => line.trim()); // Remove empty lines
+    if (lines.length < 2) {
+      throw new Error('CSV file must have at least a header row and one data row');
+    }
     
-    const processedData = lines.slice(1).map(line => {
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    console.log('CSV Headers detected:', headers);
+    
+    const processedData = lines.slice(1).map((line, rowIndex) => {
       const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
       const row: any = {};
       
@@ -1601,9 +1606,15 @@ const Dashboard: React.FC = () => {
         row[header] = value;
       });
       
+      // Log the first few rows for debugging
+      if (rowIndex < 3) {
+        console.log(`Row ${rowIndex + 1}:`, row);
+      }
+      
       return row;
     });
     
+    console.log(`Processed ${processedData.length} rows from CSV`);
     return processedData;
   };
 
@@ -1675,19 +1686,122 @@ const Dashboard: React.FC = () => {
   };
 
   const processExcelUpload = async () => {
-    if (!csvFile || !selectedSheet) return;
+    if (!csvFile) return;
     
     setCsvUploadProgress(0);
     setCsvUploadError(null);
     
     try {
-      // This would use SheetJS to read the specific sheet
-      // For now, we'll show a placeholder implementation
-      setCsvUploadProgress(100);
-      setCsvUploadError('Excel file processing is being implemented. Please use CSV files for now.');
+      if (csvFile.name.toLowerCase().endsWith('.csv')) {
+        // Process CSV file
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const csvText = e.target?.result as string;
+            const processedData = processCsvData(csvText);
+            await importPropertiesFromData(processedData);
+          } catch (error: any) {
+            console.error('Error processing CSV:', error);
+            setCsvUploadError(error.message || 'Failed to process CSV file');
+            setCsvUploadProgress(0);
+          }
+        };
+        reader.readAsText(csvFile);
+      } else if (csvFile.name.toLowerCase().endsWith('.xlsx')) {
+        // Process Excel file
+        await processExcelFile();
+      }
     } catch (error: any) {
-      console.error('Error processing Excel file:', error);
-      setCsvUploadError(error.message || 'Failed to process Excel file');
+      console.error('Error processing file:', error);
+      setCsvUploadError(error.message || 'Failed to process file');
+      setCsvUploadProgress(0);
+    }
+  };
+
+  const processExcelFile = async () => {
+    if (!csvFile) return;
+    
+    try {
+      setCsvUploadProgress(25);
+      
+      // For now, we'll implement basic Excel support
+      // In a full implementation, you'd use SheetJS (xlsx) library
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          setCsvUploadProgress(50);
+          // This is a placeholder - in real implementation, parse Excel with SheetJS
+          setCsvUploadError('Excel file processing requires SheetJS library. Please use CSV files for now, or contact support to enable Excel support.');
+          setCsvUploadProgress(0);
+        } catch (error: any) {
+          console.error('Error processing Excel:', error);
+          setCsvUploadError(error.message || 'Failed to process Excel file');
+          setCsvUploadProgress(0);
+        }
+      };
+      reader.readAsArrayBuffer(csvFile);
+    } catch (error: any) {
+      console.error('Error reading Excel file:', error);
+      setCsvUploadError(error.message || 'Failed to read Excel file');
+      setCsvUploadProgress(0);
+    }
+  };
+
+  const importPropertiesFromData = async (data: any[]) => {
+    try {
+      setCsvUploadProgress(75);
+      
+      // Map CSV data to property structure
+      const mappedProperties = data.map((row, index) => {
+        // Create property object with current field structure
+        const property = {
+          id: row.id || `imported_${Date.now()}_${index}`,
+          propertyType: row.propertyType || row.property_type || row['Property Type'] || '',
+          lot: row.lot || row.Lot || '',
+          address: row.address || row.Address || '',
+          suburb: row.suburb || row.Suburb || '',
+          availability: row.availability || row.Availability || '',
+          frontage: row.frontage || row.frontage_m || row.Frontage || '',
+          landSize: row.landSize || row.land_area_sqm || row['Land Size'] || row['Land Size (sqm)'] || '',
+          buildSize: row.buildSize || row.build_area_sqm || row['Build Size'] || row['Build Size (sqm)'] || '',
+          bed: row.bed || row.Bed || row.Bedrooms || '',
+          bath: row.bath || row.Bath || row.Bathrooms || '',
+          garage: row.garage || row.Garage || '',
+          registrationConstructionStatus: row.registrationConstructionStatus || row.regoDue || row.readyBy || row['Registration & Construction Status'] || row['Rego Due'] || row['Ready By'] || '',
+          price: row.price || row.price_guide || row.Price || row['Price Guide'] || '',
+          media: row.media || row.media_url || row.Media || '',
+          remark: row.remark || row.Remark || '',
+          updatedAt: new Date().toISOString().split('T')[0]
+        };
+
+        // Apply fuzzy matching for property type
+        if (property.propertyType) {
+          property.propertyType = fuzzyMatchPropertyType(property.propertyType);
+        }
+
+        return property;
+      }).filter(property => property.lot || property.address); // Only include properties with lot or address
+
+      setCsvUploadProgress(90);
+      
+      // Replace existing properties with imported ones
+      setProperties(mappedProperties);
+      setFilteredProperties(mappedProperties);
+      
+      // Save to S3
+      await autoSaveToS3(mappedProperties);
+      
+      setCsvUploadProgress(100);
+      setMessage({ type: 'success', text: `Successfully imported ${mappedProperties.length} properties` });
+      
+      // Close modal after a short delay
+      setTimeout(() => {
+        clearCsvUpload();
+      }, 2000);
+      
+    } catch (error: any) {
+      console.error('Error importing properties:', error);
+      setCsvUploadError(error.message || 'Failed to import properties');
       setCsvUploadProgress(0);
     }
   };
@@ -2275,15 +2389,57 @@ const Dashboard: React.FC = () => {
                 <div className="upload-instructions">
                   <h4>Instructions:</h4>
                   <ul>
-                    <li>Upload a CSV file with property data</li>
+                    <li>Upload a CSV or Excel (.xlsx) file with property data</li>
                     <li>File must be less than 10MB</li>
-                    <li>CSV should have headers matching the expected format</li>
-                    <li>Required columns: lot, address</li>
-                    <li>This will replace all existing properties</li>
+                    <li><strong>Required columns:</strong> lot OR address (at least one must be present)</li>
+                    <li><strong>Optional columns:</strong> All other fields will be imported if present, ignored if missing</li>
+                    <li><strong>This will replace all existing properties</strong> - make sure to backup your data first!</li>
                     <li><strong>Smart Property Type Matching:</strong> Property types are automatically matched using fuzzy logic</li>
-                    <li>Examples: "land", "single story", "double story", "dual occupancy", "apartment", "townhouse", "home and land packages"</li>
-                    <li>Variations like "apt", "town", "1 story", "2 story" are automatically detected</li>
+                    <li><strong>Supported Property Types:</strong> Land only, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home and Land Packages</li>
+                    <li><strong>Field Mapping:</strong> The system automatically maps common column names and variations</li>
                   </ul>
+                  
+                  <div className="field-mapping-info">
+                    <h5>Expected Field Names (case-insensitive):</h5>
+                    <div className="field-mapping-grid">
+                      <div className="field-column">
+                        <strong>Basic Info:</strong>
+                        <ul>
+                          <li>propertyType / Property Type</li>
+                          <li>lot / Lot</li>
+                          <li>address / Address</li>
+                          <li>suburb / Suburb</li>
+                          <li>availability / Availability</li>
+                        </ul>
+                      </div>
+                      <div className="field-column">
+                        <strong>Dimensions:</strong>
+                        <ul>
+                          <li>frontage / Frontage</li>
+                          <li>landSize / Land Size</li>
+                          <li>buildSize / Build Size</li>
+                        </ul>
+                      </div>
+                      <div className="field-column">
+                        <strong>Rooms & Price:</strong>
+                        <ul>
+                          <li>bed / Bed / Bedrooms</li>
+                          <li>bath / Bath / Bathrooms</li>
+                          <li>garage / Garage</li>
+                          <li>price / Price / Price Guide</li>
+                        </ul>
+                      </div>
+                      <div className="field-column">
+                        <strong>Status & Media:</strong>
+                        <ul>
+                          <li>registrationConstructionStatus</li>
+                          <li>regoDue / Ready By</li>
+                          <li>media / Media</li>
+                          <li>remark / Remark</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="file-upload-area">

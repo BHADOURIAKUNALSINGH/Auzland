@@ -2141,6 +2141,54 @@
 }
 
 /* CSV Upload Modal Styles */
+.field-mapping-info {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #1e293b;
+  border-radius: 8px;
+  border: 1px solid #475569;
+}
+
+.field-mapping-info h5 {
+  margin: 0 0 1rem 0;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field-mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.field-column {
+  background: #0f1720;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #334155;
+}
+
+.field-column strong {
+  color: #3b82f6;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.field-column ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.field-column li {
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-family: 'Courier New', monospace;
+}
 .csv-upload-section {
   padding: 1rem;
 }
