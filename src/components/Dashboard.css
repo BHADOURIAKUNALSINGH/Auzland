@@ -621,10 +621,10 @@
   overflow: auto;
   background: #0f1720;
   border-radius: 8px;
-  margin: 0;
+  margin: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  min-width: 0;
+  height: calc(100vh - 120px); /* Use almost full viewport height for maximum listings */
+  min-height: 800px; /* Higher minimum height for better utilization */
 }
 
 /* Text selection prevention for view-only users */
@@ -639,8 +639,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
-  table-layout: fixed;
-  min-width: 1200px;
+  table-layout: auto;
 }
 
 /* Text selection prevention for view-only users */
@@ -653,7 +652,7 @@
 
 .properties-table th,
 .properties-table td {
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem 0.5rem; /* Reduced padding for more rows */
   text-align: left;
   border-bottom: 1px solid #374151;
   vertical-align: top;
@@ -674,64 +673,76 @@
 /* Dynamic column widths - Updated for new column order */
 .properties-table th:nth-child(1),  /* PROPERTY TYPE */
 .properties-table td:nth-child(1) {
-  width: 10%;
+  min-width: 120px;
+  max-width: 160px;
 }
 
 .properties-table th:nth-child(2),  /* LOT */
 .properties-table td:nth-child(2) {
-  width: 6%;
+  min-width: 80px;
+  max-width: 100px;
 }
 
 .properties-table th:nth-child(3),  /* ADDRESS */
 .properties-table td:nth-child(3) {
-  width: 20%;
+  min-width: 200px;
+  max-width: 300px;
 }
 
 .properties-table th:nth-child(4),  /* SUBURB */
 .properties-table td:nth-child(4) {
-  width: 10%;
+  min-width: 120px;
+  max-width: 160px;
 }
 
 .properties-table th:nth-child(5),  /* AVAILABILITY */
 .properties-table td:nth-child(5) {
-  width: 10%;
+  min-width: 120px;
+  max-width: 150px;
   font-weight: 600;
   color: #fbbf24;
 }
 
 .properties-table th:nth-child(6),  /* FRONTAGE */
 .properties-table td:nth-child(6) {
-  width: 7%;
+  min-width: 80px;
+  max-width: 100px;
 }
 
 .properties-table th:nth-child(7),  /* LAND SIZE */
 .properties-table td:nth-child(7) {
-  width: 8%;
+  min-width: 100px;
+  max-width: 120px;
 }
 
 .properties-table th:nth-child(8),  /* BUILD SIZE */
 .properties-table td:nth-child(8) {
-  width: 8%;
+  min-width: 100px;
+  max-width: 120px;
 }
 
 .properties-table th:nth-child(9),  /* BED */
 .properties-table td:nth-child(9) {
-  width: 5%;
+  min-width: 60px;
+  max-width: 80px;
 }
 
 .properties-table th:nth-child(10), /* BATH */
 .properties-table td:nth-child(10) {
-  width: 5%;
+  min-width: 60px;
+  max-width: 80px;
 }
 
 .properties-table th:nth-child(11), /* GARAGE */
 .properties-table td:nth-child(11) {
-  width: 6%;
+  min-width: 80px;
+  max-width: 100px;
 }
 
 .properties-table th:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
 .properties-table td:nth-child(12) {
-  width: 12%;
+  min-width: 180px;
+  max-width: 220px;
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -739,22 +750,26 @@
 
 .properties-table th:nth-child(13), /* PRICE */
 .properties-table td:nth-child(13) {
-  width: 8%;
+  min-width: 120px;
+  max-width: 150px;
 }
 
 .properties-table th:nth-child(14), /* MEDIA */
 .properties-table td:nth-child(14) {
-  width: 10%;
+  min-width: 150px;
+  max-width: 200px;
 }
 
 .properties-table th:nth-child(15), /* REMARK */
 .properties-table td:nth-child(15) {
-  width: 12%;
+  min-width: 150px;
+  max-width: 250px;
 }
 
 .properties-table th:nth-child(16), /* ACTIONS */
 .properties-table td:nth-child(16) {
-  width: 8%;
+  min-width: 120px;
+  max-width: 150px;
 }
 
 /* Allow text wrapping for longer content in dynamic columns */
@@ -786,9 +801,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 0.5rem 0.5rem; /* Reduced padding for more rows */
 }
 
 /* Highlight important columns in headers */
@@ -823,36 +836,20 @@
   border-bottom: none;
 }
 
-/* Ensure table container has proper scrolling */
+/* Ensure table container has proper scrolling and uses full height */
 .properties-table-container {
   overflow-x: auto;
   overflow-y: auto;
-  max-height: calc(100vh - 300px);
+  height: calc(100vh - 120px); /* Use almost full viewport height for maximum listings */
+  min-height: 800px; /* Higher minimum height for better utilization */
   min-width: 100%;
+  width: 100%;
 }
 
 /* Ensure table can expand horizontally with dynamic columns */
 .properties-table {
   width: 100%;
   min-width: max-content;
-}
-
-/* Allow table to grow beyond container width */
-.properties-table-container {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 300px);
-  min-width: 100%;
-  width: 100%;
-}
-
-/* Force table to use all available space and allow expansion */
-.properties-table-container {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 300px);
-  min-width: 100%;
-  width: 100%;
 }
 
 /* Responsive adjustments for smaller screens */

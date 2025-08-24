@@ -390,9 +390,7 @@
 
 /* Properties Table - Employee Portal Only */
 .employee-portal .properties-table-container {
-  padding: 0;
-  width: 100%;
-  min-width: 0;
+  padding: 2rem;
 }
 
 /* Text selection prevention for view-only users */
@@ -410,8 +408,6 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--dark-border-primary);
-  table-layout: fixed;
-  min-width: 1200px;
 }
 
 /* Text selection prevention for view-only users */
