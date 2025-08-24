@@ -1125,7 +1125,7 @@ const Dashboard: React.FC = () => {
     <aside className="filters-sidebar">
       <div className="filters-section">
         <div className="filters-header">
-          <h3>Filters</h3>
+          <h4>Filters</h4>
           {getActiveFiltersCount() > 0 && (
             <button 
               className="clear-filters-btn"
@@ -1143,36 +1143,27 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Primary Search */}
-        <div className="filter-category primary-search">
-          <h4>Search Properties</h4>
+        {/* Search & Location */}
+        <div className="filter-category">
+          <h4>Search & Location</h4>
           <div className="filter-group">
             <label>Quick Search</label>
-            <div className="search-input">
-              <input
-                type="text"
-                placeholder="Type address, lot number, DP, or property type..."
-                value={filters.quickSearch}
-                onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Address, lot, DP, or property type..."
+              value={filters.quickSearch}
+              onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
+            />
           </div>
           <div className="filter-group">
             <label>Address</label>
-            <div className="search-input">
-              <input
-                type="text"
-                placeholder="Search by address..."
-                value={filters.address}
-                onChange={(e) => handleFilterChange('address', e.target.value)}
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Search by address..."
+              value={filters.address}
+              onChange={(e) => handleFilterChange('address', e.target.value)}
+            />
           </div>
-        </div>
-
-        {/* Location Filters */}
-        <div className="filter-category">
-          <h4>Location & Area</h4>
           <div className="filter-group">
             <label>Lot</label>
             <input
@@ -1191,21 +1182,9 @@ const Dashboard: React.FC = () => {
               onChange={(e) => handleFilterChange('suburb', e.target.value)}
             />
           </div>
-          <div className="filter-group">
-            <label>Availability</label>
-            <select 
-              value={filters.availability} 
-              onChange={(e) => handleFilterChange('availability', e.target.value)}
-            >
-              <option value="">All Availability</option>
-              <option value="Available">Available</option>
-              <option value="Under Offer">Under Offer</option>
-              <option value="Sold">Sold</option>
-            </select>
-          </div>
         </div>
 
-        {/* Property Specifications */}
+        {/* Property Details */}
         <div className="filter-category">
           <h4>Property Details</h4>
           <div className="filter-group">
@@ -1222,6 +1201,18 @@ const Dashboard: React.FC = () => {
               <option value="Apartment">Apartment</option>
               <option value="Townhouse">Townhouse</option>
               <option value="Home and Land Packages">Home and Land Packages</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Availability</label>
+            <select 
+              value={filters.availability} 
+              onChange={(e) => handleFilterChange('availability', e.target.value)}
+            >
+              <option value="">All Availability</option>
+              <option value="Available">Available</option>
+              <option value="Under Offer">Under Offer</option>
+              <option value="Sold">Sold</option>
             </select>
           </div>
           <div className="filter-group">
@@ -1297,93 +1288,95 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="filter-group">
-            <label>Bedrooms</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.bedMin}
-                onChange={(e) => handleFilterChange('bedMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.bedMax}
-                onChange={(e) => handleFilterChange('bedMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Bathrooms</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.bathMin}
-                onChange={(e) => handleFilterChange('bathMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.bathMax}
-                onChange={(e) => handleFilterChange('bathMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Garage</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.garageMin}
-                onChange={(e) => handleFilterChange('garageMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.garageMax}
-                onChange={(e) => handleFilterChange('garageMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
+            <label>Rooms & Parking</label>
+            <div className="compact-range-inputs">
+              <div className="range-row">
+                <span className="range-label">Bed:</span>
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.bedMin}
+                  onChange={(e) => handleFilterChange('bedMin', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                />
+                <span className="range-separator">-</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.bedMax}
+                  onChange={(e) => handleFilterChange('bedMax', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                />
+              </div>
+              <div className="range-row">
+                <span className="range-label">Bath:</span>
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.bathMin}
+                  onChange={(e) => handleFilterChange('bathMin', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                />
+                <span className="range-separator">-</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.bathMax}
+                  onChange={(e) => handleFilterChange('bathMax', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                />
+              </div>
+              <div className="range-row">
+                <span className="range-label">Garage:</span>
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.garageMin}
+                  onChange={(e) => handleFilterChange('garageMin', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                />
+                <span className="range-separator">-</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.garageMax}
+                  onChange={(e) => handleFilterChange('garageMax', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                />
+              </div>
             </div>
           </div>
           <div className="filter-group">
             <label>Price Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
+            <div className="compact-range-inputs">
+              <div className="range-row">
+                <span className="range-label">$</span>
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.priceMin}
+                  onChange={(e) => handleFilterChange('priceMin', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                  step="0.01"
+                />
+                <span className="range-separator">-</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.priceMax}
+                  onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+                  className="range-input compact"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
             </div>
           </div>
           <div className="filter-group">
