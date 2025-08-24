@@ -129,6 +129,8 @@ const Dashboard: React.FC = () => {
   const [showMediaViewer, setShowMediaViewer] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [viewingMedia, setViewingMedia] = useState<any[]>([]);
+  const [mediaPresignedUrls, setMediaPresignedUrls] = useState<{[key: string]: string}>({});
+
 
 
   
@@ -779,7 +781,7 @@ const Dashboard: React.FC = () => {
     
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/') || file.type === 'application/pdf';
-      const isValidSize = file.size <= 20 * 1024 * 1024; // 20MB limit
+      const isValidSize = file.size <= 15 * 1024 * 1024; // 15MB limit
       
       console.log('File validation:', {
         name: file.name,
@@ -795,7 +797,7 @@ const Dashboard: React.FC = () => {
       }
       
       if (!isValidSize) {
-        alert(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Maximum size is 20MB.`);
+        alert(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Maximum size is 15MB.`);
         return false;
       }
       
@@ -826,7 +828,16 @@ const Dashboard: React.FC = () => {
 
   const uploadMediaToS3 = async (file: File, listingId: string): Promise<string> => {
     try {
+      console.log(`Starting upload for file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      
+      // Check if file is too large for base64 encoding (keep under 15MB for base64)
+      const maxSizeForBase64 = 15 * 1024 * 1024; // 15MB
+      if (file.size > maxSizeForBase64) {
+        throw new Error(`File too large for upload: ${(file.size / 1024 / 1024).toFixed(2)}MB. Maximum size for videos is 15MB.`);
+      }
+      
       const base64Data = await convertFileToBase64(file);
+      console.log(`File converted to base64, size: ${(base64Data.length * 0.75 / 1024 / 1024).toFixed(2)}MB`);
       
       const payload = {
         filename: file.name,
@@ -835,6 +846,7 @@ const Dashboard: React.FC = () => {
         dataBase64: base64Data
       };
 
+      console.log('Sending upload request...');
       const response = await fetch('https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media', {
         method: 'POST',
         headers: {
@@ -843,14 +855,25 @@ const Dashboard: React.FC = () => {
         body: JSON.stringify(payload)
       });
 
+      console.log(`Upload response status: ${response.status}`);
+      console.log(`Upload response headers:`, response.headers);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Upload failed: ${response.status}`);
+        let errorMessage = `Upload failed: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          console.warn('Could not parse error response:', parseError);
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
+      console.log(`Upload successful for ${file.name}:`, result);
       return result.key; // Return the S3 key for CSV storage
     } catch (error: any) {
+      console.error(`Upload failed for ${file.name}:`, error);
       throw new Error(`Media upload failed: ${error.message}`);
     }
   };
@@ -883,6 +906,8 @@ const Dashboard: React.FC = () => {
 
   const deleteMediaFromS3 = async (key: string): Promise<boolean> => {
     try {
+      console.log('Attempting to delete media with key:', key);
+      
       const response = await fetch('https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media', {
         method: 'DELETE',
         headers: {
@@ -891,11 +916,17 @@ const Dashboard: React.FC = () => {
         body: JSON.stringify({ key })
       });
 
+      console.log('Delete response status:', response.status);
+      console.log('Delete response headers:', response.headers);
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+        console.error('Delete failed with error:', errorData);
         throw new Error(errorData.error || `Delete failed: ${response.status}`);
       }
 
+      const successData = await response.json().catch(() => ({ ok: true }));
+      console.log('Delete successful:', successData);
       return true;
     } catch (error: any) {
       console.error(`Failed to delete media ${key}:`, error);
@@ -903,24 +934,65 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Fetch signed URLs for media files
-  
+  // Fetch presigned URLs for media files
+  const fetchPresignedUrl = async (mediaKey: string): Promise<string> => {
+    try {
+      const response = await fetch(`https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media?key=${encodeURIComponent(mediaKey)}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch presigned URL: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (!data.ok || !data.presignedUrl) {
+        throw new Error('Invalid response from media service');
+      }
+      return data.presignedUrl;
+    } catch (error: any) {
+      console.error('Error fetching presigned URL:', error);
+      throw new Error(`Failed to get media access: ${error.message}`);
+    }
+  };
 
   // Media viewer functions
-  const openMediaViewer = (property: any) => {
+  const openMediaViewer = async (property: any) => {
     if (!property.media) return;
     
     try {
       const mediaKeys = JSON.parse(property.media);
       if (mediaKeys.length === 0) return;
       
+      // Fetch presigned URLs for all media keys
+      const presignedUrls: {[key: string]: string} = {};
+      for (const key of mediaKeys) {
+        try {
+          const presignedUrl = await fetchPresignedUrl(key);
+          presignedUrls[key] = presignedUrl;
+        } catch (error: any) {
+          console.error(`Failed to get presigned URL for ${key}:`, error);
+          // Continue with other media files
+        }
+      }
+      
+      setMediaPresignedUrls(presignedUrls);
       setViewingMedia(mediaKeys);
       setCurrentMediaIndex(0);
       setShowMediaViewer(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error opening media viewer:', error);
       alert('Failed to load media. Please try again.');
     }
+  };
+
+  // Function to open media in new window
+  const openMediaInNewWindow = (mediaKey: string) => {
+    const presignedUrl = mediaPresignedUrls[mediaKey];
+    if (!presignedUrl) {
+      alert('Media not available. Please try viewing it again.');
+      return;
+    }
+    
+    // Simply open the presigned URL in a new window/tab
+    // This will use the browser's default viewer for each file type
+    window.open(presignedUrl, '_blank');
   };
 
   const nextMedia = () => {
@@ -939,25 +1011,31 @@ const Dashboard: React.FC = () => {
     setShowMediaViewer(false);
     setViewingMedia([]);
     setCurrentMediaIndex(0);
+    setMediaPresignedUrls({});
   };
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.log('Error attempting to enable fullscreen:', err);
-      });
-    } else {
-      document.exitFullscreen();
-    }
-  };
+
 
   const downloadMedia = () => {
     if (!viewingMedia[currentMediaIndex]) return;
     
-    const mediaUrl = `https://auzlandrelistings.s3.amazonaws.com/${viewingMedia[currentMediaIndex]}`;
+    const mediaKey = viewingMedia[currentMediaIndex];
+    const presignedUrl = mediaPresignedUrls[mediaKey];
+    
+    if (!presignedUrl) {
+      alert('Media not available for download. Please try viewing it again.');
+      return;
+    }
+    
+    const filename = mediaKey?.split('/').pop() || 'media-file';
+    
+    // Create a temporary link element for download
     const link = document.createElement('a');
-    link.href = mediaUrl;
-    link.download = viewingMedia[currentMediaIndex]?.split('/').pop() || 'media-file';
+    link.href = presignedUrl;
+    link.download = filename;
+    link.target = '_blank';
+    
+    // Append to body, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -976,13 +1054,24 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      await deleteMediaFromS3(mediaKey);
+      console.log('Starting media deletion for:', mediaKey);
+      console.log('Property before deletion:', property);
+      
+      const deleteSuccess = await deleteMediaFromS3(mediaKey);
+      
+      if (!deleteSuccess) {
+        throw new Error('Failed to delete media from S3');
+      }
+      
+      console.log('Media deleted from S3 successfully');
       
       // Update the properties state by removing the deleted media key
       const updatedProperties = properties.map(p => {
         if (p.id === property.id) {
           const currentMedia = p.media ? JSON.parse(p.media) : [];
+          console.log('Current media keys:', currentMedia);
           const updatedMedia = currentMedia.filter((key: string) => key !== mediaKey);
+          console.log('Updated media keys:', updatedMedia);
           return {
             ...p,
             media: JSON.stringify(updatedMedia)
@@ -991,8 +1080,12 @@ const Dashboard: React.FC = () => {
         return p;
       });
       
+      console.log('Updating properties state...');
       setProperties(updatedProperties);
+      
+      console.log('Auto-saving to S3...');
       await autoSaveToS3(updatedProperties);
+      console.log('Auto-save completed');
     } catch (error: any) {
       console.error('Error deleting media:', error);
       alert(`Error deleting media: ${error.message}`);
@@ -2424,11 +2517,11 @@ const Dashboard: React.FC = () => {
               <h3>Media Viewer</h3>
               <div className="media-viewer-actions">
                 <button 
-                  className="action-btn fullscreen-btn"
-                  onClick={toggleFullscreen}
-                  title="Toggle fullscreen"
+                  className="action-btn new-window-btn"
+                  onClick={() => openMediaInNewWindow(viewingMedia[currentMediaIndex])}
+                  title="Open in new window"
                 >
-                  ⛶
+                  🔗
                 </button>
                 <button 
                   className="action-btn download-btn"
@@ -2464,16 +2557,53 @@ const Dashboard: React.FC = () => {
                   <div className="media-item-display">
                     {viewingMedia[currentMediaIndex] && (
                       <div className="media-content">
-                        <img 
-                          src={`https://auzlandrelistings.s3.amazonaws.com/${viewingMedia[currentMediaIndex]}`}
-                          alt={`Media ${currentMediaIndex + 1}`}
-                          className="media-image"
-                          onError={(e) => {
-                            console.error('Failed to load image:', e.currentTarget.src);
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                          }}
-                        />
+                        {mediaPresignedUrls[viewingMedia[currentMediaIndex]] ? (
+                          (() => {
+                            const mediaKey = viewingMedia[currentMediaIndex];
+                            const filename = mediaKey?.split('/').pop() || 'media-file';
+                            const fileExtension = filename.split('.').pop()?.toLowerCase();
+                            
+                            if (fileExtension === 'pdf') {
+                              return (
+                                <iframe 
+                                  src={mediaPresignedUrls[mediaKey]}
+                                  title={filename}
+                                  className="media-pdf"
+                                  width="100%"
+                                  height="600"
+                                />
+                              );
+                            } else if (fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension)) {
+                              return (
+                                <video 
+                                  controls 
+                                  className="media-video"
+                                  width="100%"
+                                  height="auto"
+                                >
+                                  <source src={mediaPresignedUrls[mediaKey]} type={`video/${fileExtension}`} />
+                                  Your browser does not support the video tag.
+                                </video>
+                              );
+                            } else {
+                              return (
+                                <img 
+                                  src={mediaPresignedUrls[mediaKey]}
+                                  alt={filename}
+                                  className="media-image"
+                                  onError={(e) => {
+                                    console.error('Failed to load image:', e.currentTarget.src);
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              );
+                            }
+                          })()
+                        ) : (
+                          <div className="media-loading">
+                            Loading media...
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -2500,7 +2630,11 @@ const Dashboard: React.FC = () => {
                     className={`media-thumbnail ${index === currentMediaIndex ? 'active' : ''}`}
                     onClick={() => setCurrentMediaIndex(index)}
                   >
-                    <img src={`https://auzlandrelistings.s3.amazonaws.com/${item}`} alt={`Media ${index + 1}`} />
+                    {mediaPresignedUrls[item] ? (
+                      <img src={mediaPresignedUrls[item]} alt={`Media ${index + 1}`} />
+                    ) : (
+                      <div className="thumbnail-loading">...</div>
+                    )}
                   </div>
                 ))}
               </div>
