@@ -1801,7 +1801,7 @@ const Dashboard: React.FC = () => {
           bath: row.bath || row.Bath || row.BATH || row.Bathrooms || row.bathrooms || '',
           garage: row.garage || row.Garage || row.GARAGE || '',
           registrationConstructionStatus: row.registrationConstructionStatus || row.regoDue || row.readyBy || row['Registration & Construction Status'] || row['Rego Due'] || row['Ready By'] || row['registration status'] || row['REGISTRATION STATUS'] || '',
-          price: row.price || row.price_guide || row.Price || row['Price Guide'] || row['PRICE'] || row['price'] || '',
+          price: (row.price || row.price_guide || row.Price || row['Price Guide'] || row['PRICE'] || row['price'] || '').replace(/^\$/, '').replace(/[,\s]/g, ''),
           media: row.media || row.media_url || row.Media || row.MEDIA || '',
           remark: row.remark || row.Remark || row.REMARK || '',
           updatedAt: new Date().toISOString().split('T')[0]
