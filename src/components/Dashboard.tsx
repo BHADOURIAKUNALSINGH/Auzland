@@ -58,6 +58,7 @@ const Dashboard: React.FC = () => {
   // Filter states
   const [filters, setFilters] = useState({
     quickSearch: '',
+    suburb: '',
     propertyType: '',
     availability: '',
     frontageMin: '',
@@ -261,6 +262,13 @@ const Dashboard: React.FC = () => {
     if (filters.propertyType) {
       filtered = filtered.filter(property => 
         property.propertyType?.toLowerCase() === filters.propertyType.toLowerCase()
+      );
+    }
+
+    // Suburb filter
+    if (filters.suburb) {
+      filtered = filtered.filter(property => 
+        property.suburb?.toLowerCase().includes(filters.suburb.toLowerCase())
       );
     }
 
@@ -1148,6 +1156,7 @@ const Dashboard: React.FC = () => {
   const clearAllFilters = () => {
     setFilters({
       quickSearch: '',
+      suburb: '',
       propertyType: '',
       availability: '',
       frontageMin: '',
@@ -1269,7 +1278,17 @@ const Dashboard: React.FC = () => {
 
         {/* Property Details */}
         <div className="filter-category">
-          <h4>Property Details</h4>
+          <h4>Filter By Property Details</h4>
+          <div className="filter-group">
+            <label>Suburb</label>
+            <input
+              type="text"
+              placeholder="Enter suburb name..."
+              value={filters.suburb}
+              onChange={(e) => handleFilterChange('suburb', e.target.value)}
+              className="filter-input"
+            />
+          </div>
           <div className="filter-group">
             <label>Property Type</label>
             <select 
@@ -1472,6 +1491,22 @@ const Dashboard: React.FC = () => {
               <option value="Under Construction">Under Construction</option>
               <option value="Completed">Completed</option>
             </select>
+          </div>
+          
+          {/* Clear All Filters Button - At Bottom */}
+          <div className="filter-group">
+            <button 
+              className="clear-filters-btn" 
+              onClick={clearAllFilters}
+              title={`Clear all ${getActiveFiltersCount()} active filters`}
+            >
+              🗑️ Clear All Filters
+              {getActiveFiltersCount() > 0 && (
+                <span className="filter-count-badge">
+                  ({getActiveFiltersCount()})
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>

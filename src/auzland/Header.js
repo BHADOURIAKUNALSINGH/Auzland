@@ -21,8 +21,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="logo" onClick={closeMenu}>
             <div className="logo-text">
-              <h1>Auz Land</h1>
-              <p>Real Estate</p>
+              <h1>AuzLandRE</h1>
             </div>
           </Link>
 
