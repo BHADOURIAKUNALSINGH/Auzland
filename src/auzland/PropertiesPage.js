@@ -153,6 +153,7 @@ const PropertiesPage = () => {
                 <option value="apartment">Apartment</option>
                 <option value="townhouse">Townhouse</option>
                 <option value="estate">Estate</option>
+                <option value="home and land packages">Home and Land Packages</option>
               </select>
             </div>
 

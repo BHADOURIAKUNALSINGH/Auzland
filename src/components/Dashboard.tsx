@@ -1647,7 +1647,8 @@ const Dashboard: React.FC = () => {
       'Double story',
       'Dual occupancy',
       'Apartment',
-      'Townhouse'
+      'Townhouse',
+      'Home and Land Packages'
     ];
     
     // Exact match first
@@ -1680,12 +1681,16 @@ const Dashboard: React.FC = () => {
       if (normalizedInput.includes('dual') || normalizedType.includes('dual')) score += 3;
       if (normalizedInput.includes('apartment') || normalizedType.includes('apartment')) score += 3;
       if (normalizedInput.includes('townhouse') || normalizedType.includes('townhouse')) score += 3;
+      if (normalizedInput.includes('home') || normalizedType.includes('home')) score += 3;
+      if (normalizedInput.includes('packages') || normalizedType.includes('packages')) score += 3;
       if (normalizedInput.includes('story') || normalizedType.includes('story')) score += 2;
       if (normalizedInput.includes('occupancy') || normalizedType.includes('occupancy')) score += 2;
       
       // Check for common abbreviations
       if (normalizedInput.includes('apt') && normalizedType.includes('apartment')) score += 2;
       if (normalizedInput.includes('town') && normalizedType.includes('townhouse')) score += 2;
+      if (normalizedInput.includes('hlp') && normalizedType.includes('home and land packages')) score += 2;
+      if (normalizedInput.includes('pkg') && normalizedType.includes('packages')) score += 2;
       if (normalizedInput.includes('1') && normalizedType.includes('single')) score += 1;
       if (normalizedInput.includes('2') && normalizedType.includes('double')) score += 1;
       
@@ -1931,10 +1936,11 @@ const Dashboard: React.FC = () => {
                     <option value="Dual occupancy">Dual occupancy</option>
                     <option value="Apartment">Apartment</option>
                     <option value="Townhouse">Townhouse</option>
+                    <option value="Home and Land Packages">Home and Land Packages</option>
                   </select>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="lot">Lot *</label>
+                  <label htmlFor="lot">Lot</label>
                   <input
                     type="text"
                     id="lot"
@@ -2298,7 +2304,7 @@ const Dashboard: React.FC = () => {
                     <li>Required columns: lot, address</li>
                     <li>This will replace all existing properties</li>
                     <li><strong>Smart Property Type Matching:</strong> Property types are automatically matched using fuzzy logic</li>
-                    <li>Examples: "land", "single story", "double story", "dual occupancy", "apartment", "townhouse"</li>
+                    <li>Examples: "land", "single story", "double story", "dual occupancy", "apartment", "townhouse", "home and land packages"</li>
                     <li>Variations like "apt", "town", "1 story", "2 story" are automatically detected</li>
                   </ul>
                 </div>
