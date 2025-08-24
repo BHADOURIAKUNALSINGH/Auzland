@@ -1084,6 +1084,32 @@
   font-style: italic;
 }
 
+/* Enhanced styling for all other dropdowns (Availability, Registration Status, etc.) */
+.form-group select:not([id="propertyType"]) {
+  background: linear-gradient(135deg, #1e293b 0%, #111827 100%);
+  border: 2px solid #475569;
+  font-weight: 500;
+  min-height: 48px;
+  color: #e5e7eb;
+}
+
+.form-group select:not([id="propertyType"]):focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.form-group select:not([id="propertyType"]) option {
+  background: #1e293b;
+  color: #e5e7eb;
+  font-weight: 500;
+  padding: 8px 12px;
+}
+
+.form-group select:not([id="propertyType"]) option:hover {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
