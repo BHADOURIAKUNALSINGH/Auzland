@@ -587,7 +587,20 @@ const Dashboard: React.FC = () => {
       media: property.media || '',
       remark: property.remark || ''
     });
+    
+    // Clear any existing media files when editing
+    setMediaFiles([]);
     setShowPropertyForm(true);
+    
+    // Log existing media for debugging
+    if (property.media) {
+      try {
+        const existingMedia = JSON.parse(property.media);
+        console.log('Editing property with existing media:', existingMedia);
+      } catch (error) {
+        console.warn('Error parsing existing media for edit:', error);
+      }
+    }
   };
 
   const handleNewProperty = () => {
@@ -647,24 +660,65 @@ const Dashboard: React.FC = () => {
       const propertyData = {
         ...propertyForm,
         id: editingProperty?.id || `new_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        media: mediaKeys.length > 0 ? JSON.stringify(mediaKeys) : '',
+        media: '',
         updatedAt: new Date().toISOString().split('T')[0]
       };
 
       if (editingProperty) {
-        // Update existing property
+        // Update existing property - preserve existing media and add new media
+        let finalMediaKeys: string[] = [];
+        
+        // Parse existing media if any (use current editingProperty state which may have been updated)
+        if (editingProperty.media) {
+          try {
+            const existingMedia = JSON.parse(editingProperty.media);
+            if (Array.isArray(existingMedia)) {
+              finalMediaKeys = [...existingMedia];
+            }
+          } catch (error) {
+            console.warn('Error parsing existing media:', error);
+          }
+        }
+        
+        // Add new media keys
+        if (mediaKeys.length > 0) {
+          finalMediaKeys = [...finalMediaKeys, ...mediaKeys];
+        }
+        
+        // Set the final media
+        propertyData.media = finalMediaKeys.length > 0 ? JSON.stringify(finalMediaKeys) : '';
+        
         const updatedProperties = properties.map(p => 
           p.id === editingProperty.id ? propertyData : p
         );
         setProperties(updatedProperties);
         setFilteredProperties(updatedProperties);
         await autoSaveToS3(updatedProperties);
+        
+        // Show success message with media info
+        const existingCount = finalMediaKeys.length - mediaKeys.length;
+        let messageText = `Property updated successfully!`;
+        if (existingCount > 0) {
+          messageText += ` ${existingCount} existing media files preserved.`;
+        }
+        if (mediaKeys.length > 0) {
+          messageText += ` ${mediaKeys.length} new media files added.`;
+        }
+        setMessage({ type: 'success', text: messageText });
       } else {
         // Add new property
+        propertyData.media = mediaKeys.length > 0 ? JSON.stringify(mediaKeys) : '';
         const updatedProperties = [...properties, propertyData];
         setProperties(updatedProperties);
         setFilteredProperties(updatedProperties);
         await autoSaveToS3(updatedProperties);
+        
+        // Show success message
+        let messageText = `New property added successfully!`;
+        if (mediaKeys.length > 0) {
+          messageText += ` ${mediaKeys.length} media files uploaded.`;
+        }
+        setMessage({ type: 'success', text: messageText });
       }
 
       // Clear form and media files
@@ -818,6 +872,108 @@ const Dashboard: React.FC = () => {
 
   const removeMediaFile = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+
+
+  const deleteCurrentMedia = async () => {
+    if (!viewingMedia[currentMediaIndex]) return;
+    
+    const mediaKey = viewingMedia[currentMediaIndex];
+    const fileName = mediaKey?.split('/').pop() || 'this file';
+    
+    if (window.confirm(`Are you sure you want to delete "${fileName}"? This action cannot be undone.`)) {
+      try {
+        // Find the property that contains this media
+        const propertyWithMedia = properties.find(p => {
+          if (p.media) {
+            try {
+              const mediaKeys = JSON.parse(p.media);
+              return Array.isArray(mediaKeys) && mediaKeys.includes(mediaKey);
+            } catch (error) {
+              return false;
+            }
+          }
+          return false;
+        });
+
+        if (propertyWithMedia) {
+          // Remove the media from the property
+          const currentMedia = JSON.parse(propertyWithMedia.media);
+          const updatedMedia = currentMedia.filter((key: string) => key !== mediaKey);
+          
+          const updatedProperty = {
+            ...propertyWithMedia,
+            media: updatedMedia.length > 0 ? JSON.stringify(updatedMedia) : ''
+          };
+
+          // Update the properties list
+          const updatedProperties = properties.map(p => 
+            p.id === propertyWithMedia.id ? updatedProperty : p
+          );
+          
+          setProperties(updatedProperties);
+          setFilteredProperties(updatedProperties);
+          
+          // Update the viewing media array
+          const updatedViewingMedia = viewingMedia.filter(key => key !== mediaKey);
+          setViewingMedia(updatedViewingMedia);
+          
+          // Reset current media index if needed
+          if (updatedViewingMedia.length === 0) {
+            setShowMediaViewer(false);
+            setCurrentMediaIndex(0);
+          } else if (currentMediaIndex >= updatedViewingMedia.length) {
+            setCurrentMediaIndex(updatedViewingMedia.length - 1);
+          }
+          
+          // Save to S3
+          await autoSaveToS3(updatedProperties);
+          
+          // Show success message
+          setMessage({ type: 'success', text: `"${fileName}" deleted successfully.` });
+          setTimeout(() => setMessage(null), 3000);
+        }
+      } catch (error) {
+        console.error('Error deleting media:', error);
+        setMessage({ type: 'error', text: `Failed to delete "${fileName}": ${error instanceof Error ? error.message : 'Unknown error'}` });
+        setTimeout(() => setMessage(null), 5000);
+      }
+    }
+  };
+
+  const showExistingMediaList = (existingMedia: string[]) => {
+    // Open the media viewer with existing media
+    setViewingMedia(existingMedia);
+    setCurrentMediaIndex(0);
+    setShowMediaViewer(true);
+  };
+
+  const removeExistingMedia = (mediaKey: string, existingMedia: string[]) => {
+    const fileName = mediaKey?.split('/').pop() || 'this file';
+    
+    if (window.confirm(`Are you sure you want to remove "${fileName}"? This action cannot be undone.`)) {
+      try {
+        const updatedMedia = existingMedia.filter(key => key !== mediaKey);
+        const updatedProperty = {
+          ...editingProperty,
+          media: updatedMedia.length > 0 ? JSON.stringify(updatedMedia) : ''
+        };
+        setEditingProperty(updatedProperty);
+        
+        // Update the form to reflect the change
+        setPropertyForm((prev: any) => ({
+          ...prev,
+          media: updatedProperty.media
+        }));
+        
+        // Show feedback message
+        setMessage({ type: 'success', text: `"${fileName}" removed from existing media.` });
+        setTimeout(() => setMessage(null), 3000);
+      } catch (error) {
+        console.warn('Error removing existing media:', error);
+      }
+    }
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -1100,6 +1256,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
+
+
   // Render media column with view and delete options
   const renderMediaColumn = (property: any) => {
     if (!property.media) return <td>-</td>;
@@ -1119,22 +1277,7 @@ const Dashboard: React.FC = () => {
               📷 View Media ({mediaKeys.length})
             </button>
           </div>
-          <div className="media-items">
-            {mediaKeys.map((key: string, index: number) => (
-              <div key={key} className="media-item">
-                <span className="media-key">{key.split('/').pop() || key}</span>
-                {hasEditAccess && (
-                  <button 
-                    className="delete-media-btn"
-                    onClick={() => handleDeleteMedia(property, key)}
-                    title="Delete media"
-                  >
-                    🗑️
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+
         </td>
       );
     } catch (error) {
@@ -2462,6 +2605,45 @@ const Dashboard: React.FC = () => {
 
               <div className="form-group">
                 <label htmlFor="media">Media Upload</label>
+                
+                {/* Display existing media count when editing */}
+                {editingProperty && editingProperty.media && (
+                  <div className="existing-media-section" key={`media-section-${editingProperty.id}-${Date.now()}`}>
+                    <h4>📁 Existing Media Files</h4>
+                    {(() => {
+                      try {
+                        const existingMedia = JSON.parse(editingProperty.media);
+                        console.log('Rendering existing media count:', existingMedia.length); // Debug log
+                        if (Array.isArray(existingMedia) && existingMedia.length > 0) {
+                          console.log('Rendering stacked media display for:', existingMedia.length, 'files');
+                          return (
+                            <div className="existing-media-stack">
+                              {existingMedia.map((mediaKey: string, index: number) => (
+                                <div key={index} className="existing-media-item-stacked">
+                                  <span className="media-file-name">
+                                    {mediaKey.split('/').pop() || mediaKey}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeExistingMedia(mediaKey, existingMedia)}
+                                    className="remove-existing-media-btn"
+                                    title="Remove this media file"
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+                      } catch (error) {
+                        console.warn('Error parsing existing media:', error);
+                      }
+                      return <p>No existing media files</p>;
+                    })()}
+                  </div>
+                )}
+                
                 <div className="media-upload-section">
                   <input
                     type="file"
@@ -2565,6 +2747,15 @@ const Dashboard: React.FC = () => {
                 >
                   ⬇️
                 </button>
+                {hasEditAccess && (
+                  <button 
+                    className="action-btn delete-media-btn"
+                    onClick={() => deleteCurrentMedia()}
+                    title="Delete this media file"
+                  >
+                    🗑️
+                  </button>
+                )}
                 <button 
                   className="close-media-viewer"
                   onClick={closeMediaViewer}
