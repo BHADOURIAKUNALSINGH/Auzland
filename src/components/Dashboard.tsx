@@ -1588,11 +1588,13 @@ const Dashboard: React.FC = () => {
       throw new Error('CSV file must have at least a header row and one data row');
     }
     
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    // Parse CSV headers - handle quoted fields properly
+    const headerLine = lines[0];
+    const headers = parseCSVLine(headerLine);
     console.log('CSV Headers detected:', headers);
     
     const processedData = lines.slice(1).map((line, rowIndex) => {
-      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+      const values = parseCSVLine(line);
       const row: any = {};
       
       headers.forEach((header, index) => {
@@ -1609,6 +1611,7 @@ const Dashboard: React.FC = () => {
       // Log the first few rows for debugging
       if (rowIndex < 3) {
         console.log(`Row ${rowIndex + 1}:`, row);
+        console.log(`Row ${rowIndex + 1} values:`, values);
       }
       
       return row;
@@ -1616,6 +1619,32 @@ const Dashboard: React.FC = () => {
     
     console.log(`Processed ${processedData.length} rows from CSV`);
     return processedData;
+  };
+
+  // Simple CSV line parser that handles quoted fields
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    // Add the last field
+    result.push(current.trim());
+    
+    // Remove quotes from each field
+    return result.map(field => field.replace(/^"|"$/g, ''));
   };
 
   // Fuzzy matching function for property types
@@ -1751,28 +1780,34 @@ const Dashboard: React.FC = () => {
     try {
       setCsvUploadProgress(75);
       
+      console.log('Raw CSV data received:', data);
+      
       // Map CSV data to property structure
       const mappedProperties = data.map((row, index) => {
+        console.log(`Processing row ${index}:`, row);
+        
         // Create property object with current field structure
         const property = {
           id: row.id || `imported_${Date.now()}_${index}`,
-          propertyType: row.propertyType || row.property_type || row['Property Type'] || '',
-          lot: row.lot || row.Lot || '',
-          address: row.address || row.Address || '',
-          suburb: row.suburb || row.Suburb || '',
-          availability: row.availability || row.Availability || '',
-          frontage: row.frontage || row.frontage_m || row.Frontage || '',
-          landSize: row.landSize || row.land_area_sqm || row['Land Size'] || row['Land Size (sqm)'] || '',
-          buildSize: row.buildSize || row.build_area_sqm || row['Build Size'] || row['Build Size (sqm)'] || '',
-          bed: row.bed || row.Bed || row.Bedrooms || '',
-          bath: row.bath || row.Bath || row.Bathrooms || '',
-          garage: row.garage || row.Garage || '',
-          registrationConstructionStatus: row.registrationConstructionStatus || row.regoDue || row.readyBy || row['Registration & Construction Status'] || row['Rego Due'] || row['Ready By'] || '',
-          price: row.price || row.price_guide || row.Price || row['Price Guide'] || '',
-          media: row.media || row.media_url || row.Media || '',
-          remark: row.remark || row.Remark || '',
+          propertyType: row.propertyType || row.property_type || row['Property Type'] || row['property type'] || row['PROPERTY TYPE'] || '',
+          lot: row.lot || row.Lot || row.LOT || '',
+          address: row.address || row.Address || row.ADDRESS || '',
+          suburb: row.suburb || row.Suburb || row.SUBURB || '',
+          availability: row.availability || row.Availability || row.AVAILABILITY || '',
+          frontage: row.frontage || row.frontage_m || row.Frontage || row.FRONTAGE || '',
+          landSize: row.landSize || row.land_area_sqm || row['Land Size'] || row['Land Size (sqm)'] || row['LAND SIZE'] || row['land size'] || '',
+          buildSize: row.buildSize || row.build_area_sqm || row['Build Size'] || row['Build Size (sqm)'] || row['BUILD SIZE'] || row['build size'] || '',
+          bed: row.bed || row.Bed || row.BED || row.Bedrooms || row.bedrooms || '',
+          bath: row.bath || row.Bath || row.BATH || row.Bathrooms || row.bathrooms || '',
+          garage: row.garage || row.Garage || row.GARAGE || '',
+          registrationConstructionStatus: row.registrationConstructionStatus || row.regoDue || row.readyBy || row['Registration & Construction Status'] || row['Rego Due'] || row['Ready By'] || row['registration status'] || row['REGISTRATION STATUS'] || '',
+          price: row.price || row.price_guide || row.Price || row['Price Guide'] || row['PRICE'] || row['price'] || '',
+          media: row.media || row.media_url || row.Media || row.MEDIA || '',
+          remark: row.remark || row.Remark || row.REMARK || '',
           updatedAt: new Date().toISOString().split('T')[0]
         };
+
+        console.log(`Mapped property ${index}:`, property);
 
         // Apply fuzzy matching for property type
         if (property.propertyType) {
@@ -1781,6 +1816,9 @@ const Dashboard: React.FC = () => {
 
         return property;
       }).filter(property => property.lot || property.address); // Only include properties with lot or address
+
+      console.log('Final mapped properties:', mappedProperties);
+      console.log('Properties after filtering:', mappedProperties.length);
 
       setCsvUploadProgress(90);
       
