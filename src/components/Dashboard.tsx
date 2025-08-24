@@ -762,11 +762,11 @@ const Dashboard: React.FC = () => {
       }
       
       // Show success message briefly
-      setMessage({ type: 'success', text: 'Changes saved to S3 automatically.' });
+      setMessage({ type: 'success', text: 'Successfully updated!' });
       setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
     } catch (err: any) {
       console.error('Auto-save error:', err);
-      setMessage({ type: 'error', text: `Auto-save failed: ${err.message}` });
+      setMessage({ type: 'error', text: `Upload failed: ${err.message}` });
       setTimeout(() => setMessage(null), 5000); // Clear error message after 5 seconds
     }
   };
@@ -778,7 +778,7 @@ const Dashboard: React.FC = () => {
     console.log('Selected files:', files);
     
     const validFiles = files.filter(file => {
-      const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
+      const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/') || file.type === 'application/pdf';
       const isValidSize = file.size <= 20 * 1024 * 1024; // 20MB limit
       
       console.log('File validation:', {
@@ -790,7 +790,7 @@ const Dashboard: React.FC = () => {
       });
       
       if (!isValidType) {
-        alert(`Invalid file type: ${file.type}. Only images and videos are allowed.`);
+        alert(`Invalid file type: ${file.type}. Only images, videos, and PDFs are allowed.`);
         return false;
       }
       
@@ -1977,7 +1977,7 @@ const Dashboard: React.FC = () => {
       <div className="dashboard-main">
         {/* Global Message Display */}
         {message && (
-          <div className={`message ${message.type}`} style={{ margin: '1rem 2rem' }}>
+          <div className={`message ${message.type}`}>
             {message.text}
           </div>
         )}
@@ -2339,12 +2339,12 @@ const Dashboard: React.FC = () => {
                     type="file"
                     id="media-upload"
                     multiple
-                    accept="image/*,video/*"
+                    accept="image/*,video/*,.pdf,.PDF"
                     onChange={handleMediaFileSelect}
                     style={{ display: 'none' }}
                   />
                   <label htmlFor="media-upload" className="media-upload-button">
-                    📸 Select Photos/Videos
+                    📸 Select Photos/Videos/PDFs
                   </label>
                   
                   {mediaFiles.length > 0 && (
@@ -2353,7 +2353,9 @@ const Dashboard: React.FC = () => {
                       {mediaFiles.map((file, index) => (
                         <div key={index} className="media-file-item">
                           <span className="media-file-name">
-                            {file.type.startsWith('image/') ? '🖼️' : '🎥'} {file.name}
+                            {file.type.startsWith('image/') ? '🖼️' : 
+                             file.type.startsWith('video/') ? '🎥' : 
+                             file.type === 'application/pdf' ? '📄' : '📎'} {file.name}
                           </span>
                           <span className="media-file-size">
                             ({(file.size / 1024 / 1024).toFixed(2)}MB)

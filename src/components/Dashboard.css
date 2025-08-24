@@ -55,19 +55,23 @@
 }
 
 /* Filters Sidebar */
+aside.filters-sidebar,
 .filters-sidebar {
-  width: 520px; /* Increased from 420px to give more space for property details */
-  background: #0f1720;
+  width: 750px; /* Increased from 680px to make it wider and less compressed */
+  background: transparent; /* Changed from #0f1720 to transparent to remove background gap */
   border-right: 2px solid #1f2937;
   overflow-y: auto;
   flex-shrink: 0;
-  padding: 1rem; /* Reduced padding for more compact layout */
+  padding: 5px; /* Changed from 4px to 5px as requested */
 }
 
-.filters-section {
-  padding: 0;
-  background: #0f1720;
-  border-radius: 16px;
+/* Force filters-section padding to be small and override any conflicting styles */
+.filters-sidebar .filters-section {
+  padding: 0 !important; /* Changed from 15px to 0 as requested */
+  background: #0f1720; /* Restored background to fill the entire sidebar area */
+  border-radius: 0; /* Removed border radius to eliminate gaps */
+  width: 100%; /* Ensure full width to match parent */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .filters-header {
@@ -127,12 +131,14 @@
 }
 
 .filter-category {
-  margin-bottom: 1rem; /* Reduced from 1.5rem */
-  padding: 1rem; /* Reduced from 1.5rem */
+  margin-bottom: 1rem; /* Increased from 0.75rem for more breathing room */
+  padding: 8px; /* Increased from 5px for less compression */
   background: #1e293b;
-  border-radius: 8px; /* Reduced from 12px */
-  border: 1px solid #334155; /* Reduced from 2px */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+  border-radius: 10px; /* Increased from 8px for better visual appeal */
+  border: 1px solid #334155; /* Reduced from 2px for lighter appearance */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow for better depth */
+  width: 100%; /* Set to 100% to match parent filters-sidebar width */
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
 }
 
 .filter-category.primary-search {
@@ -157,10 +163,10 @@
 }
 
 .filter-group {
-  margin-bottom: 0.75rem; /* Reduced from 1rem */
+  margin-bottom: 0.75rem; /* Increased from 0.5rem for more breathing room */
   display: flex;
   flex-direction: column;
-  gap: 0.375rem; /* Reduced from 0.5rem */
+  gap: 0.5rem; /* Increased from 0.25rem for more space between elements */
 }
 
 .filter-group:last-child {
@@ -1210,22 +1216,43 @@
 
 /* Message Styles */
 .message {
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
   font-weight: 500;
   text-align: center;
+  font-size: 0.8rem;
+  max-width: 250px;
+  margin: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: slideInDown 0.3s ease-out;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
 }
 
 .message.success {
-  background: rgba(22, 163, 74, 0.15);
-  color: #86efac;
-  border: 1px solid #14532d;
+  background: rgba(22, 163, 74, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(22, 163, 74, 0.3);
 }
 
 .message.error {
-  background: rgba(185, 28, 28, 0.15);
-  color: #fecaca;
-  border: 1px solid #7f1d1d;
+  background: rgba(185, 28, 28, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(185, 28, 28, 0.3);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Upload Modal Styles */
@@ -2543,10 +2570,10 @@
 
 /* Filter group improvements */
 .filter-group {
-  margin-bottom: 0.75rem; /* Reduced from 1rem */
+  margin-bottom: 0.75rem; /* Increased from 0.5rem for more breathing room */
   display: flex;
   flex-direction: column;
-  gap: 0.375rem; /* Reduced from 0.5rem */
+  gap: 0.5rem; /* Increased from 0.25rem for more space between elements */
 }
 
 .filter-group label {
