@@ -608,12 +608,16 @@ const Dashboard: React.FC = () => {
     
     if (!propertyForm.address) {
       setMessage({ type: 'error', text: 'Address is a required field.' });
+      // Clear message after 5 seconds
+      setTimeout(() => setMessage(null), 5000);
       return;
     }
 
     // Check for duplicate addresses
     if (isDuplicateAddress(propertyForm.address, propertyForm.lot, propertyForm.suburb, properties, editingProperty?.id)) {
       setMessage({ type: 'error', text: 'Address already exists in this suburb! Please use a different address or edit the existing property.' });
+      // Clear message after 5 seconds
+      setTimeout(() => setMessage(null), 5000);
       return;
     }
 
@@ -1994,6 +1998,13 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="dashboard-main">
+        {/* Global Message Display */}
+        {message && (
+          <div className={`message ${message.type}`} style={{ margin: '1rem 2rem' }}>
+            {message.text}
+          </div>
+        )}
+        
         {renderFiltersSidebar()}
         
         <div className="content-area">
@@ -2142,6 +2153,13 @@ const Dashboard: React.FC = () => {
             </div>
 
             <form onSubmit={handlePropertyFormSubmit} className="modal-form">
+              {/* Property Form Message Display */}
+              {message && (
+                <div className={`message ${message.type}`}>
+                  {message.text}
+                </div>
+              )}
+              
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="propertyType">Property Type *</label>
