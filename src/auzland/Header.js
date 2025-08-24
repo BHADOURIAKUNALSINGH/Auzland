@@ -62,9 +62,9 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="header-cta">
-            <button className="btn btn-secondary">
-              What's My Home Worth?
-            </button>
+            <Link to="/properties" className="btn btn-secondary">
+              Login
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -90,9 +90,9 @@ const Header = () => {
           <Link to="/contact" className="nav-link" onClick={closeMenu}>
             CONTACT
           </Link>
-          <button className="btn btn-primary btn-large" onClick={closeMenu}>
-            What's My Home Worth?
-          </button>
+          <Link to="/properties" className="btn btn-primary btn-large" onClick={closeMenu}>
+            Login
+          </Link>
         </nav>
       </div>
     </header>

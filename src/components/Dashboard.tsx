@@ -584,8 +584,8 @@ const Dashboard: React.FC = () => {
   const handlePropertyFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!propertyForm.lot || !propertyForm.address) {
-      alert('Lot and Address are required fields.');
+    if (!propertyForm.address) {
+      alert('Address is a required field.');
       return;
     }
 
@@ -1926,7 +1926,6 @@ const Dashboard: React.FC = () => {
                     value={propertyForm.lot}
                     onChange={(e) => handlePropertyFormChange('lot', e.target.value)}
                     placeholder="Lot number"
-                    required
                   />
                 </div>
               </div>
