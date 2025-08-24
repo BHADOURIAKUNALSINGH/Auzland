@@ -1214,10 +1214,9 @@ const Dashboard: React.FC = () => {
               onChange={(e) => handleFilterChange('availability', e.target.value)}
             >
               <option value="">All Availability</option>
-              <option value="For Sale">For Sale</option>
-              <option value="Under Contract">Under Contract</option>
+              <option value="Available">Available</option>
+              <option value="Under Offer">Under Offer</option>
               <option value="Sold">Sold</option>
-              <option value="Rent">Rent</option>
             </select>
           </div>
         </div>
@@ -1238,6 +1237,7 @@ const Dashboard: React.FC = () => {
               <option value="Dual occupancy">Dual occupancy</option>
               <option value="Apartment">Apartment</option>
               <option value="Townhouse">Townhouse</option>
+              <option value="Home and Land Packages">Home and Land Packages</option>
             </select>
           </div>
           <div className="filter-group">
@@ -1979,13 +1979,21 @@ const Dashboard: React.FC = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="availability">Availability</label>
-                  <input
-                    type="text"
+                  <select
                     id="availability"
                     value={propertyForm.availability}
                     onChange={(e) => handlePropertyFormChange('availability', e.target.value)}
-                    placeholder="e.g., For Sale, Under Contract"
-                  />
+                    style={{
+                      color: propertyForm.availability ? '#e5e7eb' : '#94a3b8'
+                    }}
+                  >
+                    <option value="" disabled style={{ color: '#94a3b8' }}>
+                      -- Select Availability --
+                    </option>
+                    <option value="Available">Available</option>
+                    <option value="Under Offer">Under Offer</option>
+                    <option value="Sold">Sold</option>
+                  </select>
                 </div>
                 <div className="form-group">
                   <label htmlFor="frontage">Frontage (m)</label>
