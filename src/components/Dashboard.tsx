@@ -1157,41 +1157,19 @@ const Dashboard: React.FC = () => {
   const renderFiltersSidebar = () => (
     <aside className="filters-sidebar">
       <div className="filters-section">
-        <div className="filters-header">
-          <h4>Filters</h4>
-          {getActiveFiltersCount() > 0 && (
-            <button 
-              className="clear-filters-btn"
-              onClick={clearAllFilters}
-              title="Clear all filters"
-            >
-              Clear All
-            </button>
-          )}
-        </div>
-        
-        {getActiveFiltersCount() > 0 && (
-          <div className="active-filters">
-            <span className="active-filters-label">Active: {getActiveFiltersCount()}</span>
-          </div>
-        )}
-
-        {/* Universal Search */}
-        <div className="filter-category">
-          <h4>Search Properties</h4>
-          <div className="filter-group">
-            <label>Quick Search</label>
-            <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
-              <input
-                type="text"
-                placeholder="Search by property type, address, suburb, lot, or any property details..."
-                value={filters.quickSearch}
-                onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
-                className="universal-search-input"
-              />
-              <div className="search-tooltip">
-                💡 Search across property type, address, suburb, lot number, and more
-              </div>
+        {/* Quick Search */}
+        <div className="filter-group">
+          <label>Quick Search</label>
+          <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
+            <input
+              type="text"
+              placeholder="Search by property type, address, suburb, lot, or any property details..."
+              value={filters.quickSearch}
+              onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
+              className="universal-search-input"
+            />
+            <div className="search-tooltip">
+              💡 Search across property type, address, suburb, lot number, and more
             </div>
           </div>
         </div>
@@ -1310,7 +1288,7 @@ const Dashboard: React.FC = () => {
                 className="range-input"
                 min="0"
               />
-              <span className="range-sep">to</span>
+              <span className="range-separator">to</span>
               <input
                 type="number"
                 placeholder="Max"
@@ -1332,7 +1310,7 @@ const Dashboard: React.FC = () => {
                 className="range-input"
                 min="0"
               />
-              <span className="range-sep">to</span>
+              <span className="range-separator">to</span>
               <input
                 type="number"
                 placeholder="Max"
@@ -1354,7 +1332,7 @@ const Dashboard: React.FC = () => {
                 className="range-input"
                 min="0"
               />
-              <span className="range-sep">to</span>
+              <span className="range-separator">to</span>
               <input
                 type="number"
                 placeholder="Max"
@@ -1377,7 +1355,7 @@ const Dashboard: React.FC = () => {
                 min="0"
                 step="0.01"
               />
-              <span className="range-sep">to</span>
+              <span className="range-separator">to</span>
               <input
                 type="number"
                 placeholder="Max"
@@ -1391,20 +1369,18 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="filter-group">
             <label>Registration & Construction Status</label>
-            <select
-              value={filters.registrationConstructionStatus}
+            <select 
+              value={filters.registrationConstructionStatus} 
               onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
             >
               <option value="">All Statuses</option>
               <option value="Registered">Registered</option>
-              <option value="Un-Registered">Un-Registered</option>
+              <option value="Unregistered">Unregistered</option>
               <option value="Under Construction">Under Construction</option>
-              <option value="Constructed">Constructed</option>
+              <option value="Completed">Completed</option>
             </select>
           </div>
         </div>
-
-
       </div>
     </aside>
   );
