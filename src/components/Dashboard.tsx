@@ -572,6 +572,12 @@ const Dashboard: React.FC = () => {
       return;
     }
 
+    // Check for duplicate addresses
+    if (isDuplicateAddress(propertyForm.address, propertyForm.lot, properties, editingProperty?.id)) {
+      setMessage({ type: 'error', text: 'Address already exists! Please use a different address or edit the existing property.' });
+      return;
+    }
+
     try {
       let mediaKeys: string[] = [];
       
@@ -1674,6 +1680,81 @@ const Dashboard: React.FC = () => {
     return bestScore >= 2 ? bestMatch : input; // Return original if no good match
   };
 
+  // Check for duplicate addresses using fuzzy matching
+  const isDuplicateAddress = (newAddress: string, newLot: string, existingProperties: any[], excludeId?: string): boolean => {
+    if (!newAddress || !newAddress.trim()) return false;
+    
+    const normalizedNewAddress = newAddress.toLowerCase().trim();
+    const normalizedNewLot = newLot ? newLot.toLowerCase().trim() : '';
+    
+    return existingProperties.some(property => {
+      // Skip the property being edited (if any)
+      if (excludeId && property.id === excludeId) return false;
+      
+      if (!property.address) return false;
+      
+      const existingAddress = property.address.toLowerCase().trim();
+      const existingLot = property.lot ? property.lot.toLowerCase().trim() : '';
+      
+      // Exact match on both address and lot
+      if (existingAddress === normalizedNewAddress && existingLot === normalizedNewLot) return true;
+      
+      // If lot is provided, check for exact address match with different lot (this is OK)
+      if (normalizedNewLot && existingLot && existingAddress === normalizedNewAddress && existingLot !== normalizedNewLot) {
+        return false; // Different lot numbers are not duplicates
+      }
+      
+      // Fuzzy matching for similar addresses (only if lot numbers are the same or not provided)
+      if (existingAddress === normalizedNewAddress || 
+          (normalizedNewLot === existingLot || (!normalizedNewLot && !existingLot))) {
+        const similarity = calculateAddressSimilarity(normalizedNewAddress, existingAddress);
+        return similarity > 0.8; // 80% similarity threshold
+      }
+      
+      return false;
+    });
+  };
+
+  // Calculate similarity between two addresses using Levenshtein distance
+  const calculateAddressSimilarity = (str1: string, str2: string): number => {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const distance = levenshteinDistance(longer, shorter);
+    return (longer.length - distance) / longer.length;
+  };
+
+  // Levenshtein distance algorithm for string similarity
+  const levenshteinDistance = (str1: string, str2: string): number => {
+    const matrix = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  };
+
   const processExcelUpload = async () => {
     if (!csvFile) return;
     
@@ -1782,15 +1863,40 @@ const Dashboard: React.FC = () => {
 
       setCsvUploadProgress(90);
       
-      // Replace existing properties with imported ones
-      setProperties(mappedProperties);
-      setFilteredProperties(mappedProperties);
+      // Filter out duplicate addresses before adding to existing properties
+      const existingProperties = [...properties];
+      const newProperties: any[] = [];
+      const duplicateCount = { count: 0, addresses: [] as string[] };
+      
+      for (const property of mappedProperties) {
+        if (isDuplicateAddress(property.address, property.lot, existingProperties)) {
+          duplicateCount.count++;
+          duplicateCount.addresses.push(property.address);
+        } else {
+          newProperties.push(property);
+        }
+      }
+
+      // Add new properties to existing ones (don't replace all)
+      const updatedProperties = [...existingProperties, ...newProperties];
+      setProperties(updatedProperties);
+      setFilteredProperties(updatedProperties);
       
       // Save to S3
-      await autoSaveToS3(mappedProperties);
+      await autoSaveToS3(updatedProperties);
       
       setCsvUploadProgress(100);
-      setMessage({ type: 'success', text: `Successfully imported ${mappedProperties.length} properties` });
+      
+      // Show success message with duplicate info
+      let messageText = `Successfully imported ${newProperties.length} new properties`;
+      if (duplicateCount.count > 0) {
+        messageText += `. ${duplicateCount.count} duplicate addresses were skipped to prevent duplicates.`;
+        if (duplicateCount.count <= 5) {
+          messageText += ` Skipped: ${duplicateCount.addresses.join(', ')}`;
+        }
+      }
+      
+      setMessage({ type: 'success', text: messageText });
       
       // Close modal after a short delay
       setTimeout(() => {
