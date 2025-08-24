@@ -1300,95 +1300,93 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="filter-group">
-            <label>Rooms & Parking</label>
-            <div className="compact-range-inputs">
-              <div className="range-row">
-                <span className="range-label">Bed:</span>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.bedMin}
-                  onChange={(e) => handleFilterChange('bedMin', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                />
-                <span className="range-separator">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.bedMax}
-                  onChange={(e) => handleFilterChange('bedMax', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                />
-              </div>
-              <div className="range-row">
-                <span className="range-label">Bath:</span>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.bathMin}
-                  onChange={(e) => handleFilterChange('bathMin', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                />
-                <span className="range-separator">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.bathMax}
-                  onChange={(e) => handleFilterChange('bathMax', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                />
-              </div>
-              <div className="range-row">
-                <span className="range-label">Garage:</span>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.garageMin}
-                  onChange={(e) => handleFilterChange('garageMin', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                />
-                <span className="range-separator">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.garageMax}
-                  onChange={(e) => handleFilterChange('garageMax', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                />
-              </div>
+            <label>Bed</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.bedMin}
+                onChange={(e) => handleFilterChange('bedMin', e.target.value)}
+                className="range-input"
+                min="0"
+              />
+              <span className="range-sep">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.bedMax}
+                onChange={(e) => handleFilterChange('bedMax', e.target.value)}
+                className="range-input"
+                min="0"
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Bath</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.bathMin}
+                onChange={(e) => handleFilterChange('bathMin', e.target.value)}
+                className="range-input"
+                min="0"
+              />
+              <span className="range-sep">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.bathMax}
+                onChange={(e) => handleFilterChange('bathMax', e.target.value)}
+                className="range-input"
+                min="0"
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Garage</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.garageMin}
+                onChange={(e) => handleFilterChange('garageMin', e.target.value)}
+                className="range-input"
+                min="0"
+              />
+              <span className="range-sep">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.garageMax}
+                onChange={(e) => handleFilterChange('garageMax', e.target.value)}
+                className="range-input"
+                min="0"
+              />
             </div>
           </div>
           <div className="filter-group">
             <label>Price Range</label>
-            <div className="compact-range-inputs">
-              <div className="range-row">
-                <span className="range-label">$</span>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.priceMin}
-                  onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                  step="0.01"
-                />
-                <span className="range-separator">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.priceMax}
-                  onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                  className="range-input compact"
-                  min="0"
-                  step="0.01"
-                />
-              </div>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.priceMin}
+                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+              <span className="range-sep">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.priceMax}
+                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
             </div>
           </div>
           <div className="filter-group">
