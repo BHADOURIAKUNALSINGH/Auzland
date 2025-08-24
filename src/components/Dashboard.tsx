@@ -968,21 +968,9 @@ const Dashboard: React.FC = () => {
       const mediaKeys = JSON.parse(property.media);
       if (mediaKeys.length === 0) return;
       
-      // Filter out PDF files for view-access only users
-      const filteredMediaKeys = hasEditAccess ? mediaKeys : mediaKeys.filter((key: string) => {
-        const filename = key.split('/').pop() || key;
-        const fileExtension = filename.split('.').pop()?.toLowerCase();
-        return fileExtension !== 'pdf';
-      });
-      
-      if (filteredMediaKeys.length === 0) {
-        alert('No viewable media files available.');
-        return;
-      }
-      
-      // Fetch presigned URLs for filtered media keys
+      // Fetch presigned URLs for all media keys
       const presignedUrls: {[key: string]: string} = {};
-      for (const key of filteredMediaKeys) {
+      for (const key of mediaKeys) {
         try {
           const presignedUrl = await fetchPresignedUrl(key);
           presignedUrls[key] = presignedUrl;
@@ -993,7 +981,7 @@ const Dashboard: React.FC = () => {
       }
       
       setMediaPresignedUrls(presignedUrls);
-      setViewingMedia(filteredMediaKeys);
+      setViewingMedia(mediaKeys);
       setCurrentMediaIndex(0);
       setShowMediaViewer(true);
     } catch (error: any) {
@@ -1120,15 +1108,6 @@ const Dashboard: React.FC = () => {
       const mediaKeys = JSON.parse(property.media);
       if (mediaKeys.length === 0) return <td>-</td>;
       
-      // Filter out PDF files for view-access only users
-      const filteredMediaKeys = hasEditAccess ? mediaKeys : mediaKeys.filter((key: string) => {
-        const filename = key.split('/').pop() || key;
-        const fileExtension = filename.split('.').pop()?.toLowerCase();
-        return fileExtension !== 'pdf';
-      });
-      
-      if (filteredMediaKeys.length === 0) return <td>-</td>;
-      
       return (
         <td className="media-column">
           <div className="media-controls">
@@ -1137,11 +1116,11 @@ const Dashboard: React.FC = () => {
               onClick={() => openMediaViewer(property)}
               title="View all media"
             >
-              📷 View Media ({filteredMediaKeys.length})
+              📷 View Media ({mediaKeys.length})
             </button>
           </div>
           <div className="media-items">
-            {filteredMediaKeys.map((key: string, index: number) => (
+            {mediaKeys.map((key: string, index: number) => (
               <div key={key} className="media-item">
                 <span className="media-key">{key.split('/').pop() || key}</span>
                 {hasEditAccess && (
@@ -2620,15 +2599,6 @@ const Dashboard: React.FC = () => {
                             const fileExtension = filename.split('.').pop()?.toLowerCase();
                             
                             if (fileExtension === 'pdf') {
-                              // Hide PDFs for view-access only users
-                              if (!hasEditAccess) {
-                                return (
-                                  <div className="media-restricted">
-                                    <p>PDF files are not available in view-only mode.</p>
-                                    <p>Contact an administrator for access.</p>
-                                  </div>
-                                );
-                              }
                               return (
                                 <iframe 
                                   src={mediaPresignedUrls[mediaKey]}
