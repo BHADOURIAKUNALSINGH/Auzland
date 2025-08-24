@@ -910,7 +910,7 @@
   border-radius: 12px;
   padding: 2rem;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   border: 1px solid #1f2937;
@@ -2143,7 +2143,7 @@
 /* CSV Upload Modal Styles */
 .field-mapping-info {
   margin-top: 1.5rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: #1e293b;
   border-radius: 8px;
   border: 1px solid #475569;
@@ -2158,13 +2158,13 @@
 
 .field-mapping-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
 }
 
 .field-column {
   background: #0f1720;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 6px;
   border: 1px solid #334155;
 }
@@ -2195,7 +2195,7 @@
 
 .upload-instructions {
   background: #1e293b;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   border-left: 4px solid #3b82f6;
