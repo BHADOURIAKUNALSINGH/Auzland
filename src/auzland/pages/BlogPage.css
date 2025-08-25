@@ -1,11 +1,11 @@
 .blog-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f1720 0%, #1e293b 100%);
-  color: #e2e8f0;
+  background: var(--background-white);
+  color: var(--text-primary);
 }
 
 .blog-page .page-header {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   padding: 4rem 0;
   text-align: center;
   position: relative;
@@ -35,7 +35,7 @@
 
 .blog-page .page-header p {
   font-size: 1.25rem;
-  color: #e0e7ff;
+  color: #fecaca;
   max-width: 600px;
   margin: 0 auto;
   position: relative;
@@ -49,26 +49,26 @@
 }
 
 .blog-intro {
-  background: rgba(30, 41, 59, 0.8);
+  background: white;
   border-radius: 16px;
   padding: 2.5rem;
   margin-bottom: 3rem;
-  border: 1px solid #475569;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
 }
 
 .blog-intro h2 {
   font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: #f8fafc;
+  color: var(--text-primary);
   text-align: center;
 }
 
 .lead-text {
   font-size: 1.125rem;
   line-height: 1.7;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
   text-align: center;
 }
@@ -82,37 +82,37 @@
 }
 
 .blog-links a {
-  color: #60a5fa;
+  color: var(--primary-color);
   text-decoration: none;
   padding: 0.5rem 1rem;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(220, 38, 38, 0.1);
   border-radius: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   transition: all 0.3s ease;
   font-size: 0.875rem;
 }
 
 .blog-links a:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #60a5fa;
+  background: rgba(220, 38, 38, 0.2);
+  border-color: var(--primary-color);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .blog-section {
-  background: rgba(30, 41, 59, 0.6);
+  background: white;
   border-radius: 16px;
   padding: 2.5rem;
   margin-bottom: 3rem;
-  border: 1px solid #475569;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-md);
 }
 
 .blog-section h3 {
   font-size: 1.875rem;
   font-weight: 600;
   margin-bottom: 2rem;
-  color: #f1f5f9;
+  color: var(--text-primary);
   text-align: center;
   position: relative;
 }
@@ -125,30 +125,30 @@
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
   border-radius: 2px;
 }
 
 .growth-point, .suburb-spotlight {
-  background: rgba(15, 23, 32, 0.8);
+  background: #fef2f2;
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #334155;
+  border: 1px solid #fecaca;
   transition: all 0.3s ease;
 }
 
 .growth-point:hover, .suburb-spotlight:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  border-color: #475569;
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
 }
 
 .growth-point h4, .suburb-spotlight h4 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #60a5fa;
+  color: var(--primary-color);
   display: flex;
   align-items: center;
 }
@@ -162,11 +162,11 @@
 .growth-point p, .suburb-spotlight p {
   margin-bottom: 1rem;
   line-height: 1.6;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .growth-point strong, .suburb-spotlight strong {
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -178,24 +178,24 @@
 }
 
 .life-category {
-  background: rgba(15, 23, 32, 0.8);
+  background: #fef2f2;
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid #334155;
+  border: 1px solid #fecaca;
   transition: all 0.3s ease;
 }
 
 .life-category:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  border-color: #475569;
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
 }
 
 .life-category h4 {
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #60a5fa;
+  color: var(--primary-color);
   display: flex;
   align-items: center;
 }
@@ -213,7 +213,7 @@
 
 .life-category p {
   line-height: 1.6;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
 }
 
@@ -225,10 +225,10 @@
 }
 
 .timeline-year {
-  background: rgba(15, 23, 32, 0.8);
+  background: #fef2f2;
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid #334155;
+  border: 1px solid #fecaca;
   text-align: center;
   position: relative;
 }
@@ -240,7 +240,7 @@
   left: -1rem;
   width: 2rem;
   height: 2px;
-  background: #60a5fa;
+  background: var(--primary-color);
 }
 
 .timeline-year:first-child::before {
@@ -251,8 +251,8 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #60a5fa;
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -260,17 +260,17 @@
 
 .timeline-year p {
   line-height: 1.6;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .blog-cta {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   border-radius: 16px;
   padding: 3rem;
   text-align: center;
   margin-top: 3rem;
-  border: 1px solid #60a5fa;
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+  border: 2px solid var(--primary-color);
+  box-shadow: var(--shadow-lg);
 }
 
 .blog-cta h3 {
@@ -282,7 +282,7 @@
 
 .blog-cta p {
   font-size: 1.125rem;
-  color: #e0e7ff;
+  color: #fecaca;
   margin-bottom: 2rem;
   max-width: 600px;
   margin-left: auto;
@@ -308,7 +308,7 @@
 
 .cta-buttons .btn-primary {
   background: white;
-  color: #1e40af;
+  color: var(--primary-color);
 }
 
 .cta-buttons .btn-primary:hover {
@@ -325,7 +325,7 @@
 
 .cta-buttons .btn-secondary:hover {
   background: white;
-  color: #1e40af;
+  color: var(--primary-color);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
