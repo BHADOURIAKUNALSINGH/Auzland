@@ -24,13 +24,29 @@
 .contact-page select,
 .properties-page select,
 .about-page select,
-.hero-section select {
+.hero-section select,
+.contact-page input,
+.properties-page input,
+.about-page input,
+.hero-section input {
   background: white !important;
   background-color: white !important;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   color: var(--text-primary) !important;
+}
+
+/* Ensure dashboard forms keep their dark theme */
+.employee-portal .form-group input,
+.employee-portal .form-group select,
+.dashboard .form-group input,
+.dashboard .form-group select,
+.admin-dashboard .form-group input,
+.admin-dashboard .form-group select {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  color: #e5e7eb !important;
 }
 
 body {
