@@ -53,7 +53,7 @@ const Login: React.FC = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>Welcome Back</h1>
+          <h1>AuzLandRE Dashboard</h1>
           <p>Sign in to your account</p>
         </div>
 
