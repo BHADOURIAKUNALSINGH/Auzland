@@ -223,7 +223,7 @@ const ContactPage = () => {
           <div className="map-container card" style={{ overflow: 'hidden', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.25)' }}>
             <iframe
               title="AuzLandRE Location"
-              src={`https://www.google.com/maps?q=${encodeURIComponent('108 Ingleburn Rd, Leppington NSW 2179, Australia')}&z=16&output=embed`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}&z=16&output=embed`}
               width="100%"
               height="450"
               style={{ border: 0 }}
@@ -235,7 +235,7 @@ const ContactPage = () => {
           <div className="map-actions" style={{ marginTop: '0.75rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <a
               className="btn btn-secondary"
-              href={`https://www.google.com/maps?q=${encodeURIComponent('108 Ingleburn Rd, Leppington NSW 2179, Australia')}`}
+              href={`https://www.google.com/maps?q=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -243,7 +243,7 @@ const ContactPage = () => {
             </a>
             <a
               className="btn btn-primary"
-              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('108 Ingleburn Rd, Leppington NSW 2179, Australia')}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}`}
               target="_blank"
               rel="noopener noreferrer"
             >

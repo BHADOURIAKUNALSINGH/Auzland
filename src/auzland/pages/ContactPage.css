@@ -123,8 +123,38 @@
   border-radius: 0.5rem;
   font-size: 0.875rem;
   color: var(--text-primary);
-  background: white;
+  background: white !important;
   transition: border-color 0.2s ease;
+}
+
+/* Ensure select elements have white background */
+.form-group select {
+  background: white !important;
+  background-color: white !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Style the dropdown arrow */
+.form-group select::-ms-expand {
+  display: none;
+}
+
+/* Style placeholder text for select elements */
+.form-group select option {
+  color: var(--text-primary);
+}
+
+.form-group select option:first-child {
+  color: var(--text-secondary);
+}
+
+/* Make the placeholder text darker when no option is selected */
+.form-group select:invalid {
+  color: var(--text-secondary);
 }
 
 .form-group input:focus,

@@ -31,13 +31,7 @@ const Header = () => {
               to="/buy" 
               className={location.pathname === '/buy' ? 'nav-link active' : 'nav-link'}
             >
-              BUYING
-            </Link>
-            <Link 
-              to="/sell" 
-              className={location.pathname === '/sell' ? 'nav-link active' : 'nav-link'}
-            >
-              SELLING
+              PROPERTIES
             </Link>
             <Link 
               to="/about" 
@@ -75,10 +69,7 @@ const Header = () => {
         {/* Mobile Navigation */}
         <nav className={`nav-mobile ${isMenuOpen ? 'open' : ''}`}>
           <Link to="/buy" className="nav-link" onClick={closeMenu}>
-            BUYING
-          </Link>
-          <Link to="/sell" className="nav-link" onClick={closeMenu}>
-            SELLING
+            PROPERTIES
           </Link>
           <Link to="/about" className="nav-link" onClick={closeMenu}>
             OUR STORY
