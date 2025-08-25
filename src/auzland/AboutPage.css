@@ -2,6 +2,11 @@
   margin-top: 80px; /* Account for fixed header */
 }
 
+/* Specific white text styling for about page header */
+.page-header .white-text {
+  color: white !important;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

@@ -135,7 +135,7 @@ const PropertiesPage = () => {
       <div className="page-header">
         <div className="container">
           <h1>Properties</h1>
-          <p>Discover your perfect property from our extensive collection</p>
+          <p className="white-text">Discover your perfect property from our extensive collection</p>
         </div>
       </div>
 

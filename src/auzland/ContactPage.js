@@ -63,7 +63,7 @@ const ContactPage = () => {
       <div className="page-header">
         <div className="container">
           <h1>Contact Us</h1>
-          <p>Get in touch with our team for any inquiries or assistance</p>
+          <p className="white-text">Get in touch with our team for any inquiries or assistance</p>
         </div>
       </div>
 

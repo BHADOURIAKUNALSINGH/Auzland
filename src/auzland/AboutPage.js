@@ -9,7 +9,7 @@ const AboutPage = () => {
       <section className="page-header">
         <div className="container">
           <h1>Our Story</h1>
-          <p>Building dreams, one property at a time in Sydney's South West</p>
+          <p className="white-text">Building dreams, one property at a time in Sydney's South West</p>
         </div>
       </section>
 
