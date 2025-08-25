@@ -11,6 +11,7 @@ import Header from './auzland/Header';
 import Footer from './auzland/Footer';
 import HomePage from './auzland/HomePage';
 import PropertiesPage from './auzland/PropertiesPage';
+import BlogPage from './auzland/pages/BlogPage';
 import AboutPage from './auzland/AboutPage';
 import ContactPage from './auzland/ContactPage';
 
@@ -99,7 +100,7 @@ const PublicRoutes: React.FC = () => (
       <div className="App">
         <Header />
         <main>
-          <PropertiesPage />
+          <BlogPage />
         </main>
         <Footer />
       </div>
