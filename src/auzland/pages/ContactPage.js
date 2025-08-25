@@ -166,13 +166,14 @@ const ContactPage = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label htmlFor="phone">Phone Number</label>
+                  <label htmlFor="phone">Phone Number *</label>
                   <input
                     type="tel"
                     id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    required
                     placeholder="Enter your phone number"
                   />
                 </div>
