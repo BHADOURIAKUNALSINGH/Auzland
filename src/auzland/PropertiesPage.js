@@ -1,188 +1,227 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import PropertyCard from './PropertyCard';
 import './PropertiesPage.css';
 
+const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
+
 const PropertiesPage = () => {
-  const [filterType, setFilterType] = useState('all');
-  const [sortBy, setSortBy] = useState('price-high');
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const [searchText, setSearchText] = useState(params.get('q') || '');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [properties, setProperties] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [bedMin, setBedMin] = useState('');
+  const [bathMin, setBathMin] = useState('');
+  const [garageMin, setGarageMin] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [suburb, setSuburb] = useState('');
 
-  // Sample property data
-  const allProperties = [
-    {
-      id: 1,
-      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop',
-      address: '2 McAlister Road',
-      suburb: 'Galston',
-      price: '$1,250,000',
-      bedrooms: 4,
-      bathrooms: 2,
-      parking: 2,
-      propertyType: 'House',
-      status: 'For Sale'
-    },
-    {
-      id: 2,
-      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500&h=300&fit=crop',
-      address: '1162 River Road',
-      suburb: 'Lower Portland',
-      price: '$2,800,000',
-      bedrooms: 5,
-      bathrooms: 3,
-      parking: 3,
-      propertyType: 'House',
-      status: 'For Sale'
-    },
-    {
-      id: 3,
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop',
-      address: '44-46 Peebles Road',
-      suburb: 'Arcadia',
-      price: '$3,500,000',
-      bedrooms: 6,
-      bathrooms: 4,
-      parking: 4,
-      propertyType: 'Estate',
-      status: 'For Sale'
-    },
-    {
-      id: 4,
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500&h=300&fit=crop',
-      address: '3-9 Nimbus Close',
-      suburb: 'Kellyville',
-      price: '$950,000',
-      bedrooms: 3,
-      bathrooms: 2,
-      parking: 2,
-      propertyType: 'Townhouse',
-      status: 'For Sale'
-    },
-    {
-      id: 5,
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&h=300&fit=crop',
-      address: '12 Wyoming Road',
-      suburb: 'Dural',
-      price: '$1,800,000',
-      bedrooms: 4,
-      bathrooms: 3,
-      parking: 3,
-      propertyType: 'House',
-      status: 'For Sale'
-    },
-    {
-      id: 6,
-      image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=500&h=300&fit=crop',
-      address: '769 Singleton Road',
-      suburb: 'Laughtondale',
-      price: '$4,200,000',
-      bedrooms: 7,
-      bathrooms: 5,
-      parking: 5,
-      propertyType: 'Luxury Estate',
-      status: 'For Sale'
-    },
-    {
-      id: 7,
-      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop',
-      address: '15 Park Avenue',
-      suburb: 'Parramatta',
-      price: '$850/week',
-      bedrooms: 2,
-      bathrooms: 1,
-      parking: 1,
-      propertyType: 'Apartment',
-      status: 'Rent'
-    },
-    {
-      id: 8,
-      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500&h=300&fit=crop',
-      address: '78 Beach Road',
-      suburb: 'Bondi',
-      price: '$1,200/week',
-      bedrooms: 3,
-      bathrooms: 2,
-      parking: 1,
-      propertyType: 'House',
-      status: 'Rent'
+  const parseCsv = (csv) => {
+    const rows = [];
+    if (!csv) return rows;
+    const lines = csv.split(/\r?\n/).filter(Boolean);
+    if (lines.length < 2) return rows;
+    const headers = lines[0].split(',').map((h) => h.trim());
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',');
+      const obj = {};
+      for (let j = 0; j < headers.length; j++) obj[headers[j]] = (cols[j] || '').trim();
+      rows.push(obj);
     }
-  ];
+    return rows;
+  };
 
-  const filteredProperties = allProperties.filter(property => {
-    if (filterType === 'all') return true;
-    if (filterType === 'buy') return property.status === 'For Sale';
-    if (filterType === 'rent') return property.status === 'Rent';
-    return property.propertyType.toLowerCase() === filterType;
-  });
+  const toNumber = (val) => {
+    const n = Number(val);
+    return Number.isFinite(n) ? n : undefined;
+  };
 
-  const sortedProperties = [...filteredProperties].sort((a, b) => {
-    if (sortBy === 'price-high') {
-      const priceA = parseInt(a.price.replace(/[^0-9]/g, ''));
-      const priceB = parseInt(b.price.replace(/[^0-9]/g, ''));
-      return priceB - priceA;
-    }
-    if (sortBy === 'price-low') {
-      const priceA = parseInt(a.price.replace(/[^0-9]/g, ''));
-      const priceB = parseInt(b.price.replace(/[^0-9]/g, ''));
-      return priceA - priceB;
-    }
-    if (sortBy === 'bedrooms') {
-      return b.bedrooms - a.bedrooms;
-    }
-    return 0;
-  });
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      setError('');
+      try {
+        let res = await fetch(LISTINGS_API_URL);
+        if (!res.ok) throw new Error(`Failed to load listings: HTTP ${res.status}`);
+        const data = await res.json();
+        const csv = typeof data === 'string' ? data : (data.csv || '');
+        const rows = parseCsv(csv);
+        const placeholder = [
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop'
+        ];
+        const mapped = rows.map((r, idx) => ({
+          id: r.id || `${r.address || 'property'}-${idx}`,
+          address: r.address || '',
+          suburb: r.suburb || '',
+          propertyType: r.propertyType || r.property_type || '',
+          bedrooms: toNumber(r.bed),
+          bathrooms: toNumber(r.bath),
+          parking: toNumber(r.garage),
+          landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
+          image: r.media || r.media_url || placeholder[idx % placeholder.length],
+          price: '',
+          status: r.status || 'For Sale',
+          priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })()
+        })).filter((p) => p.address || p.suburb);
+        setProperties(mapped);
+      } catch (e) {
+        setError(e?.message || 'Failed to load properties');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
+    const p = new URLSearchParams(location.search);
+    setSearchText(p.get('q') || '');
+  }, [location.search]);
+
+  const filtered = useMemo(() => {
+    const q = (searchText || '').toLowerCase();
+    let result = properties.filter((p) => `${p.address} ${p.suburb} ${p.propertyType}`.toLowerCase().includes(q));
+    const minP = priceMin ? Number(priceMin) : undefined;
+    const maxP = priceMax ? Number(priceMax) : undefined;
+    const minBed = bedMin ? Number(bedMin) : undefined;
+    const minBath = bathMin ? Number(bathMin) : undefined;
+    const minGarage = garageMin ? Number(garageMin) : undefined;
+    const type = (typeFilter || '').toLowerCase();
+    const suburbQ = (suburb || '').toLowerCase();
+    result = result.filter((p) => {
+      if (typeof minP === 'number' && (p.priceNumber ?? Infinity) < minP) return false;
+      if (typeof maxP === 'number' && (p.priceNumber ?? 0) > maxP) return false;
+      if (typeof minBed === 'number' && (p.bedrooms ?? 0) < minBed) return false;
+      if (typeof minBath === 'number' && (p.bathrooms ?? 0) < minBath) return false;
+      if (typeof minGarage === 'number' && (p.parking ?? 0) < minGarage) return false;
+      if (type && !(p.propertyType || '').toLowerCase().includes(type)) return false;
+      if (suburbQ && !(p.suburb || '').toLowerCase().includes(suburbQ)) return false;
+      return true;
+    });
+    return result;
+  }, [properties, searchText, priceMin, priceMax, bedMin, bathMin, garageMin, typeFilter, suburb]);
 
   return (
     <div className="properties-page">
       <div className="page-header">
         <div className="container">
           <h1>Properties</h1>
-          <p className="white-text">Discover your perfect property from our extensive collection</p>
+          <p className="white-text">Browse available listings</p>
         </div>
       </div>
 
       <div className="section">
         <div className="container">
-          {/* Filters */}
-          <div className="filters-section">
+          <div className="filters-section" style={{ marginBottom: 16 }}>
+            <div className="filter-group" style={{ width: '100%' }}>
+              <label>Search by address or suburb</label>
+              <input type="text" className="text-input" placeholder="e.g. Austral, Leppington" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+              <button className="btn btn-secondary" onClick={() => setShowFilters((s) => !s)}>Filters</button>
+            </div>
+            {showFilters && (
+              <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+                <div className="filter-group">
+                  <label>Suburb</label>
+                  <input className="text-input" type="text" value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Austral, Leppington" />
+                </div>
+                <div className="filter-group">
+                  <label>Min Price</label>
+                  <select className="text-input" value={priceMin} onChange={(e) => setPriceMin(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="300000">$300k</option>
+                    <option value="600000">$600k</option>
+                    <option value="1000000">$1M</option>
+                    <option value="1500000">$1.5M</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Max Price</label>
+                  <select className="text-input" value={priceMax} onChange={(e) => setPriceMax(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="600000">$600k</option>
+                    <option value="1000000">$1M</option>
+                    <option value="2000000">$2M</option>
+                    <option value="5000000">$5M</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Min Bed</label>
+                  <select className="text-input" value={bedMin} onChange={(e) => setBedMin(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                    <option value="5">5+</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Min Bath</label>
+                  <select className="text-input" value={bathMin} onChange={(e) => setBathMin(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Min Garage</label>
+                  <select className="text-input" value={garageMin} onChange={(e) => setGarageMin(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                  </select>
+                </div>
             <div className="filter-group">
-              <label>Property Type:</label>
-              <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-                <option value="all">All Properties</option>
-                <option value="buy">Buy</option>
-                <option value="rent">Rent</option>
-                <option value="house">House</option>
+                  <label>Type</label>
+                  <select className="text-input" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                    <option value="">All Types</option>
+                    <option value="land only">Land only</option>
+                    <option value="single story">Single story</option>
+                    <option value="double story">Double story</option>
+                    <option value="dual occupancy">Dual occupancy</option>
                 <option value="apartment">Apartment</option>
                 <option value="townhouse">Townhouse</option>
-                <option value="estate">Estate</option>
                 <option value="home and land packages">Home and Land Packages</option>
               </select>
             </div>
-
-            <div className="filter-group">
-              <label>Sort By:</label>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                <option value="price-high">Price: High to Low</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="bedrooms">Bedrooms</option>
-              </select>
             </div>
+            )}
           </div>
 
-          {/* Results Count */}
+          {isLoading && <p>Loading properties...</p>}
+          {error && !isLoading && <p style={{ color: 'red' }}>{error}</p>}
+
+          {!isLoading && !error && (
+            <>
           <div className="results-info">
-            <p>Showing {sortedProperties.length} properties</p>
+                <p>Showing {filtered.length} properties</p>
           </div>
-
-          {/* Properties Grid */}
           <div className="properties-grid">
-            {sortedProperties.map(property => (
-              <PropertyCard key={property.id} property={property} />
+                {filtered.map((p) => (
+                  <a key={p.id} href={`/buy/${encodeURIComponent(p.id)}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <PropertyCard property={p} />
+                  </a>
             ))}
           </div>
+            </>
+          )}
 
-          {sortedProperties.length === 0 && (
+          {!isLoading && !error && filtered.length === 0 && (
             <div className="no-results">
               <h3>No properties found</h3>
-              <p>Try adjusting your filters to see more results.</p>
+              <p>Try adjusting your search query.</p>
             </div>
           )}
         </div>

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Hero.css';
 
 const Hero = () => {
-  const [searchType, setSearchType] = useState('buying');
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Handle search logic here
-    console.log('Searching for:', searchType, searchQuery);
+    const q = searchQuery.trim();
+    const qs = q ? `?q=${encodeURIComponent(q)}` : '';
+    navigate(`/buy${qs}`);
   };
 
   return (
@@ -25,23 +27,10 @@ const Hero = () => {
           
           <form className="hero-search" onSubmit={handleSearch}>
             <div className="search-container">
-              <div className="search-type-selector">
-                <select 
-                  value={searchType} 
-                  onChange={(e) => setSearchType(e.target.value)}
-                  className="search-type-dropdown"
-                >
-                  <option value="buying">Buying</option>
-                  <option value="renting">Renting</option>
-                  <option value="selling">Selling</option>
-                  <option value="investing">Investing</option>
-                </select>
-              </div>
-              
-              <div className="search-input-wrapper">
+              <div className="search-input-wrapper" style={{ width: '100%' }}>
                 <input
                   type="text"
-                  placeholder="Search by Address, Suburb, or Postcode"
+                  placeholder="Search by Address or Suburb (e.g. Austral, Leppington)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="search-input"
@@ -56,9 +45,9 @@ const Hero = () => {
           </form>
           
           <div className="hero-cta">
-            <button className="btn btn-primary btn-large">
+            <a className="btn btn-primary btn-large" href="/contact">
               Request Appraisal Now
-            </button>
+            </a>
           </div>
           
           <div className="hero-stats">
