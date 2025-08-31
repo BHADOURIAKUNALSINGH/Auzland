@@ -129,8 +129,8 @@ const Dashboard: React.FC = () => {
   const [selectedSheet, setSelectedSheet] = useState<string>('');
   const [showSheetSelector, setShowSheetSelector] = useState(false);
 
-  // Sidebar state
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Sidebar state - filters closed by default
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 
   // Media viewer states

@@ -216,18 +216,17 @@
   background: #F7F7F7; /* Light Gray - Neutral BG */
 }
 
-/* Filters Sidebar */
+/* Filters Sidebar - Default Closed State */
 aside.filters-sidebar,
 .filters-sidebar {
-  width: 320px; /* Much narrower width for better space utilization */
-  min-width: 320px; /* Base min-width - same as open state */
-  max-width: 320px; /* Base max-width - same as open state */
+  width: 0; /* Start closed by default */
+  min-width: 0; /* Start closed by default */
+  max-width: 0; /* Start closed by default */
   background: #0f1720; /* Dark background for sidebar */
-  border-right: 2px solid #475569; /* Dark gray border */
-  overflow-y: auto;
-  overflow-x: hidden !important; /* Force prevent horizontal scrolling */
+  border-right: none; /* No border when closed */
+  overflow: hidden; /* Hide content when closed */
   flex-shrink: 0;
-  padding: 12px; /* Increased padding for better centering */
+  padding: 0; /* No padding when closed */
   min-height: 0; /* Allow flex item to shrink */
   transition: all 0.3s ease; /* Smooth transition for open/close */
   display: flex;
