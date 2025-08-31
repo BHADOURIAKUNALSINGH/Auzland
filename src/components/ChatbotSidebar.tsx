@@ -103,9 +103,20 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
     <aside className={`chatbot-sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="chatbot-header">
         <div className="chatbot-title">
-          <div className="chatbot-avatar">🤖</div>
+          <div className="chatbot-avatar">
+            <img 
+              src="/Rauz.png" 
+              alt="RAUZ AI Assistant"
+              onError={(e) => {
+                console.error('Failed to load Rauz.png image:', e);
+                // Fallback to emoji if image fails
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.parentElement!.innerHTML = '🤖';
+              }}
+            />
+          </div>
           <h3>RAUZ</h3>
-          <span className="chatbot-subtitle">Property Assistant</span>
         </div>
         <button 
           className="chatbot-toggle-btn"
