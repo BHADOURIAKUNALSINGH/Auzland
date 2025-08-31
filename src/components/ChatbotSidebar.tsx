@@ -17,7 +17,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm RAUZ, your AuzLand property assistant. How can I help you today?",
+      text: "Hi! I'm Auz, your AuzLand Real Estate assistant. How can I help you today?",
       isUser: false,
       timestamp: new Date()
     }
@@ -104,7 +104,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
     setMessages([
       {
         id: Date.now().toString(),
-        text: "Hello! I'm RAUZ, your AuzLand property assistant. How can I help you today?",
+        text: "Hi! I'm Auz, your AuzLand Real Estate assistant. How can I help you today?",
         isUser: false,
         timestamp: new Date()
       }
@@ -118,7 +118,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
           <div className="chatbot-avatar">
             <img 
               src="/Rauz.png" 
-              alt="RAUZ AI Assistant"
+              alt="Auz AI Assistant"
               onError={(e) => {
                 console.error('Failed to load Rauz.png image:', e);
                 const target = e.target as HTMLImageElement;
@@ -127,15 +127,24 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
               }}
             />
           </div>
-          <h3>RAUZ</h3>
+          <h3>AUZ</h3>
         </div>
-        <button 
-          className="chatbot-toggle-btn"
-          onClick={onToggle}
-          title={`${isOpen ? 'Hide' : 'Show'} Chatbot`}
-        >
-          {isOpen ? '→' : '←'}
-        </button>
+        <div className="chatbot-header-controls">
+          <button 
+            className="chatbot-delete-btn"
+            onClick={clearChat}
+            title="Clear chat history"
+          >
+            🗑️
+          </button>
+          <button 
+            className="chatbot-toggle-btn"
+            onClick={onToggle}
+            title={`${isOpen ? 'Hide' : 'Show'} Chatbot`}
+          >
+            {isOpen ? '→' : '←'}
+          </button>
+        </div>
       </div>
 
       <div className="chatbot-content">
@@ -172,7 +181,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about properties, locations, prices..."
+              placeholder="Ask Auz about properties, locations, prices..."
               rows={1}
               className="chatbot-input"
             />
@@ -185,13 +194,6 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
               ➤
             </button>
           </div>
-          <button
-            onClick={clearChat}
-            className="clear-chat-btn"
-            title="Clear chat history"
-          >
-            Clear Chat
-          </button>
         </div>
       </div>
     </aside>
