@@ -219,14 +219,14 @@
 /* Filters Sidebar - Default Closed State */
 aside.filters-sidebar,
 .filters-sidebar {
-  width: 0; /* Start closed by default */
-  min-width: 0; /* Start closed by default */
-  max-width: 0; /* Start closed by default */
+  width: 320px; /* Keep full width for content */
+  min-width: 320px; /* Keep full width for content */
+  max-width: 320px; /* Keep full width for content */
   background: #0f1720; /* Dark background for sidebar */
-  border-right: none; /* No border when closed */
-  overflow: hidden; /* Hide content when closed */
+  border-right: 2px solid #475569; /* Keep border for visual separation */
+  overflow: visible; /* Allow content to be visible */
   flex-shrink: 0;
-  padding: 0; /* No padding when closed */
+  padding: 12px; /* Keep padding for content */
   min-height: 0; /* Allow flex item to shrink */
   transition: all 0.3s ease; /* Smooth transition for open/close */
   display: flex;
@@ -244,6 +244,7 @@ aside.filters-sidebar,
   overflow: hidden !important;
   min-width: 0 !important;
   max-width: 0 !important;
+  transform: translateX(-100%) !important; /* Slide out to the left */
 }
 
 .filters-sidebar.open {
@@ -258,6 +259,7 @@ aside.filters-sidebar,
   flex-direction: column !important;
   align-items: center !important; /* Center filter contents horizontally */
   box-sizing: border-box !important; /* Include padding in width calculation */
+  transform: translateX(0) !important; /* Slide back to normal position */
 }
 
 /* Sidebar Toggle Button */
