@@ -334,9 +334,54 @@ const Dashboard: React.FC = () => {
 
     // Registration & Construction Status filter
     if (filters.registrationConstructionStatus) {
-      filtered = filtered.filter(property => 
-        property.registrationConstructionStatus === filters.registrationConstructionStatus
-      );
+      filtered = filtered.filter(property => {
+        const propertyStatus = property.registrationConstructionStatus?.toLowerCase() || '';
+        const filterStatus = filters.registrationConstructionStatus.toLowerCase();
+        
+        // Exact match first
+        if (propertyStatus === filterStatus) return true;
+        
+        // Handle common variations with dashes, spaces, and abbreviations
+        if (filterStatus === 'unregistered') {
+          return propertyStatus === 'unregistered' || 
+                 propertyStatus === 'un-registered' || 
+                 propertyStatus === 'un registered' ||
+                 propertyStatus === 'unreg' ||
+                 propertyStatus.includes('unregistered');
+        }
+        if (filterStatus === 'un-registered') {
+          return propertyStatus === 'unregistered' || 
+                 propertyStatus === 'un-registered' || 
+                 propertyStatus === 'un registered' ||
+                 propertyStatus === 'unreg' ||
+                 propertyStatus.includes('unregistered');
+        }
+        if (filterStatus === 'registered') {
+          return propertyStatus === 'registered' || 
+                 propertyStatus === 're-registered' || 
+                 propertyStatus === 're registered' ||
+                 propertyStatus === 'rego' ||
+                 propertyStatus.includes('registered');
+        }
+        if (filterStatus === 'under construction') {
+          return propertyStatus === 'under construction' || 
+                 propertyStatus === 'under-construction' || 
+                 propertyStatus === 'construction' ||
+                 propertyStatus === 'building' ||
+                 propertyStatus.includes('construction');
+        }
+        if (filterStatus === 'completed') {
+          return propertyStatus === 'completed' || 
+                 propertyStatus === 'complete' || 
+                 propertyStatus === 'constructed' ||
+                 propertyStatus === 'finished' ||
+                 propertyStatus.includes('completed') ||
+                 propertyStatus.includes('complete');
+        }
+        
+        // Partial match for other statuses
+        return propertyStatus.includes(filterStatus) || filterStatus.includes(propertyStatus);
+      });
     }
 
     // Apply sorting
@@ -2612,7 +2657,7 @@ const Dashboard: React.FC = () => {
                     <option value="Registered">Registered</option>
                     <option value="Un-Registered">Un-Registered</option>
                     <option value="Under Construction">Under Construction</option>
-                    <option value="Constructed">Constructed</option>
+                    <option value="Completed">Completed</option>
                   </select>
                 </div>
               </div>
