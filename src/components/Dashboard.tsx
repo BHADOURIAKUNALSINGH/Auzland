@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { NewUser } from '../types';
+import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -55,6 +56,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Chatbot sidebar state
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  
   // Filter states
   const [filters, setFilters] = useState({
     quickSearch: '',
@@ -200,18 +204,36 @@ const Dashboard: React.FC = () => {
 
 
 
-  // Handle keyboard shortcut for sidebar toggle (Ctrl/Cmd + B)
+  // Handle keyboard shortcuts for sidebar toggles (Ctrl/Cmd + B for filters, Ctrl/Cmd + R for chatbot)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
         event.preventDefault();
         setIsSidebarOpen(!isSidebarOpen);
       }
+      if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+        event.preventDefault();
+        setIsChatbotOpen(!isChatbotOpen);
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isSidebarOpen]);
+  }, [isSidebarOpen, isChatbotOpen]);
+
+  // Dynamic content area width adjustment based on chatbot sidebar state
+  useEffect(() => {
+    const contentArea = document.querySelector('.content-area') as HTMLElement;
+    if (contentArea) {
+      if (isChatbotOpen) {
+        contentArea.style.width = 'calc(100% - 380px)';
+        contentArea.style.marginRight = '0';
+      } else {
+        contentArea.style.width = '100%';
+        contentArea.style.marginRight = '0';
+      }
+    }
+  }, [isChatbotOpen]);
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
@@ -2307,6 +2329,12 @@ const Dashboard: React.FC = () => {
           {renderFiltersSidebar()}
         </aside>
         
+        {/* Chatbot Sidebar */}
+        <ChatbotSidebar 
+          isOpen={isChatbotOpen} 
+          onToggle={() => setIsChatbotOpen(!isChatbotOpen)} 
+        />
+        
         <div className="content-area">
           {/* Combined Navigation Bar - Merged welcome and properties nav */}
           <nav className="combined-nav">
@@ -2345,7 +2373,7 @@ const Dashboard: React.FC = () => {
             </div>
           </nav>
           
-          {/* Sidebar Toggle Button */}
+          {/* Sidebar Toggle Buttons */}
           <div className="sidebar-toggle-container">
             <button 
               className="sidebar-toggle-btn"
@@ -2353,6 +2381,18 @@ const Dashboard: React.FC = () => {
               title={`${isSidebarOpen ? 'Hide' : 'Show'} Filters (Ctrl/Cmd + B)`}
               aria-label="Toggle Filters Sidebar"
             >
+            </button>
+          </div>
+          
+          {/* Chatbot Toggle Button */}
+          <div className="chatbot-toggle-container">
+            <button 
+              className="chatbot-toggle-btn"
+              onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+              title={`${isChatbotOpen ? 'Hide' : 'Show'} RAUZ Chatbot (Ctrl/Cmd + R)`}
+              aria-label="Toggle RAUZ Chatbot"
+            >
+              🤖
             </button>
           </div>
 

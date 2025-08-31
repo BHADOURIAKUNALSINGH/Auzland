@@ -123,6 +123,7 @@
 /* Main Content Layout */
 .dashboard-main {
   display: flex;
+  flex-direction: row;
   flex: 1;
   overflow: hidden;
   min-height: 0; /* Allow flex item to shrink */
@@ -160,7 +161,8 @@
   overflow: hidden;
   min-height: 0; /* Allow flex item to shrink */
   position: relative; /* For absolute positioning of toggle button */
-  transition: margin-left 0.3s ease; /* Smooth transition when sidebar toggles */
+  transition: margin-left 0.3s ease, margin-right 0.3s ease, width 0.3s ease; /* Smooth transition when sidebars toggle */
+  order: 2; /* Position in middle */
 }
 
 /* Dynamic expansion of content area when sidebar is closed */
@@ -232,6 +234,7 @@ aside.filters-sidebar,
   flex-direction: column;
   align-items: center; /* Center filter contents horizontally */
   box-sizing: border-box; /* Include padding in width calculation */
+  order: 1; /* Position first (left side) */
 }
 
 /* Collapsible Sidebar States */
@@ -345,6 +348,105 @@ aside.filters-sidebar,
   filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
 }
 
+/* Chatbot Toggle Button */
+.chatbot-toggle-container {
+  position: fixed;
+  right: 0;
+  top: 80px;
+  z-index: 1000;
+  transition: right 0.3s ease; /* Smooth transition for button movement */
+}
+
+/* Ensure main content doesn't overlap with chatbot */
+.content-area {
+  position: relative;
+  z-index: 1;
+  transition: margin-right 0.3s ease, width 0.3s ease; /* Smooth transition when chatbot toggles */
+}
+
+/* Dynamic expansion of content area when chatbot sidebar is closed */
+.chatbot-sidebar.closed ~ .content-area,
+.chatbot-sidebar.closed + .content-area {
+  margin-right: 0 !important;
+  width: 100% !important;
+  flex: 1 !important;
+}
+
+.chatbot-sidebar.open ~ .content-area,
+.chatbot-sidebar.open + .content-area {
+  margin-right: 0 !important;
+  width: calc(100% - 380px) !important;
+  flex: 1 !important;
+}
+
+/* Use flexbox order to control positioning with smooth transitions */
+.dashboard-main:has(.chatbot-sidebar.open) .content-area {
+  width: calc(100% - 380px) !important;
+  flex: 1 !important;
+  transition: width 0.3s ease; /* Smooth transition for content area */
+}
+
+.dashboard-main:has(.chatbot-sidebar.closed) .content-area {
+  width: 100% !important;
+  flex: 1 !important;
+  transition: width 0.3s ease; /* Smooth transition for content area */
+}
+
+/* Force content area to take remaining space when chatbot sidebar is open */
+.dashboard-main:has(.chatbot-sidebar.open) .content-area {
+  width: calc(100% - 380px) !important;
+  flex: 1 !important;
+}
+
+.dashboard-main:has(.chatbot-sidebar.closed) .content-area {
+  width: 100% !important;
+  flex: 1 !important;
+}
+
+/* Ensure chatbot sidebar is properly layered */
+.chatbot-sidebar {
+  z-index: 1000;
+}
+
+.chatbot-toggle-btn {
+  background: #475569;
+  color: #ffffff;
+  border: none;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.chatbot-toggle-btn:hover {
+  background: #64748b;
+  transform: scale(1.05);
+  box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.chatbot-toggle-btn:active {
+  transform: scale(0.95);
+  box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Adjust chatbot toggle button position based on sidebar state */
+.chatbot-sidebar.open ~ .chatbot-toggle-container,
+.chatbot-sidebar.open + .chatbot-toggle-container {
+  right: 380px;
+}
+
+.chatbot-sidebar.closed ~ .chatbot-toggle-container,
+.chatbot-sidebar.closed + .chatbot-toggle-container {
+  right: 0;
+}
+
 /* Responsive behavior for smaller screens */
 @media (max-width: 1200px) {
   .filters-sidebar,
@@ -377,6 +479,21 @@ aside.filters-sidebar,
     border-right-width: 18px;
     border-top-width: 13px;
     border-bottom-width: 13px;
+  }
+  
+  .chatbot-sidebar.open ~ .chatbot-toggle-container,
+  .chatbot-sidebar.open + .chatbot-toggle-container {
+    right: 360px;
+  }
+  
+  /* Responsive content area width for chatbot on tablet */
+  .chatbot-sidebar.open ~ .content-area,
+  .chatbot-sidebar.open + .content-area {
+    width: calc(100% - 360px) !important;
+  }
+  
+  .dashboard-main:has(.chatbot-sidebar.open) .content-area {
+    width: calc(100% - 360px) !important;
   }
 }
 
@@ -412,6 +529,21 @@ aside.filters-sidebar,
     border-top-width: 12px;
     border-bottom-width: 12px;
   }
+  
+  .chatbot-sidebar.open ~ .chatbot-toggle-container,
+  .chatbot-sidebar.open + .chatbot-toggle-container {
+    right: 340px;
+  }
+  
+  /* Responsive content area width for chatbot on mobile */
+  .chatbot-sidebar.open ~ .content-area,
+  .chatbot-sidebar.open + .content-area {
+    width: calc(100% - 340px) !important;
+  }
+  
+  .dashboard-main:has(.chatbot-sidebar.open) .content-area {
+    width: calc(100% - 340px) !important;
+  }
 }
 
 /* Extra small screens */
@@ -446,6 +578,21 @@ aside.filters-sidebar,
     border-right-width: 14px;
     border-top-width: 10px;
     border-bottom-width: 10px;
+  }
+  
+  .chatbot-sidebar.open ~ .chatbot-toggle-container,
+  .chatbot-sidebar.open + .chatbot-toggle-container {
+    right: 300px;
+  }
+  
+  /* Responsive content area width for chatbot on extra small screens */
+  .chatbot-sidebar.open ~ .content-area,
+  .chatbot-sidebar.open + .content-area {
+    width: calc(100% - 300px) !important;
+  }
+  
+  .dashboard-main:has(.chatbot-sidebar.open) .content-area {
+    width: calc(100% - 300px) !important;
   }
 }
 
