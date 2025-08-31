@@ -20,14 +20,16 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const el = scrollerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, isTyping]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -128,7 +130,7 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
       </div>
 
       <div className="chatbot-content">
-        <div className="messages-container">
+        <div className="messages-container" ref={scrollerRef}>
           {messages.map((message) => (
             <div
               key={message.id}
