@@ -125,6 +125,9 @@ const Dashboard: React.FC = () => {
   const [selectedSheet, setSelectedSheet] = useState<string>('');
   const [showSheetSelector, setShowSheetSelector] = useState(false);
 
+  // Sidebar state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
 
   // Media viewer states
   const [showMediaViewer, setShowMediaViewer] = useState(false);
@@ -195,35 +198,20 @@ const Dashboard: React.FC = () => {
     }
   }, [hasEditAccess]);
 
-  // Handle keyboard navigation for media viewer
+
+
+  // Handle keyboard shortcut for sidebar toggle (Ctrl/Cmd + B)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!showMediaViewer) return;
-      
-      switch (event.key) {
-        case 'ArrowLeft':
-          event.preventDefault();
-          prevMedia();
-          break;
-        case 'ArrowRight':
-          event.preventDefault();
-          nextMedia();
-          break;
-        case 'Escape':
-          event.preventDefault();
-          closeMediaViewer();
-          break;
+      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+        event.preventDefault();
+        setIsSidebarOpen(!isSidebarOpen);
       }
     };
 
-    if (showMediaViewer) {
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showMediaViewer]);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isSidebarOpen]);
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
@@ -1177,6 +1165,33 @@ const Dashboard: React.FC = () => {
     setCurrentMediaIndex(0);
     setMediaPresignedUrls({});
   };
+
+  // Handle keyboard navigation for media viewer
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!showMediaViewer) return;
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          prevMedia();
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          nextMedia();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          closeMediaViewer();
+          break;
+      }
+    };
+
+    if (showMediaViewer) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [showMediaViewer, prevMedia, nextMedia, closeMediaViewer]);
 
 
 
@@ -2237,7 +2252,10 @@ const Dashboard: React.FC = () => {
           </div>
         )}
         
-        {renderFiltersSidebar()}
+        {/* Collapsible Filters Sidebar */}
+        <aside className={`filters-sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+          {renderFiltersSidebar()}
+        </aside>
         
         <div className="content-area">
           {/* Combined Navigation Bar - Merged welcome and properties nav */}
@@ -2276,6 +2294,17 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
           </nav>
+          
+          {/* Sidebar Toggle Button */}
+          <div className="sidebar-toggle-container">
+            <button 
+              className="sidebar-toggle-btn"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              title={`${isSidebarOpen ? 'Hide' : 'Show'} Filters (Ctrl/Cmd + B)`}
+              aria-label="Toggle Filters Sidebar"
+            >
+            </button>
+          </div>
 
           {/* Tab Content */}
           {activeTab === 'properties' ? (
