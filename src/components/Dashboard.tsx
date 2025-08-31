@@ -2228,22 +2228,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Navigation Header */}
-      <nav className="dashboard-nav">
-        <div className="nav-brand">
-          <h2>AuzLandRE Property Management Dashboard</h2>
-        </div>
-        <div className="nav-user">
-          <span className="username">Welcome, {user?.email || user?.username}</span>
-          <div className="user-info">
-            <span className="user-email">{user?.email}</span>
-            <span className="user-role">
-              {hasEditAccess ? 'Administrator' : 'View Access'}
-            </span>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="dashboard-main">
         {/* Global Message Display */}
@@ -2256,26 +2240,37 @@ const Dashboard: React.FC = () => {
         {renderFiltersSidebar()}
         
         <div className="content-area">
-          {/* Top Navigation - Always Visible */}
-          <nav className="properties-nav">
-            <div className="nav-tabs">
-              <button 
-                className={`nav-tab ${activeTab === 'properties' ? 'active' : ''}`}
-                onClick={() => setActiveTab('properties')}
-              >
-                Properties
-              </button>
-              {hasEditAccess && (
+          {/* Combined Navigation Bar - Merged welcome and properties nav */}
+          <nav className="combined-nav">
+            <div className="nav-left">
+              <div className="nav-brand">
+                <h2>AuzLandRE Property Management Dashboard</h2>
+              </div>
+              <div className="nav-tabs">
                 <button 
-                  className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('admin')}
+                  className={`nav-tab ${activeTab === 'properties' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('properties')}
                 >
-                  Admin Tools
+                  Properties
                 </button>
-              )}
+                {hasEditAccess && (
+                  <button 
+                    className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('admin')}
+                  >
+                    Admin Tools
+                  </button>
+                )}
+              </div>
             </div>
             
-            <div className="nav-user">
+            <div className="nav-right">
+              <div className="user-info">
+                <span className="username">Welcome, {user?.email || user?.username}</span>
+                <span className="user-role">
+                  {hasEditAccess ? 'Administrator' : 'View Access'}
+                </span>
+              </div>
               <button onClick={signOut} className="signout-button">
                 Sign Out
               </button>
