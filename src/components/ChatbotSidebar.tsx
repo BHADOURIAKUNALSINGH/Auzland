@@ -8,7 +8,12 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ isOpen, onToggle }) => {
+interface ChatbotSidebarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -17,18 +22,23 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
       timestamp: new Date()
     }
   ]);
+  
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // Always scroll to top when sidebar opens
   useEffect(() => {
-    const el = scrollerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (isOpen && scrollerRef.current) {
+      scrollerRef.current.scrollTop = 0;
+    }
+  }, [isOpen]);
+
+  // Auto-scroll to bottom for new messages
+  useEffect(() => {
+    if (scrollerRef.current) {
+      scrollerRef.current.scrollTop = scrollerRef.current.scrollHeight;
+    }
   }, [messages, isTyping]);
 
   const handleSendMessage = async () => {
@@ -45,7 +55,7 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response (replace with actual AI integration)
+    // Simulate AI response
     setTimeout(() => {
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -55,7 +65,7 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
       };
       setMessages(prev => [...prev, aiResponse]);
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+    }, 1000 + Math.random() * 2000);
   };
 
   const generateAIResponse = (userMessage: string): string => {
@@ -102,7 +112,7 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
   };
 
   return (
-    <aside className={`chatbot-sidebar ${isOpen ? 'open' : 'closed'}`}>
+    <aside id="rauz-chat" className={`chatbot-sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="chatbot-header">
         <div className="chatbot-title">
           <div className="chatbot-avatar">
@@ -111,7 +121,6 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
               alt="RAUZ AI Assistant"
               onError={(e) => {
                 console.error('Failed to load Rauz.png image:', e);
-                // Fallback to emoji if image fails
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
                 target.parentElement!.innerHTML = '🤖';
@@ -134,20 +143,20 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`message ${message.isUser ? 'user-message' : 'ai-message'}`}
+              className={`rauz-message ${message.isUser ? 'rauz-user-message' : 'rauz-ai-message'}`}
             >
-              <div className="message-content">
+              <div className="rauz-message-content">
                 {message.text}
               </div>
-              <div className="message-timestamp">
+              <div className="rauz-message-timestamp">
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
           ))}
           {isTyping && (
-            <div className="message ai-message typing">
-              <div className="message-content">
-                <div className="typing-indicator">
+            <div className="rauz-message rauz-ai-message typing">
+              <div className="rauz-message-content">
+                <div className="rauz-typing-indicator">
                   <span></span>
                   <span></span>
                   <span></span>
@@ -155,7 +164,6 @@ const ChatbotSidebar: React.FC<{ isOpen: boolean; onToggle: () => void }> = ({ i
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         <div className="chatbot-input-container">
