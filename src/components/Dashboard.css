@@ -1,23 +1,59 @@
 /* Dashboard Container */
 .dashboard-container {
-  min-height: 100vh;
-  background: #0b0f14;
+  height: 100vh;
+  background: #1A3C64; /* Navy Blue - Primary */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #e5e7eb;
+  color: #FFFFFF; /* White text for dark background */
+  overflow: hidden; /* Prevent page scrolling */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Global Custom Scrollbar Styles */
+.dashboard-container::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.dashboard-container::-webkit-scrollbar-track {
+  background: #0f1720 !important; /* Dark background */
+  border-radius: 6px !important;
+}
+
+.dashboard-container::-webkit-scrollbar-thumb {
+  background: #475569 !important; /* Dark gray */
+  border-radius: 6px !important;
+  border: 2px solid #0f1720 !important; /* Dark border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important; /* Subtle shadow for visibility */
+}
+
+.dashboard-container::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important; /* Lighter gray on hover */
+}
+
+.dashboard-container::-webkit-scrollbar-corner {
+  background: #0f1720 !important; /* Dark background */
+}
+
+/* Force global scrollbar styling */
+.dashboard-container {
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 #0f1720 !important; /* Dark gray thumb, Dark track */
 }
 
 
 
 /* Combined Navigation Header */
 .combined-nav {
-  background: #0f1720;
-  color: #e5e7eb;
+  background: #0f1720; /* Dark background */
+  color: #ffffff; /* White text */
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #1f2937;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid #475569; /* Dark gray border */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0; /* Prevent navigation from shrinking */
 }
 
 .nav-left {
@@ -30,6 +66,7 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  color: #ffffff; /* White text */
 }
 
 .nav-tabs {
@@ -41,7 +78,7 @@
   padding: 0.75rem 1.5rem;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #94a3b8; /* Light gray for secondary text */
   font-weight: 500;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -49,12 +86,12 @@
 }
 
 .nav-tab:hover {
-  color: #e5e7eb;
+  color: #ffffff; /* White text on hover */
 }
 
 .nav-tab.active {
-  color: #e5e7eb;
-  border-bottom-color: #334155;
+  color: #ffffff; /* White text for active */
+  border-bottom-color: #475569; /* Dark gray border */
 }
 
 .nav-right {
@@ -72,13 +109,15 @@
 
 .username {
   font-weight: 500;
+  color: #ffffff; /* White text */
 }
 
 .user-role {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(71, 85, 105, 0.3); /* Dark gray with transparency */
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.875rem;
+  color: #94a3b8; /* Light gray text */
 }
 
 /* Main Content Layout */
@@ -86,6 +125,32 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+/* Custom Scrollbar Styles for Main Content */
+.dashboard-main::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.dashboard-main::-webkit-scrollbar-track {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
+  border-radius: 6px;
+}
+
+.dashboard-main::-webkit-scrollbar-thumb {
+  background: #2A9D8F; /* Teal - Secondary */
+  border-radius: 6px;
+  border: 2px solid #F7F7F7; /* Light Gray - Neutral BG */
+}
+
+.dashboard-main::-webkit-scrollbar-thumb:hover {
+  background: #1A3C64; /* Navy Blue - Primary */
+}
+
+.dashboard-main::-webkit-scrollbar-corner {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
 }
 
 .content-area {
@@ -93,23 +158,87 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+/* Custom Scrollbar Styles for Content Area */
+.content-area::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.content-area::-webkit-scrollbar-track {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
+  border-radius: 6px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: #2A9D8F; /* Teal - Secondary */
+  border-radius: 6px;
+  border: 2px solid #F7F7F7; /* Light Gray - Neutral BG */
+}
+
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: #1A3C64; /* Navy Blue - Primary */
+}
+
+.content-area::-webkit-scrollbar-corner {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
 }
 
 /* Filters Sidebar */
 aside.filters-sidebar,
 .filters-sidebar {
-  width: 750px; /* Increased from 680px to make it wider and less compressed */
-  background: transparent; /* Changed from #0f1720 to transparent to remove background gap */
-  border-right: 2px solid #1f2937;
+  width: 400px; /* Fixed width that fits most screens */
+  background: #0f1720; /* Dark background for sidebar */
+  border-right: 2px solid #475569; /* Dark gray border */
   overflow-y: auto;
   flex-shrink: 0;
   padding: 5px; /* Changed from 4px to 5px as requested */
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+/* Custom Scrollbar Styles for Filters Sidebar */
+.filters-sidebar::-webkit-scrollbar {
+  width: 10px !important;
+  display: block !important;
+}
+
+.filters-sidebar::-webkit-scrollbar-track {
+  background: #0f1720 !important; /* Dark background */
+  border-radius: 5px !important;
+}
+
+.filters-sidebar::-webkit-scrollbar-thumb {
+  background: #475569 !important; /* Dark gray */
+  border-radius: 5px !important;
+  border: 1px solid #0f1720 !important; /* Dark border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important; /* Subtle shadow for visibility */
+}
+
+.filters-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important; /* Lighter gray on hover */
+}
+
+/* Force scrollbar styling to override browser defaults */
+.filters-sidebar {
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 #0f1720 !important; /* Dark gray thumb, Dark track */
+  /* Hide default scrollbars and force custom ones */
+  -ms-overflow-style: none !important;
+  /* Always show scrollbars */
+  overflow: auto !important;
+}
+
+/* Hide default scrollbars for webkit browsers */
+.filters-sidebar::-webkit-scrollbar {
+  -webkit-appearance: none !important;
 }
 
 /* Force filters-section padding to be small and override any conflicting styles */
 .filters-sidebar .filters-section {
   padding: 0 !important; /* Changed from 15px to 0 as requested */
-  background: #0f1720; /* Restored background to fill the entire sidebar area */
+  background: #0f1720 !important; /* Dark background for sidebar - force override */
   border-radius: 0; /* Removed border radius to eliminate gaps */
   width: 100%; /* Ensure full width to match parent */
   box-sizing: border-box; /* Include padding in width calculation */
@@ -121,10 +250,10 @@ aside.filters-sidebar,
   align-items: center;
   margin-bottom: 1rem; /* Reduced from 1.5rem */
   padding: 0.75rem 1rem; /* Reduced from 1rem 1.25rem */
-  background: #1e293b;
+  background: #1e293b; /* Dark background for header */
   border-radius: 8px; /* Reduced from 12px */
-  border: 1px solid #3b82f6; /* Reduced from 2px */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+  border: 1px solid #475569; /* Dark gray border */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Dark shadow */
   min-height: 36px; /* Reduced from 45px */
 }
 
@@ -174,10 +303,10 @@ aside.filters-sidebar,
 .filter-category {
   margin-bottom: 0.25rem; /* Much tighter spacing between categories */
   padding: 4px; /* Much tighter internal padding */
-  background: #1e293b;
+  background: #1e293b; /* Dark background for filter categories */
   border-radius: 10px; /* Increased from 8px for better visual appeal */
-  border: 1px solid #334155; /* Reduced from 2px for lighter appearance */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow for better depth */
+  border: 1px solid #475569; /* Dark gray border */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow for better depth */
   width: 100%; /* Set to 100% to match parent filters-sidebar width */
   box-sizing: border-box; /* Ensure padding is included in width calculation */
 }
@@ -189,13 +318,13 @@ aside.filters-sidebar,
 }
 
 .filter-category h4 {
-  color: #ffffff;
+  color: #94a3b8; /* Light gray for headers */
   margin: 0 0 0.125rem 0; /* Very tight spacing below title */
   font-size: 0.875rem; /* Reduced from 1rem */
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #475569; /* Reduced from 2px */
+  border-bottom: 1px solid #475569; /* Dark gray border */
   padding-bottom: 0.125rem; /* Very tight internal padding */
 }
 
@@ -216,12 +345,11 @@ aside.filters-sidebar,
 
 .filter-group label {
   display: block;
-  color: #e2e8f0;
+  color: #FFFFFF; /* White text for dark background */
   font-weight: 600;
   font-size: 0.75rem; /* Reduced from 0.875rem */
   text-transform: uppercase;
   letter-spacing: 0.025em;
-  color: #94a3b8;
   margin-bottom: 0.0625rem; /* Very tight spacing below labels */
 }
 
@@ -229,26 +357,26 @@ aside.filters-sidebar,
 .filter-group input {
   width: 100%;
   padding: 0.5rem; /* Much tighter padding for very compact look */
-  border: 2px solid #475569;
+  border: 2px solid #475569; /* Dark gray border */
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s ease;
-  background: #0f1720;
-  color: #ffffff;
+  background: #0f1720; /* Dark background */
+  color: #FFFFFF; /* White text */
 }
 
 .filter-group select:focus,
 .filter-group input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  border-color: #64748b; /* Lighter gray for focus */
+  box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.2);
   background: #1e293b;
 }
 
 .filter-group select:hover,
 .filter-group input:hover {
-  border-color: #64748b;
+  border-color: #1A3C64; /* Navy Blue - Primary for hover */
   background: #1e293b;
 }
 
@@ -300,16 +428,17 @@ aside.filters-sidebar,
 
 .search-input input {
   padding-left: 0.875rem;
-  background: #0f1720;
-  border: 2px solid #475569;
+  background: #0f1720; /* Dark background */
+  border: 2px solid #475569; /* Dark gray border */
 }
 
 .search-input input:focus {
   background: #1e293b;
+  border-color: #64748b; /* Lighter gray for focus */
 }
 
 .search-input input::placeholder {
-  color: #94a3b8;
+  color: #6B7280; /* Medium gray for placeholder */
   font-weight: 400;
 }
 
@@ -466,9 +595,37 @@ aside.filters-sidebar,
 /* Properties Main Content */
 .properties-main {
   flex: 1;
-  padding: 2rem;
-  background: #0f1720;
-  overflow-y: auto;
+  padding: 1rem;
+  background: #1A3C64; /* Navy Blue - Primary background */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+/* Custom Scrollbar Styles for Properties Main */
+.properties-main::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.properties-main::-webkit-scrollbar-track {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
+  border-radius: 6px;
+}
+
+.properties-main::-webkit-scrollbar-thumb {
+  background: #2A9D8F; /* Teal - Secondary */
+  border-radius: 6px;
+  border: 2px solid #F7F7F7; /* Light Gray - Neutral BG */
+}
+
+.properties-main::-webkit-scrollbar-thumb:hover {
+  background: #1A3C64; /* Navy Blue - Primary */
+}
+
+.properties-main::-webkit-scrollbar-corner {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
 }
 
 
@@ -477,25 +634,50 @@ aside.filters-sidebar,
 .admin-tools-main {
   flex: 1;
   padding: 2rem;
-  background: #0f1720;
+  background: #F7F7F7; /* Light Gray - Neutral BG */
   overflow-y: auto;
+}
+
+/* Custom Scrollbar Styles for Admin Tools */
+.admin-tools-main::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.admin-tools-main::-webkit-scrollbar-track {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
+  border-radius: 6px;
+}
+
+.admin-tools-main::-webkit-scrollbar-thumb {
+  background: #2A9D8F; /* Teal - Secondary */
+  border-radius: 6px;
+  border: 2px solid #F7F7F7; /* Light Gray - Neutral BG */
+}
+
+.admin-tools-main::-webkit-scrollbar-thumb:hover {
+  background: #1A3C64; /* Navy Blue - Primary */
+}
+
+.admin-tools-main::-webkit-scrollbar-corner {
+  background: #F7F7F7; /* Light Gray - Neutral BG */
 }
 
 .admin-tools-header {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #1f2937;
+  border-bottom: 2px solid #E9C46A; /* Gold/Amber - Accent */
 }
 
 .admin-tools-header h2 {
-  color: #e5e7eb;
+  color: #1A3C64; /* Navy Blue - Primary */
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
 .admin-tools-header p {
-  color: #94a3b8;
+  color: #4B5563; /* Darker gray for secondary text */
   margin: 0;
   font-size: 0.875rem;
 }
@@ -507,14 +689,14 @@ aside.filters-sidebar,
 }
 
 .admin-tools-content h3 {
-  color: #e5e7eb;
+  color: #1A3C64; /* Navy Blue - Primary */
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
 .admin-tools-content p {
-  color: #94a3b8;
+  color: #4B5563; /* Darker gray for secondary text */
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -593,12 +775,14 @@ aside.filters-sidebar,
 
 /* Results Header */
 .results-header {
-  background: #0f1720;
-  border-bottom: 1px solid #1f2937;
-  padding: 1rem 2rem;
+  background: #0f1720; /* Dark background */
+  border-bottom: 2px solid #E9C46A; /* Gold/Amber - Accent */
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .results-info {
@@ -609,43 +793,44 @@ aside.filters-sidebar,
 
 .results-count {
   font-weight: 600;
-  color: #e5e7eb;
+  color: #E9C46A; /* Gold/Amber - Accent */
 }
 
 .sort-controls {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #94a3b8;
+  color: #FFFFFF; /* White text for dark background */
   font-size: 0.875rem;
 }
 
 .sort-select {
   padding: 0.5rem;
-  border: 1px solid #1f2937;
+  border: 1px solid #E9C46A; /* Gold/Amber - Accent border */
   border-radius: 6px;
-  background: #111827;
-  color: #e5e7eb;
+  background: #0f1720; /* Dark background */
+  color: #FFFFFF; /* White text */
   font-size: 0.875rem;
 }
 
 .sort-order-btn {
   padding: 0.5rem;
-  background: #111827;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
+  background: #1e293b; /* Dark background */
+  border: 1px solid #E9C46A; /* Gold/Amber - Accent border */
+  color: #FFFFFF; /* White text */
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .sort-order-btn:hover {
-  background: #0b0f14;
+  background: #E9C46A; /* Gold/Amber - Accent */
+  color: #0f1720; /* Dark text on light background */
 }
 
 .export-button {
-  background: #475569;
-  color: #ffffff;
+  background: #2A9D8F; /* Teal - Secondary */
+  color: #FFFFFF;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -658,36 +843,79 @@ aside.filters-sidebar,
 }
 
 .export-button:hover {
-  background: #374151;
+  background: #1A3C64; /* Navy Blue - Primary */
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(71, 85, 105, 0.3);
+  box-shadow: 0 4px 8px rgba(26, 60, 100, 0.3);
 }
 
 /* Properties Table */
-.properties-table-container {
-  flex: 1;
-  overflow: auto;
-  background: #0f1720;
-  border-radius: 8px;
-  margin: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: calc(100vh - 120px); /* Use almost full viewport height for maximum listings */
-  min-height: 800px; /* Higher minimum height for better utilization */
-}
-
-/* Text selection prevention for view-only users */
-.properties-table-container.view-only {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 .properties-table {
   width: 100%;
+  min-width: max-content; /* Allow table to expand horizontally */
+  background: #0f1720; /* Dark background */
+  border-radius: 8px;
+  margin: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   border-collapse: collapse;
   font-size: 0.875rem;
   table-layout: auto;
+  flex: 1; /* Take all available space */
+  color: #FFFFFF; /* White text for dark background */
+}
+
+/* Table wrapper for proper scrolling */
+.properties-table-wrapper {
+  flex: 1;
+  overflow: auto;
+  min-height: 0; /* Allow flex item to shrink */
+  background: #0f1720; /* Dark background */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Take full height */
+}
+
+/* Custom Scrollbar Styles */
+.properties-table-wrapper::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+  display: block !important;
+}
+
+.properties-table-wrapper::-webkit-scrollbar-track {
+  background: #0f1720 !important; /* Dark background */
+  border-radius: 6px !important;
+}
+
+.properties-table-wrapper::-webkit-scrollbar-thumb {
+  background: #475569 !important; /* Dark gray */
+  border-radius: 6px !important;
+  border: 2px solid #0f1720 !important; /* Dark border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important; /* Subtle shadow for visibility */
+}
+
+.properties-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important; /* Lighter gray on hover */
+}
+
+.properties-table-wrapper::-webkit-scrollbar-corner {
+  background: #0f1720 !important; /* Dark background */
+}
+
+/* Force scrollbar styling to override browser defaults */
+.properties-table-wrapper {
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 #0f1720 !important; /* Dark gray thumb, Dark track */
+  /* Hide default scrollbars and force custom ones */
+  -ms-overflow-style: none !important;
+  /* Always show scrollbars */
+  overflow: auto !important;
+}
+
+/* Hide default scrollbars for webkit browsers */
+.properties-table-wrapper::-webkit-scrollbar {
+  -webkit-appearance: none !important;
 }
 
 /* Text selection prevention for view-only users */
@@ -702,7 +930,7 @@ aside.filters-sidebar,
 .properties-table td {
   padding: 0.5rem 0.5rem; /* Reduced padding for more rows */
   text-align: left;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid #E9C46A; /* Gold/Amber - Accent border */
   vertical-align: top;
   word-wrap: break-word;
   overflow: visible;
@@ -748,7 +976,7 @@ aside.filters-sidebar,
   min-width: 120px;
   max-width: 150px;
   font-weight: 600;
-  color: #fbbf24;
+  color: #E9C46A; /* Gold/Amber - Accent */
 }
 
 .properties-table th:nth-child(6),  /* FRONTAGE */
@@ -884,20 +1112,10 @@ aside.filters-sidebar,
   border-bottom: none;
 }
 
-/* Ensure table container has proper scrolling and uses full height */
-.properties-table-container {
-  overflow-x: auto;
-  overflow-y: auto;
-  height: calc(100vh - 120px); /* Use almost full viewport height for maximum listings */
-  min-height: 800px; /* Higher minimum height for better utilization */
-  min-width: 100%;
-  width: 100%;
-}
-
-/* Ensure table can expand horizontally with dynamic columns */
+/* Ensure table has proper scrolling and uses full height */
 .properties-table {
   width: 100%;
-  min-width: max-content;
+  min-width: max-content; /* Allow table to expand horizontally */
 }
 
 /* Responsive adjustments for smaller screens */
@@ -931,13 +1149,13 @@ aside.filters-sidebar,
 /* Responsive design for filters sidebar */
 @media (max-width: 1400px) {
   .filters-sidebar {
-    width: 480px; /* Slightly reduce width on medium screens */
+    width: 350px; /* Reduce width on medium screens */
   }
 }
 
 @media (max-width: 1200px) {
   .filters-sidebar {
-    width: 450px; /* Further reduce width on smaller screens */
+    width: 320px; /* Further reduce width on smaller screens */
   }
 }
 
@@ -951,7 +1169,7 @@ aside.filters-sidebar,
     height: auto;
     max-height: 400px;
     border-right: none;
-    border-bottom: 2px solid #1f2937;
+    border-bottom: 2px solid #E9C46A; /* Gold/Amber - Accent */
     overflow-y: auto;
   }
   

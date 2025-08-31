@@ -1708,7 +1708,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Properties Table */}
-      <div className={`properties-table-container ${!hasEditAccess ? 'view-only' : ''}`}>
+      <div className="properties-table-wrapper">
         <table className={`properties-table ${!hasEditAccess ? 'view-only' : ''}`}>
           <thead>
             <tr>
