@@ -138,6 +138,12 @@ const Dashboard: React.FC = () => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [viewingMedia, setViewingMedia] = useState<any[]>([]);
   const [mediaPresignedUrls, setMediaPresignedUrls] = useState<{[key: string]: string}>({});
+  
+  // Media reordering states - smooth swap animation
+  const [swapAnimation, setSwapAnimation] = useState<{
+    index1: number;
+    index2: number;
+  } | null>(null);
 
 
 
@@ -769,6 +775,7 @@ const Dashboard: React.FC = () => {
           messageText += ` ${mediaKeys.length} new media files added.`;
         }
         setMessage({ type: 'success', text: messageText });
+        setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
       } else {
         // Add new property
         propertyData.media = mediaKeys.length > 0 ? JSON.stringify(mediaKeys) : '';
@@ -783,6 +790,7 @@ const Dashboard: React.FC = () => {
           messageText += ` ${mediaKeys.length} media files uploaded.`;
         }
         setMessage({ type: 'success', text: messageText });
+        setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
       }
 
       // Clear form and media files
@@ -889,9 +897,9 @@ const Dashboard: React.FC = () => {
         console.log('Updated version ID:', result.versionId);
       }
       
-      // Show success message briefly
+      // Show success message briefly for auto-save
       setMessage({ type: 'success', text: 'Successfully updated!' });
-      setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 2000); // Clear message after 2 seconds
     } catch (err: any) {
       console.error('Auto-save error:', err);
       setMessage({ type: 'error', text: `Upload failed: ${err.message}` });
@@ -1038,6 +1046,105 @@ const Dashboard: React.FC = () => {
         console.warn('Error removing existing media:', error);
       }
     }
+  };
+
+  // Smooth swap animation functions
+  const moveMediaUp = (index: number) => {
+    if (index === 0 || swapAnimation !== null) return; // Can't move first item up or if already animating
+
+    // Start swap animation
+    setSwapAnimation({
+      index1: index,      // Item moving up
+      index2: index - 1   // Item moving down
+    });
+
+    // After animation completes, update the data
+    setTimeout(() => {
+      try {
+        if (editingProperty && editingProperty.media) {
+          const existingMedia = JSON.parse(editingProperty.media);
+          const reorderedMedia = [...existingMedia];
+          
+          // Swap with previous item
+          [reorderedMedia[index - 1], reorderedMedia[index]] = [reorderedMedia[index], reorderedMedia[index - 1]];
+
+          const updatedProperty = {
+            ...editingProperty,
+            media: JSON.stringify(reorderedMedia)
+          };
+
+          setEditingProperty(updatedProperty);
+
+          // Update the form to reflect the change
+          setPropertyForm((prev: any) => ({
+            ...prev,
+            media: updatedProperty.media
+          }));
+
+          // Auto-save
+          autoSaveToS3();
+        }
+      } catch (error: any) {
+        console.error('Error moving media up:', error);
+        setMessage({ 
+          type: 'error', 
+          text: `Error moving media: ${error.message}` 
+        });
+        setTimeout(() => setMessage(null), 5000);
+      }
+
+      // Clear animation state
+      setSwapAnimation(null);
+    }, 600); // Wait for animation to complete
+  };
+
+  const moveMediaDown = (index: number, totalLength: number) => {
+    if (index === totalLength - 1 || swapAnimation !== null) return; // Can't move last item down or if already animating
+
+    // Start swap animation
+    setSwapAnimation({
+      index1: index,      // Item moving down
+      index2: index + 1   // Item moving up
+    });
+
+    // After animation completes, update the data
+    setTimeout(() => {
+      try {
+        if (editingProperty && editingProperty.media) {
+          const existingMedia = JSON.parse(editingProperty.media);
+          const reorderedMedia = [...existingMedia];
+          
+          // Swap with next item
+          [reorderedMedia[index], reorderedMedia[index + 1]] = [reorderedMedia[index + 1], reorderedMedia[index]];
+
+          const updatedProperty = {
+            ...editingProperty,
+            media: JSON.stringify(reorderedMedia)
+          };
+
+          setEditingProperty(updatedProperty);
+
+          // Update the form to reflect the change
+          setPropertyForm((prev: any) => ({
+            ...prev,
+            media: updatedProperty.media
+          }));
+
+          // Auto-save
+          autoSaveToS3();
+        }
+      } catch (error: any) {
+        console.error('Error moving media down:', error);
+        setMessage({ 
+          type: 'error', 
+          text: `Error moving media: ${error.message}` 
+        });
+        setTimeout(() => setMessage(null), 5000);
+      }
+
+      // Clear animation state
+      setSwapAnimation(null);
+    }, 600); // Wait for animation to complete
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -2749,8 +2856,44 @@ const Dashboard: React.FC = () => {
                           console.log('Rendering stacked media display for:', existingMedia.length, 'files');
                           return (
                             <div className="existing-media-stack">
-                              {existingMedia.map((mediaKey: string, index: number) => (
-                                <div key={index} className="existing-media-item-stacked">
+                              <div className="media-reorder-hint">
+                                ↕️ Use arrows to reorder media files
+                              </div>
+                              {existingMedia.map((mediaKey: string, index: number) => {
+                                let animationClass = '';
+                                if (swapAnimation) {
+                                  if (index === swapAnimation.index1) {
+                                    animationClass = index < swapAnimation.index2 ? 'swap-down' : 'swap-up';
+                                  } else if (index === swapAnimation.index2) {
+                                    animationClass = index < swapAnimation.index1 ? 'swap-down' : 'swap-up';
+                                  }
+                                }
+                                
+                                return (
+                                  <div 
+                                    key={`${mediaKey}-${index}`} 
+                                    className={`existing-media-item-stacked ${animationClass}`}
+                                  >
+                                  <div className="media-reorder-controls">
+                                    <button
+                                      type="button"
+                                      onClick={() => moveMediaUp(index)}
+                                      className={`reorder-btn ${index === 0 ? 'disabled' : ''}`}
+                                      disabled={index === 0}
+                                      title="Move up"
+                                    >
+                                      ↑
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => moveMediaDown(index, existingMedia.length)}
+                                      className={`reorder-btn ${index === existingMedia.length - 1 ? 'disabled' : ''}`}
+                                      disabled={index === existingMedia.length - 1}
+                                      title="Move down"
+                                    >
+                                      ↓
+                                    </button>
+                                  </div>
                                   <span className="media-file-name">
                                     {mediaKey.split('/').pop() || mediaKey}
                                   </span>
@@ -2763,7 +2906,8 @@ const Dashboard: React.FC = () => {
                                     🗑️
                                   </button>
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           );
                         }
