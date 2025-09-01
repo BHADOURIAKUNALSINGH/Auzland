@@ -19,6 +19,7 @@ const ContactPage = () => {
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,25 +37,21 @@ const ContactPage = () => {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.error || `Request failed: ${res.status}`);
         }
-        alert('Thanks! Your message has been sent. We will get back to you shortly.');
+        setShowSuccess(true);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        setTimeout(() => setShowSuccess(false), 5000);
       } catch (err) {
         console.error('Contact submit failed:', err);
-        alert('Sorry, something went wrong. Please try again later or email Abhi@auzlandre.com.au directly.');
+        setShowSuccess(false);
+        // Show error in console, user will see form didn't reset
       } finally {
         setIsSubmitting(false);
       }
       return;
     }
 
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent('Abhi@auzlandre.com.au')}&su=${encodeURIComponent(`[Website] ${subject} - ${name}`)}&body=${encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'N/A'}\n\nMessage:\n${message}`
-    )}`;
-
-    const win = window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-    if (!win) {
-      alert('Please allow pop-ups to open Gmail, or email Abhi@auzlandre.com.au directly.');
-    }
+    // No fallback - API must be configured
+    // Form not configured
     setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
   };
 
@@ -114,7 +111,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3>Email</h3>
-                    <p>Abhi@auzlandre.com.au</p>
+                    <p>jsharma1454@sdsu.edu</p>
                   </div>
                 </div>
                 
@@ -212,6 +209,12 @@ const ContactPage = () => {
                   {isSubmitting ? 'Sending…' : 'Send Message'}
                 </button>
               </form>
+              
+              {showSuccess && (
+                <div className="success-message">
+                  ✓ Message sent successfully!
+                </div>
+              )}
             </div>
           </div>
         </div>

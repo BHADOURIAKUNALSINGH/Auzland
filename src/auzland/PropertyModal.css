@@ -1,0 +1,511 @@
+/* Property Modal Styles */
+.property-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.property-modal {
+  background: white;
+  border-radius: 1rem;
+  max-width: 1200px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.modal-close-btn:hover {
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-close-btn svg {
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.modal-close-btn:hover svg {
+  color: #333;
+}
+
+.modal-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal-left {
+  position: relative;
+  overflow: hidden;
+}
+
+.property-image-section {
+  position: relative;
+  height: 100%;
+  min-height: 400px;
+}
+
+.modal-property-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.property-image-section:hover .modal-property-image {
+  transform: scale(1.02);
+}
+
+.property-status {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 2;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary-color);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-badge.for-sale {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+}
+
+.status-badge.sold {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+}
+
+.modal-right {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+/* Custom Scrollbar for modal-right */
+.modal-right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-right::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.modal-right::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.modal-right::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.property-details {
+  flex: 1;
+}
+
+.property-header {
+  margin-bottom: 2rem;
+}
+
+.property-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.property-header p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.property-type {
+  display: inline-block;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--background-light);
+  color: var(--text-secondary);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.property-features {
+  margin-bottom: 2rem;
+}
+
+.area-feature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--background-light);
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.area-feature svg {
+  color: var(--primary-color);
+}
+
+.feature-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--background-light);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.feature-item:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.feature-item:hover svg {
+  color: white;
+}
+
+.feature-item svg {
+  color: var(--primary-color);
+  transition: color 0.2s ease;
+}
+
+.feature-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+}
+
+.feature-item:hover .feature-text {
+  color: white;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.action-buttons .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.map-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 2rem;
+}
+
+.map-section h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.map-container {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.map-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.btn-outline:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .modal-content {
+    grid-template-columns: 1fr;
+    max-height: 95vh;
+  }
+  
+  .modal-left {
+    height: 300px;
+    min-height: auto;
+  }
+  
+  .modal-right {
+    padding: 1.5rem;
+  }
+  
+  .property-header h2 {
+    font-size: 1.75rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .property-modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .property-modal {
+    max-height: 95vh;
+    border-radius: 0.75rem;
+  }
+  
+  .modal-close-btn {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .modal-left {
+    height: 250px;
+  }
+  
+  .modal-right {
+    padding: 1rem;
+  }
+  
+  .property-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .property-header p {
+    font-size: 1rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons .btn {
+    min-width: auto;
+  }
+  
+  .map-actions {
+    flex-direction: column;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .feature-item {
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .property-modal-overlay {
+    padding: 0;
+  }
+  
+  .property-modal {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .modal-left {
+    height: 200px;
+  }
+  
+  .modal-right {
+    padding: 0.75rem;
+  }
+  
+  .property-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .property-features {
+    margin-bottom: 1.5rem;
+  }
+  
+  .action-buttons {
+    margin-bottom: 1.5rem;
+  }
+  
+  .map-section {
+    padding-top: 1.5rem;
+  }
+  
+  .map-section h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .modal-close-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .action-buttons .btn {
+    min-height: 44px;
+  }
+  
+  .btn-outline {
+    min-height: 44px;
+  }
+  
+  .feature-item {
+    min-height: 44px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .property-modal {
+    border: 2px solid #000;
+  }
+  
+  .modal-close-btn {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .property-modal-overlay,
+  .property-modal,
+  .modal-property-image,
+  .feature-item,
+  .action-buttons .btn,
+  .btn-outline {
+    animation: none;
+    transition: none;
+  }
+}
