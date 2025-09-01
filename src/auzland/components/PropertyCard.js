@@ -72,7 +72,7 @@ const PropertyCard = ({ property }) => {
         </div>
         
         <div className="property-type">
-          <span className="type-badge">{propertyType}</span>
+          <span className="type-badge">{propertyType === 'Home and Land Packages' ? 'Home & Land' : propertyType}</span>
         </div>
       </div>
     </div>

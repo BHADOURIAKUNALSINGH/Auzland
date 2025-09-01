@@ -138,6 +138,12 @@ const Dashboard: React.FC = () => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [viewingMedia, setViewingMedia] = useState<any[]>([]);
   const [mediaPresignedUrls, setMediaPresignedUrls] = useState<{[key: string]: string}>({});
+  
+  // Media reordering states - smooth swap animation
+  const [swapAnimation, setSwapAnimation] = useState<{
+    index1: number;
+    index2: number;
+  } | null>(null);
 
 
 
@@ -243,8 +249,9 @@ const Dashboard: React.FC = () => {
     if (filters.quickSearch.trim()) {
       const searchTerm = filters.quickSearch.toLowerCase().trim();
       filtered = filtered.filter(property => 
-        // Property type search
+        // Property type search (handle both old and new formats)
         property.propertyType?.toLowerCase().includes(searchTerm) ||
+        (property.propertyType?.toLowerCase() === 'home and land packages' && searchTerm.includes('home') && searchTerm.includes('land')) ||
         // Address and location search
         property.address?.toLowerCase().includes(searchTerm) ||
         property.suburb?.toLowerCase().includes(searchTerm) ||
@@ -270,9 +277,17 @@ const Dashboard: React.FC = () => {
 
     // Property type filter
     if (filters.propertyType) {
-      filtered = filtered.filter(property => 
-        property.propertyType?.toLowerCase() === filters.propertyType.toLowerCase()
-      );
+      filtered = filtered.filter(property => {
+        const propertyType = property.propertyType?.toLowerCase() || '';
+        const filterType = filters.propertyType.toLowerCase();
+        
+        // Handle "Home & Land" filtering for both old and new formats
+        if (filterType === 'home & land') {
+          return propertyType === 'home & land' || propertyType === 'home and land packages';
+        }
+        
+        return propertyType === filterType;
+      });
     }
 
     // Suburb filter
@@ -760,6 +775,7 @@ const Dashboard: React.FC = () => {
           messageText += ` ${mediaKeys.length} new media files added.`;
         }
         setMessage({ type: 'success', text: messageText });
+        setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
       } else {
         // Add new property
         propertyData.media = mediaKeys.length > 0 ? JSON.stringify(mediaKeys) : '';
@@ -774,6 +790,7 @@ const Dashboard: React.FC = () => {
           messageText += ` ${mediaKeys.length} media files uploaded.`;
         }
         setMessage({ type: 'success', text: messageText });
+        setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
       }
 
       // Clear form and media files
@@ -880,9 +897,9 @@ const Dashboard: React.FC = () => {
         console.log('Updated version ID:', result.versionId);
       }
       
-      // Show success message briefly
+      // Show success message briefly for auto-save
       setMessage({ type: 'success', text: 'Successfully updated!' });
-      setTimeout(() => setMessage(null), 3000); // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 2000); // Clear message after 2 seconds
     } catch (err: any) {
       console.error('Auto-save error:', err);
       setMessage({ type: 'error', text: `Upload failed: ${err.message}` });
@@ -1029,6 +1046,105 @@ const Dashboard: React.FC = () => {
         console.warn('Error removing existing media:', error);
       }
     }
+  };
+
+  // Smooth swap animation functions
+  const moveMediaUp = (index: number) => {
+    if (index === 0 || swapAnimation !== null) return; // Can't move first item up or if already animating
+
+    // Start swap animation
+    setSwapAnimation({
+      index1: index,      // Item moving up
+      index2: index - 1   // Item moving down
+    });
+
+    // After animation completes, update the data
+    setTimeout(() => {
+      try {
+        if (editingProperty && editingProperty.media) {
+          const existingMedia = JSON.parse(editingProperty.media);
+          const reorderedMedia = [...existingMedia];
+          
+          // Swap with previous item
+          [reorderedMedia[index - 1], reorderedMedia[index]] = [reorderedMedia[index], reorderedMedia[index - 1]];
+
+          const updatedProperty = {
+            ...editingProperty,
+            media: JSON.stringify(reorderedMedia)
+          };
+
+          setEditingProperty(updatedProperty);
+
+          // Update the form to reflect the change
+          setPropertyForm((prev: any) => ({
+            ...prev,
+            media: updatedProperty.media
+          }));
+
+          // Auto-save
+          autoSaveToS3();
+        }
+      } catch (error: any) {
+        console.error('Error moving media up:', error);
+        setMessage({ 
+          type: 'error', 
+          text: `Error moving media: ${error.message}` 
+        });
+        setTimeout(() => setMessage(null), 5000);
+      }
+
+      // Clear animation state
+      setSwapAnimation(null);
+    }, 600); // Wait for animation to complete
+  };
+
+  const moveMediaDown = (index: number, totalLength: number) => {
+    if (index === totalLength - 1 || swapAnimation !== null) return; // Can't move last item down or if already animating
+
+    // Start swap animation
+    setSwapAnimation({
+      index1: index,      // Item moving down
+      index2: index + 1   // Item moving up
+    });
+
+    // After animation completes, update the data
+    setTimeout(() => {
+      try {
+        if (editingProperty && editingProperty.media) {
+          const existingMedia = JSON.parse(editingProperty.media);
+          const reorderedMedia = [...existingMedia];
+          
+          // Swap with next item
+          [reorderedMedia[index], reorderedMedia[index + 1]] = [reorderedMedia[index + 1], reorderedMedia[index]];
+
+          const updatedProperty = {
+            ...editingProperty,
+            media: JSON.stringify(reorderedMedia)
+          };
+
+          setEditingProperty(updatedProperty);
+
+          // Update the form to reflect the change
+          setPropertyForm((prev: any) => ({
+            ...prev,
+            media: updatedProperty.media
+          }));
+
+          // Auto-save
+          autoSaveToS3();
+        }
+      } catch (error: any) {
+        console.error('Error moving media down:', error);
+        setMessage({ 
+          type: 'error', 
+          text: `Error moving media: ${error.message}` 
+        });
+        setTimeout(() => setMessage(null), 5000);
+      }
+
+      // Clear animation state
+      setSwapAnimation(null);
+    }, 600); // Wait for animation to complete
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -1215,12 +1331,14 @@ const Dashboard: React.FC = () => {
   };
 
   const nextMedia = () => {
+    if (viewingMedia.length <= 1) return;
     setCurrentMediaIndex((prev) => 
       prev === viewingMedia.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevMedia = () => {
+    if (viewingMedia.length <= 1) return;
     setCurrentMediaIndex((prev) => 
       prev === 0 ? viewingMedia.length - 1 : prev - 1
     );
@@ -1485,7 +1603,7 @@ const Dashboard: React.FC = () => {
     <aside className="filters-sidebar">
       <div className="filters-section">
         {/* Quick Search */}
-        <div className="filter-group">
+        <div className="filter-group quick-search-group">
           <label>Quick Search</label>
           <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
             <input
@@ -1505,16 +1623,6 @@ const Dashboard: React.FC = () => {
         <div className="filter-category">
           <h4>Filter By Property Details</h4>
           <div className="filter-group">
-            <label>Suburb</label>
-            <input
-              type="text"
-              placeholder="Enter suburb name..."
-              value={filters.suburb}
-              onChange={(e) => handleFilterChange('suburb', e.target.value)}
-              className="filter-input"
-            />
-          </div>
-          <div className="filter-group">
             <label>Property Type</label>
             <select 
               value={filters.propertyType} 
@@ -1527,8 +1635,18 @@ const Dashboard: React.FC = () => {
               <option value="Dual occupancy">Dual occupancy</option>
               <option value="Apartment">Apartment</option>
               <option value="Townhouse">Townhouse</option>
-              <option value="Home and Land Packages">Home and Land Packages</option>
+              <option value="Home & Land">Home & Land</option>
             </select>
+          </div>
+          <div className="filter-group">
+            <label>Suburb</label>
+            <input
+              type="text"
+              placeholder="Enter suburb name..."
+              value={filters.suburb}
+              onChange={(e) => handleFilterChange('suburb', e.target.value)}
+              className="filter-input"
+            />
           </div>
           <div className="filter-group">
             <label>Availability</label>
@@ -1541,6 +1659,43 @@ const Dashboard: React.FC = () => {
               <option value="Under Offer">Under Offer</option>
               <option value="Sold">Sold</option>
             </select>
+          </div>
+          <div className="filter-group">
+            <label>Status</label>
+            <select 
+              value={filters.registrationConstructionStatus} 
+              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="Registered">Registered</option>
+              <option value="Unregistered">Unregistered</option>
+              <option value="Under Construction">Under Construction</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Price Range</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.priceMin}
+                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+              <span className="range-separator">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.priceMax}
+                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
           </div>
           <div className="filter-group">
             <label>Frontage (m)</label>
@@ -1680,43 +1835,6 @@ const Dashboard: React.FC = () => {
               />
             </div>
           </div>
-          <div className="filter-group">
-            <label>Price Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Registration & Construction Status</label>
-            <select 
-              value={filters.registrationConstructionStatus} 
-              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
-            >
-              <option value="">All Statuses</option>
-              <option value="Registered">Registered</option>
-              <option value="Unregistered">Unregistered</option>
-              <option value="Under Construction">Under Construction</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
           
           {/* Clear All Filters Button - At Bottom */}
           <div className="filter-group">
@@ -1763,7 +1881,7 @@ const Dashboard: React.FC = () => {
               <option value="bath">Bathrooms</option>
               <option value="garage">Garage</option>
               <option value="price">Price</option>
-              <option value="registrationConstructionStatus">Registration & Construction Status</option>
+              <option value="registrationConstructionStatus">Status</option>
             </select>
             <button 
               className={`sort-order-btn ${sortOrder === 'asc' ? 'active-asc' : 'active-desc'}`}
@@ -1804,14 +1922,14 @@ const Dashboard: React.FC = () => {
               <th>ADDRESS</th>
               <th>SUBURB</th>
               <th>AVAILABILITY</th>
+              <th>STATUS</th>
+              <th>PRICE</th>
               <th>FRONTAGE</th>
               <th>LAND SIZE</th>
               <th>BUILD SIZE</th>
               <th>BED</th>
               <th>BATH</th>
               <th>GARAGE</th>
-              <th>REGISTRATION & CONSTRUCTION STATUS</th>
-              <th>PRICE</th>
               <th>MEDIA</th>
               <th>REMARK</th>
               {hasEditAccess && <th>ACTIONS</th>}
@@ -1830,19 +1948,19 @@ const Dashboard: React.FC = () => {
             ) : (
               filteredProperties.map((property, index) => (
                 <tr key={index}>
-                  <td>{property.propertyType || '-'}</td>
+                  <td>{property.propertyType === 'Home and Land Packages' ? 'Home & Land' : (property.propertyType || '-')}</td>
                   <td>{property.lot}</td>
                   <td>{property.address}</td>
                   <td>{property.suburb || '-'}</td>
                   <td>{property.availability || '-'}</td>
+                  <td>{property.registrationConstructionStatus || '-'}</td>
+                  <td>${property.price?.toLocaleString() || '-'}</td>
                   <td>{property.frontage || '-'}</td>
                   <td>{property.landSize || '-'}</td>
                   <td>{property.buildSize || '-'}</td>
                   <td>{property.bed || '-'}</td>
                   <td>{property.bath || '-'}</td>
                   <td>{property.garage || '-'}</td>
-                  <td>{property.registrationConstructionStatus || '-'}</td>
-                  <td>${property.price?.toLocaleString() || '-'}</td>
                   {renderMediaColumn(property)}
                   <td>{property.remark || '-'}</td>
                   {hasEditAccess && (
@@ -1994,6 +2112,12 @@ const Dashboard: React.FC = () => {
     if (!input) return '';
     
     const normalizedInput = input.toLowerCase().trim().replace(/\s+/g, ' ');
+    
+    // Handle legacy "Home and Land Packages" specifically
+    if (normalizedInput === 'home and land packages') {
+      return 'Home & Land';
+    }
+    
     const propertyTypes = [
       'Land only',
       'Single story', 
@@ -2001,7 +2125,7 @@ const Dashboard: React.FC = () => {
       'Dual occupancy',
       'Apartment',
       'Townhouse',
-      'Home and Land Packages'
+      'Home & Land'
     ];
     
     // Exact match first
@@ -2042,7 +2166,7 @@ const Dashboard: React.FC = () => {
       // Check for common abbreviations
       if (normalizedInput.includes('apt') && normalizedType.includes('apartment')) score += 2;
       if (normalizedInput.includes('town') && normalizedType.includes('townhouse')) score += 2;
-      if (normalizedInput.includes('hlp') && normalizedType.includes('home and land packages')) score += 2;
+      if (normalizedInput.includes('hlp') && normalizedType.includes('home & land')) score += 2;
       if (normalizedInput.includes('pkg') && normalizedType.includes('packages')) score += 2;
       if (normalizedInput.includes('1') && normalizedType.includes('single')) score += 1;
       if (normalizedInput.includes('2') && normalizedType.includes('double')) score += 1;
@@ -2543,7 +2667,7 @@ const Dashboard: React.FC = () => {
                     <option value="Dual occupancy">Dual occupancy</option>
                     <option value="Apartment">Apartment</option>
                     <option value="Townhouse">Townhouse</option>
-                    <option value="Home and Land Packages">Home and Land Packages</option>
+                    <option value="Home & Land">Home & Land</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -2682,7 +2806,7 @@ const Dashboard: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="registrationConstructionStatus">Registration & Construction Status</label>
+                  <label htmlFor="registrationConstructionStatus">Status</label>
                   <select
                     id="registrationConstructionStatus"
                     value={propertyForm.registrationConstructionStatus}
@@ -2695,7 +2819,7 @@ const Dashboard: React.FC = () => {
                       -- Select Status --
                     </option>
                     <option value="Registered">Registered</option>
-                    <option value="Un-Registered">Un-Registered</option>
+                    <option value="Unregistered">Unregistered</option>
                     <option value="Under Construction">Under Construction</option>
                     <option value="Completed">Completed</option>
                   </select>
@@ -2732,8 +2856,44 @@ const Dashboard: React.FC = () => {
                           console.log('Rendering stacked media display for:', existingMedia.length, 'files');
                           return (
                             <div className="existing-media-stack">
-                              {existingMedia.map((mediaKey: string, index: number) => (
-                                <div key={index} className="existing-media-item-stacked">
+                              <div className="media-reorder-hint">
+                                ↕️ Use arrows to reorder media files
+                              </div>
+                              {existingMedia.map((mediaKey: string, index: number) => {
+                                let animationClass = '';
+                                if (swapAnimation) {
+                                  if (index === swapAnimation.index1) {
+                                    animationClass = index < swapAnimation.index2 ? 'swap-down' : 'swap-up';
+                                  } else if (index === swapAnimation.index2) {
+                                    animationClass = index < swapAnimation.index1 ? 'swap-down' : 'swap-up';
+                                  }
+                                }
+                                
+                                return (
+                                  <div 
+                                    key={`${mediaKey}-${index}`} 
+                                    className={`existing-media-item-stacked ${animationClass}`}
+                                  >
+                                  <div className="media-reorder-controls">
+                                    <button
+                                      type="button"
+                                      onClick={() => moveMediaUp(index)}
+                                      className={`reorder-btn ${index === 0 ? 'disabled' : ''}`}
+                                      disabled={index === 0}
+                                      title="Move up"
+                                    >
+                                      ↑
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => moveMediaDown(index, existingMedia.length)}
+                                      className={`reorder-btn ${index === existingMedia.length - 1 ? 'disabled' : ''}`}
+                                      disabled={index === existingMedia.length - 1}
+                                      title="Move down"
+                                    >
+                                      ↓
+                                    </button>
+                                  </div>
                                   <span className="media-file-name">
                                     {mediaKey.split('/').pop() || mediaKey}
                                   </span>
@@ -2746,7 +2906,8 @@ const Dashboard: React.FC = () => {
                                     🗑️
                                   </button>
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           );
                         }
@@ -2842,8 +3003,8 @@ const Dashboard: React.FC = () => {
 
       {/* Media Viewer Modal */}
       {showMediaViewer && viewingMedia.length > 0 && (
-        <div className="modal-overlay media-viewer-overlay">
-          <div className="modal-content media-viewer-modal">
+        <div className="media-viewer-overlay" onClick={(e) => e.target === e.currentTarget && closeMediaViewer()}>
+          <div className="media-viewer-modal">
             <div className="media-viewer-header">
               <h3>Media Viewer</h3>
               <div className="media-viewer-actions">
@@ -2885,6 +3046,7 @@ const Dashboard: React.FC = () => {
                 <button 
                   className="nav-btn prev-btn"
                   onClick={prevMedia}
+                  disabled={viewingMedia.length <= 1}
                   title="Previous media"
                 >
                   ‹
@@ -2909,39 +3071,85 @@ const Dashboard: React.FC = () => {
                                   src={mediaPresignedUrls[mediaKey]}
                                   title={filename}
                                   className="media-pdf"
-                                  width="100%"
-                                  height="800"
+                                  style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
                                 />
                               );
-                            } else if (fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension)) {
+                            } else if (fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(fileExtension)) {
                               return (
                                 <video 
                                   controls 
                                   className="media-video"
-                                  width="100%"
-                                  height="auto"
+                                  style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}
+                                  onError={(e) => {
+                                    console.error('Failed to load video:', e.currentTarget.src);
+                                  }}
                                 >
                                   <source src={mediaPresignedUrls[mediaKey]} type={`video/${fileExtension}`} />
                                   Your browser does not support the video tag.
                                 </video>
                               );
-                            } else {
+                            } else if (fileExtension && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension)) {
                               return (
                                 <img 
                                   src={mediaPresignedUrls[mediaKey]}
                                   alt={filename}
                                   className="media-image"
+                                  style={{ 
+                                    maxWidth: '100%', 
+                                    maxHeight: '100%', 
+                                    objectFit: 'contain',
+                                    borderRadius: '8px'
+                                  }}
                                   onError={(e) => {
                                     console.error('Failed to load image:', e.currentTarget.src);
-                                    e.currentTarget.style.display = 'none';
+                                    const target = e.currentTarget as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.parentElement!.innerHTML = '<div style="color: #ef4444; padding: 2rem; text-align: center;">Failed to load image</div>';
+                                  }}
+                                  onLoad={() => {
+                                    console.log('Image loaded successfully:', mediaKey);
                                   }}
                                 />
+                              );
+                            } else {
+                              return (
+                                <div style={{ 
+                                  padding: '2rem', 
+                                  textAlign: 'center', 
+                                  color: '#94a3b8',
+                                  background: '#1f2937',
+                                  borderRadius: '8px',
+                                  border: '2px dashed #374151'
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+                                  <div style={{ fontSize: '1.1rem', fontWeight: '500' }}>
+                                    {filename}
+                                  </div>
+                                  <div style={{ fontSize: '0.9rem', marginTop: '0.5rem', opacity: 0.7 }}>
+                                    File type: {fileExtension?.toUpperCase() || 'Unknown'}
+                                  </div>
+                                  <button 
+                                    onClick={() => openMediaInNewWindow(mediaKey)}
+                                    style={{
+                                      marginTop: '1rem',
+                                      padding: '0.5rem 1rem',
+                                      background: '#3b82f6',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    Open File
+                                  </button>
+                                </div>
                               );
                             }
                           })()
                         ) : (
                           <div className="media-loading">
-                            Loading media...
+                            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
+                            <div>Loading media...</div>
                           </div>
                         )}
                       </div>
@@ -2955,6 +3163,7 @@ const Dashboard: React.FC = () => {
                 <button 
                   className="nav-btn next-btn"
                   onClick={nextMedia}
+                  disabled={viewingMedia.length <= 1}
                   title="Next media"
                 >
                   ›
@@ -2964,19 +3173,42 @@ const Dashboard: React.FC = () => {
             
             <div className="media-viewer-footer">
               <div className="media-thumbnails">
-                {viewingMedia.map((item: string, index: number) => (
-                  <div 
-                    key={item}
-                    className={`media-thumbnail ${index === currentMediaIndex ? 'active' : ''}`}
-                    onClick={() => setCurrentMediaIndex(index)}
-                  >
-                    {mediaPresignedUrls[item] ? (
-                      <img src={mediaPresignedUrls[item]} alt={`Media ${index + 1}`} />
-                    ) : (
-                      <div className="thumbnail-loading">...</div>
-                    )}
-                  </div>
-                ))}
+                {viewingMedia.map((item: string, index: number) => {
+                  const filename = item?.split('/').pop() || '';
+                  const fileExtension = filename.split('.').pop()?.toLowerCase();
+                  
+                  return (
+                    <div 
+                      key={item}
+                      className={`media-thumbnail ${index === currentMediaIndex ? 'active' : ''}`}
+                      onClick={() => setCurrentMediaIndex(index)}
+                      title={filename}
+                    >
+                      {mediaPresignedUrls[item] ? (
+                        fileExtension && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension) ? (
+                          <img 
+                            src={mediaPresignedUrls[item]} 
+                            alt={`Media ${index + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.innerHTML = '<div style="color: #94a3b8; font-size: 1.5rem;">📷</div>';
+                            }}
+                          />
+                        ) : fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension) ? (
+                          <div className="video-thumbnail" style={{ color: '#94a3b8', fontSize: '1.5rem' }}>🎥</div>
+                        ) : fileExtension === 'pdf' ? (
+                          <div className="pdf-thumbnail" style={{ color: '#94a3b8', fontSize: '1.5rem' }}>📄</div>
+                        ) : (
+                          <div className="file-thumbnail" style={{ color: '#94a3b8', fontSize: '1.5rem' }}>📁</div>
+                        )
+                      ) : (
+                        <div className="thumbnail-loading" style={{ color: '#94a3b8', fontSize: '1rem' }}>...</div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -3006,7 +3238,7 @@ const Dashboard: React.FC = () => {
                     <li><strong>Required:</strong> lot OR address</li>
                     <li><strong>Optional:</strong> All other fields</li>
                     <li><strong>Warning:</strong> This replaces existing properties</li>
-                    <li><strong>Property Types:</strong> Land, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home and Land Packages</li>
+                    <li><strong>Property Types:</strong> Land, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home & Land</li>
                   </ul>
                   
                   <div className="field-mapping-info">

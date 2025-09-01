@@ -33,7 +33,16 @@ const PropertiesPage = () => {
     for (let i = 1; i < lines.length; i++) {
       const cols = lines[i].split(',');
       const obj = {};
-      for (let j = 0; j < headers.length; j++) obj[headers[j]] = (cols[j] || '').trim();
+      for (let j = 0; j < headers.length; j++) {
+        let value = (cols[j] || '').trim();
+        
+        // Transform legacy "Home and Land Packages" to "Home & Land"
+        if (value.toLowerCase() === 'home and land packages') {
+          value = 'Home & Land';
+        }
+        
+        obj[headers[j]] = value;
+      }
       rows.push(obj);
     }
     return rows;
@@ -123,7 +132,15 @@ const PropertiesPage = () => {
       if (typeof minBed === 'number' && (p.bedrooms ?? 0) < minBed) return false;
       if (typeof minBath === 'number' && (p.bathrooms ?? 0) < minBath) return false;
       if (typeof minGarage === 'number' && (p.parking ?? 0) < minGarage) return false;
-      if (type && !(p.propertyType || '').toLowerCase().includes(type)) return false;
+      if (type) {
+        const propertyType = (p.propertyType || '').toLowerCase();
+        // Handle "Home & Land" filtering for both old and new formats
+        if (type === 'home & land') {
+          if (!(propertyType.includes('home & land') || propertyType.includes('home and land packages'))) return false;
+        } else {
+          if (!propertyType.includes(type)) return false;
+        }
+      }
       if (suburbQ && !(p.suburb || '').toLowerCase().includes(suburbQ)) return false;
       return true;
     });
@@ -217,7 +234,7 @@ const PropertiesPage = () => {
                     <option value="dual occupancy">Dual occupancy</option>
                 <option value="apartment">Apartment</option>
                 <option value="townhouse">Townhouse</option>
-                <option value="home and land packages">Home and Land Packages</option>
+                <option value="home & land">Home & Land</option>
               </select>
             </div>
             </div>

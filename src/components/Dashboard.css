@@ -785,6 +785,11 @@ aside.filters-sidebar,
   overflow: hidden !important; /* Prevent any overflow */
 }
 
+/* Reduce gap specifically between Quick Search and Filter By Property Details */
+.quick-search-group {
+  margin-bottom: 0.5rem !important; /* Reduced gap between Quick Search and Filter sections */
+}
+
 .filter-group:last-child {
   margin-bottom: 0;
 }
@@ -1455,48 +1460,10 @@ aside.filters-sidebar,
 .properties-table td:nth-child(5) {
   min-width: 120px;
   max-width: 150px;
-  font-weight: 600;
-  color: #E9C46A; /* Gold/Amber - Accent */
 }
 
-.properties-table th:nth-child(6),  /* FRONTAGE */
+.properties-table th:nth-child(6),  /* STATUS */
 .properties-table td:nth-child(6) {
-  min-width: 80px;
-  max-width: 100px;
-}
-
-.properties-table th:nth-child(7),  /* LAND SIZE */
-.properties-table td:nth-child(7) {
-  min-width: 100px;
-  max-width: 120px;
-}
-
-.properties-table th:nth-child(8),  /* BUILD SIZE */
-.properties-table td:nth-child(8) {
-  min-width: 100px;
-  max-width: 120px;
-}
-
-.properties-table th:nth-child(9),  /* BED */
-.properties-table td:nth-child(9) {
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(10), /* BATH */
-.properties-table td:nth-child(10) {
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(11), /* GARAGE */
-.properties-table td:nth-child(11) {
-  min-width: 80px;
-  max-width: 100px;
-}
-
-.properties-table th:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
-.properties-table td:nth-child(12) {
   min-width: 180px;
   max-width: 220px;
   white-space: normal;
@@ -1504,10 +1471,46 @@ aside.filters-sidebar,
   overflow-wrap: break-word;
 }
 
-.properties-table th:nth-child(13), /* PRICE */
-.properties-table td:nth-child(13) {
+.properties-table th:nth-child(7),  /* PRICE */
+.properties-table td:nth-child(7) {
   min-width: 120px;
   max-width: 150px;
+}
+
+.properties-table th:nth-child(8),  /* FRONTAGE */
+.properties-table td:nth-child(8) {
+  min-width: 80px;
+  max-width: 100px;
+}
+
+.properties-table th:nth-child(9),  /* LAND SIZE */
+.properties-table td:nth-child(9) {
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.properties-table th:nth-child(10), /* BUILD SIZE */
+.properties-table td:nth-child(10) {
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.properties-table th:nth-child(11), /* BED */
+.properties-table td:nth-child(11) {
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.properties-table th:nth-child(12), /* BATH */
+.properties-table td:nth-child(12) {
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.properties-table th:nth-child(13), /* GARAGE */
+.properties-table td:nth-child(13) {
+  min-width: 80px;
+  max-width: 100px;
 }
 
 .properties-table th:nth-child(14), /* MEDIA */
@@ -1533,7 +1536,7 @@ aside.filters-sidebar,
 .properties-table td:nth-child(3),  /* ADDRESS */
 .properties-table td:nth-child(4),  /* SUBURB */
 .properties-table td:nth-child(5),  /* AVAILABILITY */
-.properties-table td:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
+.properties-table td:nth-child(6),  /* STATUS */
 .properties-table td:nth-child(14), /* MEDIA */
 .properties-table td:nth-child(15)  /* REMARK */
 {
@@ -1543,7 +1546,7 @@ aside.filters-sidebar,
 }
 
 /* Keep other columns with nowrap for better alignment */
-.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(12)):not(:nth-child(14)):not(:nth-child(15)) {
+.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(6)):not(:nth-child(14)):not(:nth-child(15)) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1560,21 +1563,11 @@ aside.filters-sidebar,
   padding: 0.5rem 0.5rem; /* Reduced padding for more rows */
 }
 
-/* Highlight important columns in headers */
-.properties-table th:nth-child(5) {  /* AVAILABILITY */
-  background: #374151;
-  color: #fbbf24;
-  font-weight: 700;
-}
+/* Removed special highlighting for availability column */
 
 
 
-/* Additional styling for availability column */
-.properties-table td:nth-child(5) {
-  background: rgba(251, 191, 36, 0.1);
-  border-left: 2px solid #fbbf24;
-  padding-left: 0.75rem;
-}
+/* Removed special styling for availability column */
 
 
 
@@ -2496,20 +2489,95 @@ aside.filters-sidebar,
 
 .existing-media-item-stacked {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
   background: #0f1720;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #475569;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.5rem;
 }
 
 .existing-media-item-stacked:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   border-color: #64748b;
+  background: #1e293b;
+}
+
+/* Smooth swap animations */
+.existing-media-item-stacked.swap-up {
+  animation: swapUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.existing-media-item-stacked.swap-down {
+  animation: swapDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+@keyframes swapUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0.8;
+    border-color: #10b981;
+    background: #064e3b;
+    box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: translateY(-60px) scale(1.1);
+    opacity: 0.9;
+    border-color: #10b981;
+    background: #064e3b;
+    box-shadow: 0 20px 50px rgba(16, 185, 129, 0.5);
+  }
+  75% {
+    transform: translateY(-80px) scale(1.05);
+    opacity: 0.8;
+    border-color: #10b981;
+    background: #064e3b;
+  }
+  100% {
+    transform: translateY(-100px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes swapDown {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(20px) scale(1.1);
+    opacity: 0.8;
+    border-color: #f59e0b;
+    background: #451a03;
+    box-shadow: 0 15px 40px rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    transform: translateY(60px) scale(1.1);
+    opacity: 0.9;
+    border-color: #f59e0b;
+    background: #451a03;
+    box-shadow: 0 20px 50px rgba(245, 158, 11, 0.5);
+  }
+  75% {
+    transform: translateY(80px) scale(1.05);
+    opacity: 0.8;
+    border-color: #f59e0b;
+    background: #451a03;
+  }
+  100% {
+    transform: translateY(100px) scale(1);
+    opacity: 1;
+  }
 }
 
 .existing-media-item-stacked .media-file-name {
@@ -2517,6 +2585,97 @@ aside.filters-sidebar,
   font-weight: 500;
   flex: 1;
 }
+
+.media-reorder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reorder-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.reorder-btn:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.reorder-btn:active {
+  transform: scale(0.95);
+  background: #1d4ed8;
+}
+
+/* Special styling when swap is in progress */
+.swap-up .reorder-btn:first-child {
+  background: #10b981;
+  animation: pulse-up 0.6s ease-in-out;
+}
+
+.swap-down .reorder-btn:last-child {
+  background: #f59e0b;
+  animation: pulse-down 0.6s ease-in-out;
+}
+
+@keyframes pulse-up {
+  0%, 100% {
+    background: #10b981;
+    transform: scale(1);
+  }
+  50% {
+    background: #059669;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes pulse-down {
+  0%, 100% {
+    background: #f59e0b;
+    transform: scale(1);
+  }
+  50% {
+    background: #d97706;
+    transform: scale(1.2);
+  }
+}
+
+.reorder-btn.disabled {
+  background: #4b5563;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.reorder-btn.disabled:hover {
+  transform: none;
+  background: #4b5563;
+}
+
+.media-reorder-hint {
+  font-size: 0.8rem;
+  color: #60a5fa;
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 8px;
+  border: 1px dashed #3b82f6;
+  font-weight: 500;
+}
+
+
 
 .remove-existing-media-btn {
   background: #dc2626;
@@ -2813,6 +2972,8 @@ aside.filters-sidebar,
   background: #7c3aed;
 }
 
+
+
 .download-btn {
   background: #7c3aed;
 }
@@ -2908,7 +3069,10 @@ aside.filters-sidebar,
   padding: 1rem;
   background: #0f1720;
   width: 100%;
-  height: 100%;
+  min-height: 0; /* Allow content to shrink */
+  overflow: hidden;
+  /* Reserve space for footer thumbnails */
+  max-height: calc(100% - 140px); /* Account for footer height */
 }
 
 .media-navigation {
@@ -2954,9 +3118,9 @@ aside.filters-sidebar,
   align-items: center;
   gap: 1rem;
   width: 100%;
-  height: 100%;
   max-width: 100%;
-  max-height: 100%;
+  min-height: 0; /* Allow shrinking */
+  overflow: hidden;
 }
 
 .media-counter {
@@ -2972,8 +3136,10 @@ aside.filters-sidebar,
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
-  max-height: calc(95vh - 200px);
+  flex: 1;
+  min-height: 0;
+  /* Ensure content doesn't exceed available space */
+  max-height: calc(95vh - 280px); /* Account for header + footer + padding */
 }
 
 .media-content {
@@ -2983,7 +3149,8 @@ aside.filters-sidebar,
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -2995,11 +3162,6 @@ aside.filters-sidebar,
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  /* Ensure image fits within container at 100% zoom */
-  transform-origin: center center;
-  /* Make sure image doesn't exceed container */
-  min-width: 0;
-  min-height: 0;
 }
 
 .media-video {
@@ -3038,6 +3200,8 @@ aside.filters-sidebar,
   background: rgba(30, 58, 138, 0.95);
   border-top: 2px solid #3b82f6;
   backdrop-filter: blur(10px);
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  min-height: 120px; /* Ensure minimum height for thumbnails */
 }
 
 .media-thumbnails {
@@ -3114,12 +3278,17 @@ aside.filters-sidebar,
   }
   
   .media-item-display {
-    height: calc(95vh - 250px);
+    max-height: calc(95vh - 320px); /* More space for mobile footer */
   }
   
   .media-image,
   .media-video {
-    max-height: calc(95vh - 250px);
+    max-height: calc(95vh - 320px);
+  }
+
+  .media-viewer-footer {
+    min-height: 100px; /* Smaller on mobile */
+    padding: 1rem;
   }
   
   .media-thumbnails {

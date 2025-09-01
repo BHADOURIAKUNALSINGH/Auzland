@@ -83,7 +83,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                 <h2 className="property-address">{property.address}</h2>
                 <p className="property-suburb">{property.suburb}</p>
                 <div className="property-type">
-                  <span className="type-badge">{property.propertyType}</span>
+                  <span className="type-badge">{property.propertyType === 'Home and Land Packages' ? 'Home & Land' : property.propertyType}</span>
                 </div>
               </div>
 
