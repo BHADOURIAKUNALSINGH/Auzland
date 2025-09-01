@@ -1459,44 +1459,8 @@ aside.filters-sidebar,
   color: #E9C46A; /* Gold/Amber - Accent */
 }
 
-.properties-table th:nth-child(6),  /* FRONTAGE */
+.properties-table th:nth-child(6),  /* STATUS */
 .properties-table td:nth-child(6) {
-  min-width: 80px;
-  max-width: 100px;
-}
-
-.properties-table th:nth-child(7),  /* LAND SIZE */
-.properties-table td:nth-child(7) {
-  min-width: 100px;
-  max-width: 120px;
-}
-
-.properties-table th:nth-child(8),  /* BUILD SIZE */
-.properties-table td:nth-child(8) {
-  min-width: 100px;
-  max-width: 120px;
-}
-
-.properties-table th:nth-child(9),  /* BED */
-.properties-table td:nth-child(9) {
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(10), /* BATH */
-.properties-table td:nth-child(10) {
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(11), /* GARAGE */
-.properties-table td:nth-child(11) {
-  min-width: 80px;
-  max-width: 100px;
-}
-
-.properties-table th:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
-.properties-table td:nth-child(12) {
   min-width: 180px;
   max-width: 220px;
   white-space: normal;
@@ -1504,10 +1468,46 @@ aside.filters-sidebar,
   overflow-wrap: break-word;
 }
 
-.properties-table th:nth-child(13), /* PRICE */
-.properties-table td:nth-child(13) {
+.properties-table th:nth-child(7),  /* PRICE */
+.properties-table td:nth-child(7) {
   min-width: 120px;
   max-width: 150px;
+}
+
+.properties-table th:nth-child(8),  /* FRONTAGE */
+.properties-table td:nth-child(8) {
+  min-width: 80px;
+  max-width: 100px;
+}
+
+.properties-table th:nth-child(9),  /* LAND SIZE */
+.properties-table td:nth-child(9) {
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.properties-table th:nth-child(10), /* BUILD SIZE */
+.properties-table td:nth-child(10) {
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.properties-table th:nth-child(11), /* BED */
+.properties-table td:nth-child(11) {
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.properties-table th:nth-child(12), /* BATH */
+.properties-table td:nth-child(12) {
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.properties-table th:nth-child(13), /* GARAGE */
+.properties-table td:nth-child(13) {
+  min-width: 80px;
+  max-width: 100px;
 }
 
 .properties-table th:nth-child(14), /* MEDIA */
@@ -1533,7 +1533,7 @@ aside.filters-sidebar,
 .properties-table td:nth-child(3),  /* ADDRESS */
 .properties-table td:nth-child(4),  /* SUBURB */
 .properties-table td:nth-child(5),  /* AVAILABILITY */
-.properties-table td:nth-child(12), /* REGISTRATION & CONSTRUCTION STATUS */
+.properties-table td:nth-child(6),  /* STATUS */
 .properties-table td:nth-child(14), /* MEDIA */
 .properties-table td:nth-child(15)  /* REMARK */
 {
@@ -1543,7 +1543,7 @@ aside.filters-sidebar,
 }
 
 /* Keep other columns with nowrap for better alignment */
-.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(12)):not(:nth-child(14)):not(:nth-child(15)) {
+.properties-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(6)):not(:nth-child(14)):not(:nth-child(15)) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

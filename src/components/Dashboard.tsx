@@ -1705,7 +1705,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="filter-group">
-            <label>Registration & Construction Status</label>
+            <label>Status</label>
             <select 
               value={filters.registrationConstructionStatus} 
               onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
@@ -1763,7 +1763,7 @@ const Dashboard: React.FC = () => {
               <option value="bath">Bathrooms</option>
               <option value="garage">Garage</option>
               <option value="price">Price</option>
-              <option value="registrationConstructionStatus">Registration & Construction Status</option>
+              <option value="registrationConstructionStatus">Status</option>
             </select>
             <button 
               className={`sort-order-btn ${sortOrder === 'asc' ? 'active-asc' : 'active-desc'}`}
@@ -1804,14 +1804,14 @@ const Dashboard: React.FC = () => {
               <th>ADDRESS</th>
               <th>SUBURB</th>
               <th>AVAILABILITY</th>
+              <th>STATUS</th>
+              <th>PRICE</th>
               <th>FRONTAGE</th>
               <th>LAND SIZE</th>
               <th>BUILD SIZE</th>
               <th>BED</th>
               <th>BATH</th>
               <th>GARAGE</th>
-              <th>REGISTRATION & CONSTRUCTION STATUS</th>
-              <th>PRICE</th>
               <th>MEDIA</th>
               <th>REMARK</th>
               {hasEditAccess && <th>ACTIONS</th>}
@@ -1835,14 +1835,14 @@ const Dashboard: React.FC = () => {
                   <td>{property.address}</td>
                   <td>{property.suburb || '-'}</td>
                   <td>{property.availability || '-'}</td>
+                  <td>{property.registrationConstructionStatus || '-'}</td>
+                  <td>${property.price?.toLocaleString() || '-'}</td>
                   <td>{property.frontage || '-'}</td>
                   <td>{property.landSize || '-'}</td>
                   <td>{property.buildSize || '-'}</td>
                   <td>{property.bed || '-'}</td>
                   <td>{property.bath || '-'}</td>
                   <td>{property.garage || '-'}</td>
-                  <td>{property.registrationConstructionStatus || '-'}</td>
-                  <td>${property.price?.toLocaleString() || '-'}</td>
                   {renderMediaColumn(property)}
                   <td>{property.remark || '-'}</td>
                   {hasEditAccess && (
@@ -2682,7 +2682,7 @@ const Dashboard: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="registrationConstructionStatus">Registration & Construction Status</label>
+                  <label htmlFor="registrationConstructionStatus">Status</label>
                   <select
                     id="registrationConstructionStatus"
                     value={propertyForm.registrationConstructionStatus}
