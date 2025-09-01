@@ -1897,18 +1897,23 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        {hasEditAccess && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {getActiveFiltersCount() > 0 && (
-              <button className="clear-filters-header-btn" onClick={clearAllFilters}>
-                Clear Filters
-              </button>
-            )}
-            <button className="export-button" onClick={handleExport}>Export</button>
-            <button className="export-button" onClick={handleNewProperty}>Add New Entry</button>
-            <button className="import-button" onClick={() => setShowCsvUploadModal(true)}>Import CSV</button>
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {/* Clear Filters - Available to all users */}
+          {getActiveFiltersCount() > 0 && (
+            <button className="clear-filters-header-btn" onClick={clearAllFilters}>
+              Clear Filters
+            </button>
+          )}
+          
+          {/* Admin-only buttons */}
+          {hasEditAccess && (
+            <>
+              <button className="export-button" onClick={handleExport}>Export</button>
+              <button className="export-button" onClick={handleNewProperty}>Add New Entry</button>
+              <button className="import-button" onClick={() => setShowCsvUploadModal(true)}>Import CSV</button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Properties Table */}
