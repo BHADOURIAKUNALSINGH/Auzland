@@ -2457,7 +2457,11 @@ const Dashboard: React.FC = () => {
           isOpen={isChatbotOpen} 
           onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
           currentFilters={filters}
-          propertyCount={filteredProperties.length}
+          propertyCount={(() => {
+            console.log('🏠 Passing to chatbot - filteredProperties.length:', filteredProperties.length);
+            console.log('🏠 Passing to chatbot - properties.length:', properties.length);
+            return filteredProperties.length;
+          })()}
           onFiltersChange={(newFilters) => {
             // Debug: Check if filters are being received and applied
             console.log('🔧 Dashboard receiving new filters:', newFilters);
