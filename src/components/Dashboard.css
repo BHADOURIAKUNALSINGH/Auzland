@@ -2806,6 +2806,8 @@ aside.filters-sidebar,
   background: #7c3aed;
 }
 
+
+
 .download-btn {
   background: #7c3aed;
 }
@@ -2901,7 +2903,10 @@ aside.filters-sidebar,
   padding: 1rem;
   background: #0f1720;
   width: 100%;
-  height: 100%;
+  min-height: 0; /* Allow content to shrink */
+  overflow: hidden;
+  /* Reserve space for footer thumbnails */
+  max-height: calc(100% - 140px); /* Account for footer height */
 }
 
 .media-navigation {
@@ -2947,9 +2952,9 @@ aside.filters-sidebar,
   align-items: center;
   gap: 1rem;
   width: 100%;
-  height: 100%;
   max-width: 100%;
-  max-height: 100%;
+  min-height: 0; /* Allow shrinking */
+  overflow: hidden;
 }
 
 .media-counter {
@@ -2965,8 +2970,10 @@ aside.filters-sidebar,
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
-  max-height: calc(95vh - 200px);
+  flex: 1;
+  min-height: 0;
+  /* Ensure content doesn't exceed available space */
+  max-height: calc(95vh - 280px); /* Account for header + footer + padding */
 }
 
 .media-content {
@@ -2976,7 +2983,8 @@ aside.filters-sidebar,
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -2988,11 +2996,6 @@ aside.filters-sidebar,
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  /* Ensure image fits within container at 100% zoom */
-  transform-origin: center center;
-  /* Make sure image doesn't exceed container */
-  min-width: 0;
-  min-height: 0;
 }
 
 .media-video {
@@ -3031,6 +3034,8 @@ aside.filters-sidebar,
   background: rgba(30, 58, 138, 0.95);
   border-top: 2px solid #3b82f6;
   backdrop-filter: blur(10px);
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  min-height: 120px; /* Ensure minimum height for thumbnails */
 }
 
 .media-thumbnails {
@@ -3107,12 +3112,17 @@ aside.filters-sidebar,
   }
   
   .media-item-display {
-    height: calc(95vh - 250px);
+    max-height: calc(95vh - 320px); /* More space for mobile footer */
   }
   
   .media-image,
   .media-video {
-    max-height: calc(95vh - 250px);
+    max-height: calc(95vh - 320px);
+  }
+
+  .media-viewer-footer {
+    min-height: 100px; /* Smaller on mobile */
+    padding: 1rem;
   }
   
   .media-thumbnails {

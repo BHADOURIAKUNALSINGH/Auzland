@@ -1224,12 +1224,14 @@ const Dashboard: React.FC = () => {
   };
 
   const nextMedia = () => {
+    if (viewingMedia.length <= 1) return;
     setCurrentMediaIndex((prev) => 
       prev === viewingMedia.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevMedia = () => {
+    if (viewingMedia.length <= 1) return;
     setCurrentMediaIndex((prev) => 
       prev === 0 ? viewingMedia.length - 1 : prev - 1
     );
@@ -2857,8 +2859,8 @@ const Dashboard: React.FC = () => {
 
       {/* Media Viewer Modal */}
       {showMediaViewer && viewingMedia.length > 0 && (
-        <div className="modal-overlay media-viewer-overlay">
-          <div className="modal-content media-viewer-modal">
+        <div className="media-viewer-overlay" onClick={(e) => e.target === e.currentTarget && closeMediaViewer()}>
+          <div className="media-viewer-modal">
             <div className="media-viewer-header">
               <h3>Media Viewer</h3>
               <div className="media-viewer-actions">
@@ -2900,6 +2902,7 @@ const Dashboard: React.FC = () => {
                 <button 
                   className="nav-btn prev-btn"
                   onClick={prevMedia}
+                  disabled={viewingMedia.length <= 1}
                   title="Previous media"
                 >
                   ‹
@@ -2924,39 +2927,85 @@ const Dashboard: React.FC = () => {
                                   src={mediaPresignedUrls[mediaKey]}
                                   title={filename}
                                   className="media-pdf"
-                                  width="100%"
-                                  height="800"
+                                  style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
                                 />
                               );
-                            } else if (fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension)) {
+                            } else if (fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(fileExtension)) {
                               return (
                                 <video 
                                   controls 
                                   className="media-video"
-                                  width="100%"
-                                  height="auto"
+                                  style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}
+                                  onError={(e) => {
+                                    console.error('Failed to load video:', e.currentTarget.src);
+                                  }}
                                 >
                                   <source src={mediaPresignedUrls[mediaKey]} type={`video/${fileExtension}`} />
                                   Your browser does not support the video tag.
                                 </video>
                               );
-                            } else {
+                            } else if (fileExtension && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension)) {
                               return (
                                 <img 
                                   src={mediaPresignedUrls[mediaKey]}
                                   alt={filename}
                                   className="media-image"
+                                  style={{ 
+                                    maxWidth: '100%', 
+                                    maxHeight: '100%', 
+                                    objectFit: 'contain',
+                                    borderRadius: '8px'
+                                  }}
                                   onError={(e) => {
                                     console.error('Failed to load image:', e.currentTarget.src);
-                                    e.currentTarget.style.display = 'none';
+                                    const target = e.currentTarget as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.parentElement!.innerHTML = '<div style="color: #ef4444; padding: 2rem; text-align: center;">Failed to load image</div>';
+                                  }}
+                                  onLoad={() => {
+                                    console.log('Image loaded successfully:', mediaKey);
                                   }}
                                 />
+                              );
+                            } else {
+                              return (
+                                <div style={{ 
+                                  padding: '2rem', 
+                                  textAlign: 'center', 
+                                  color: '#94a3b8',
+                                  background: '#1f2937',
+                                  borderRadius: '8px',
+                                  border: '2px dashed #374151'
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+                                  <div style={{ fontSize: '1.1rem', fontWeight: '500' }}>
+                                    {filename}
+                                  </div>
+                                  <div style={{ fontSize: '0.9rem', marginTop: '0.5rem', opacity: 0.7 }}>
+                                    File type: {fileExtension?.toUpperCase() || 'Unknown'}
+                                  </div>
+                                  <button 
+                                    onClick={() => openMediaInNewWindow(mediaKey)}
+                                    style={{
+                                      marginTop: '1rem',
+                                      padding: '0.5rem 1rem',
+                                      background: '#3b82f6',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    Open File
+                                  </button>
+                                </div>
                               );
                             }
                           })()
                         ) : (
                           <div className="media-loading">
-                            Loading media...
+                            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
+                            <div>Loading media...</div>
                           </div>
                         )}
                       </div>
@@ -2970,6 +3019,7 @@ const Dashboard: React.FC = () => {
                 <button 
                   className="nav-btn next-btn"
                   onClick={nextMedia}
+                  disabled={viewingMedia.length <= 1}
                   title="Next media"
                 >
                   ›
@@ -2979,19 +3029,42 @@ const Dashboard: React.FC = () => {
             
             <div className="media-viewer-footer">
               <div className="media-thumbnails">
-                {viewingMedia.map((item: string, index: number) => (
-                  <div 
-                    key={item}
-                    className={`media-thumbnail ${index === currentMediaIndex ? 'active' : ''}`}
-                    onClick={() => setCurrentMediaIndex(index)}
-                  >
-                    {mediaPresignedUrls[item] ? (
-                      <img src={mediaPresignedUrls[item]} alt={`Media ${index + 1}`} />
-                    ) : (
-                      <div className="thumbnail-loading">...</div>
-                    )}
-                  </div>
-                ))}
+                {viewingMedia.map((item: string, index: number) => {
+                  const filename = item?.split('/').pop() || '';
+                  const fileExtension = filename.split('.').pop()?.toLowerCase();
+                  
+                  return (
+                    <div 
+                      key={item}
+                      className={`media-thumbnail ${index === currentMediaIndex ? 'active' : ''}`}
+                      onClick={() => setCurrentMediaIndex(index)}
+                      title={filename}
+                    >
+                      {mediaPresignedUrls[item] ? (
+                        fileExtension && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension) ? (
+                          <img 
+                            src={mediaPresignedUrls[item]} 
+                            alt={`Media ${index + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.innerHTML = '<div style="color: #94a3b8; font-size: 1.5rem;">📷</div>';
+                            }}
+                          />
+                        ) : fileExtension && ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension) ? (
+                          <div className="video-thumbnail" style={{ color: '#94a3b8', fontSize: '1.5rem' }}>🎥</div>
+                        ) : fileExtension === 'pdf' ? (
+                          <div className="pdf-thumbnail" style={{ color: '#94a3b8', fontSize: '1.5rem' }}>📄</div>
+                        ) : (
+                          <div className="file-thumbnail" style={{ color: '#94a3b8', fontSize: '1.5rem' }}>📁</div>
+                        )
+                      ) : (
+                        <div className="thumbnail-loading" style={{ color: '#94a3b8', fontSize: '1rem' }}>...</div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
