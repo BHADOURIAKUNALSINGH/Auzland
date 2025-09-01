@@ -6,6 +6,7 @@ A React-based authentication application that uses AWS Cognito for user manageme
 
 - **AWS Cognito Integration**: Secure authentication using AWS Cognito User Pools
 - **Role-Based Access Control**: Two distinct user roles with different permissions
+- **AI-Powered Chatbot**: Real estate assistant powered by Meta-Llama-3-8B-Instruct via DeepInfra API
 - **Modern UI**: Clean, responsive design with smooth animations
 - **User Management**: Administrators can create new view-access users
 - **Secure Authentication**: JWT-based authentication with automatic token refresh
@@ -29,6 +30,7 @@ A React-based authentication application that uses AWS Cognito for user manageme
 - Node.js (v14 or higher)
 - npm or yarn
 - AWS Account with Cognito User Pool
+- DeepInfra API token (for AI chatbot functionality)
 - AWS CLI configured (optional, for advanced management)
 
 ## 📋 AWS Cognito Setup
@@ -78,6 +80,19 @@ A React-based authentication application that uses AWS Cognito for user manageme
 5. Go to "Groups" tab
 6. Add the user to the `edit-access` group
 
+## 🤖 DeepInfra API Setup
+
+### 1. Get DeepInfra API Token
+
+1. Go to [DeepInfra](https://deepinfra.com/) and create an account
+2. Navigate to your dashboard
+3. Generate an API token
+4. Copy the token for use in your environment configuration
+
+### 2. AI Model Configuration
+
+The application uses the `meta-llama/Meta-Llama-3-8B-Instruct` model by default. You can modify the model in `src/services/aiService.ts` if needed.
+
 ## ⚙️ Configuration
 
 ### 1. Update AWS Configuration
@@ -96,15 +111,21 @@ const awsConfig = {
 };
 ```
 
-### 2. Environment Variables (Optional)
+### 2. Environment Variables
 
 Create a `.env` file in the root directory:
 
 ```env
+# AWS Cognito Configuration
 REACT_APP_AWS_REGION=us-east-1
 REACT_APP_USER_POOL_ID=us-east-1_xxxxxxxxx
 REACT_APP_USER_POOL_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# DeepInfra AI Service Configuration
+REACT_APP_DEEPINFRA_TOKEN=your-deepinfra-token-here
 ```
+
+**Important**: Replace `your-deepinfra-token-here` with your actual DeepInfra API token to enable the AI-powered chatbot.
 
 Then update `src/aws-config.ts`:
 

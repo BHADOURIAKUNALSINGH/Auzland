@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatbotSidebar.css';
+import { aiService } from '../services/aiService';
 
 interface Message {
   id: string;
@@ -17,7 +18,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm Auz, your AuzLand Real Estate assistant. How can I help you today?",
+      text: "Hi! I'm Auz from AuzLand Real Estate. What can I help you with today?",
       isUser: false,
       timestamp: new Date()
     }
@@ -51,47 +52,46 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
       timestamp: new Date()
     };
 
+    const currentInput = inputMessage;
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Convert messages to the format expected by AI service
+      const conversationHistory = messages
+        .filter(msg => !msg.isUser || msg.text.trim()) // Filter out empty messages
+        .map(msg => ({
+          role: msg.isUser ? 'user' as const : 'assistant' as const,
+          content: msg.text
+        }));
+
+      // Get AI response
+      const aiResponseText = await aiService.generateResponse(currentInput, conversationHistory);
+      
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: generateAIResponse(inputMessage),
+        text: aiResponseText,
         isUser: false,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000);
-  };
-
-  const generateAIResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('property') || lowerMessage.includes('house') || lowerMessage.includes('land')) {
-      return "I can help you find properties! What type of property are you looking for? I can search by location, price range, property type, and more.";
-    } else if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
-      return "Property prices vary by location and type. I can help you filter properties by price range. What's your budget?";
-    } else if (lowerMessage.includes('location') || lowerMessage.includes('suburb') || lowerMessage.includes('area')) {
-      return "I can help you find properties in specific areas. Which suburb or region are you interested in?";
-    } else if (lowerMessage.includes('help') || lowerMessage.includes('assist')) {
-      return "I'm here to help! I can assist with property searches, explain features, answer questions about the platform, and more. What do you need help with?";
-    } else if (lowerMessage.includes('contact') || lowerMessage.includes('agent')) {
-      return "I can help you get in touch with our team. Would you like me to show you how to contact us or schedule a viewing?";
-    } else {
-      const responses = [
-        "That's an interesting question! Let me help you with that.",
-        "I'd be happy to assist you with property-related inquiries.",
-        "Great question! I can help you find the information you need.",
-        "I'm here to make your property search easier. How can I help?",
-        "Let me help you navigate through our property database."
-      ];
-      return responses[Math.floor(Math.random() * responses.length)];
     }
   };
+
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
