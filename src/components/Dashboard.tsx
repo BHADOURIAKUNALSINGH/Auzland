@@ -243,6 +243,12 @@ const Dashboard: React.FC = () => {
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
+    console.log('🔍 applyFilters called with:', { 
+      totalProperties: properties.length, 
+      activeFilters: Object.entries(filters).filter(([k,v]) => v).length,
+      filters 
+    });
+    
     let filtered = [...properties];
 
     // Universal quick search filter (searches across multiple fields)
@@ -425,22 +431,10 @@ const Dashboard: React.FC = () => {
     }
 
     // Apply sorting
-    console.log('Applying sorting:', { 
-      sortBy, 
-      sortOrder, 
-      filteredCount: filtered.length,
-      sampleValues: filtered.slice(0, 3).map(p => ({ 
-        [sortBy]: p[sortBy], 
-        type: typeof p[sortBy],
-        parsed: !isNaN(parseFloat(p[sortBy])) ? parseFloat(p[sortBy]) : 'not a number'
-      }))
-    });
     
     filtered.sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
-
-      console.log(`Comparing ${sortBy}:`, { a: aValue, b: bValue, aType: typeof aValue, bType: typeof bValue });
 
       // Handle numeric values (including string numbers)
       const aNum = typeof aValue === 'number' ? aValue : parseFloat(aValue) || 0;
@@ -448,7 +442,6 @@ const Dashboard: React.FC = () => {
       
       if (!isNaN(aNum) && !isNaN(bNum)) {
         const result = sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
-        console.log(`Numeric comparison: ${aNum} vs ${bNum}, order: ${sortOrder}, result: ${result}`);
         return result;
       }
 
@@ -457,7 +450,6 @@ const Dashboard: React.FC = () => {
         const aDate = aValue ? new Date(aValue).getTime() : 0;
         const bDate = bValue ? new Date(bValue).getTime() : 0;
         const result = sortOrder === 'asc' ? aDate - bDate : bDate - aDate;
-        console.log(`Date comparison: ${aDate} vs ${bDate}, order: ${sortOrder}, result: ${result}`);
         return result;
       }
 
@@ -478,8 +470,12 @@ const Dashboard: React.FC = () => {
 
       return 0;
     });
-    
-    console.log('Sorting completed. First few items:', filtered.slice(0, 3).map(p => p[sortBy]));
+
+    console.log('🔍 applyFilters result:', { 
+      originalCount: properties.length, 
+      filteredCount: filtered.length,
+      sampleFiltered: filtered.slice(0, 2).map(p => ({ id: p.id, address: p.address, suburb: p.suburb }))
+    });
 
     setFilteredProperties(filtered);
   };
@@ -2459,7 +2455,44 @@ const Dashboard: React.FC = () => {
         {/* Chatbot Sidebar */}
         <ChatbotSidebar 
           isOpen={isChatbotOpen} 
-          onToggle={() => setIsChatbotOpen(!isChatbotOpen)} 
+          onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
+          currentFilters={filters}
+          propertyCount={filteredProperties.length}
+          onFiltersChange={(newFilters) => {
+            // Debug: Check if filters are being received and applied
+            console.log('🔧 Dashboard receiving new filters:', newFilters);
+            console.log('🔧 Current filters before update:', filters);
+            
+            // Apply multiple filter changes at once
+            setFilters(prev => {
+              const updated = { ...prev, ...newFilters };
+              console.log('🔧 Filters after update:', updated);
+              return updated;
+            });
+          }}
+          onClearFilters={() => {
+            setFilters({
+              quickSearch: '',
+              suburb: '',
+              propertyType: '',
+              availability: '',
+              frontageMin: '',
+              frontageMax: '',
+              landSizeMin: '',
+              landSizeMax: '',
+              buildSizeMin: '',
+              buildSizeMax: '',
+              bedMin: '',
+              bedMax: '',
+              bathMin: '',
+              bathMax: '',
+              garageMin: '',
+              garageMax: '',
+              priceMin: '',
+              priceMax: '',
+              registrationConstructionStatus: ''
+            });
+          }}
         />
         
         <div className="content-area">

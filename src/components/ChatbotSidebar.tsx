@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatbotSidebar.css';
-import { aiService } from '../services/aiService';
+import { aiService, FilterResponse } from '../services/aiService';
 
 interface Message {
   id: string;
@@ -12,13 +12,24 @@ interface Message {
 interface ChatbotSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  currentFilters?: any;
+  propertyCount?: number;
+  onFiltersChange?: (newFilters: any) => void;
+  onClearFilters?: () => void;
 }
 
-const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => {
+const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ 
+  isOpen, 
+  onToggle, 
+  currentFilters, 
+  propertyCount = 0, 
+  onFiltersChange, 
+  onClearFilters 
+}) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm Auz from AuzLand Real Estate. What can I help you with today?",
+      text: `Hi! I'm Auz from AuzLand Real Estate. I can see ${propertyCount} properties on the left. I can help you filter them to find your perfect property. What are you looking for?`,
       isUser: false,
       timestamp: new Date()
     }
@@ -58,25 +69,83 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
     setIsTyping(true);
 
     try {
-      // Convert messages to the format expected by AI service
-      const conversationHistory = messages
-        .filter(msg => !msg.isUser || msg.text.trim()) // Filter out empty messages
-        .map(msg => ({
-          role: msg.isUser ? 'user' as const : 'assistant' as const,
-          content: msg.text
-        }));
+      // Don't pass conversation history - each filter request should be independent
+      const conversationHistory: any[] = [];
 
-      // Get AI response
-      const aiResponseText = await aiService.generateResponse(currentInput, conversationHistory);
+      // Build comprehensive context about current user interest
+      const activeFilters = currentFilters ? Object.entries(currentFilters)
+        .filter(([key, value]) => value && value !== '')
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ') : 'None';
+      
+      // Build a user-friendly description of current interest
+      const buildCurrentInterest = () => {
+        if (!currentFilters || Object.values(currentFilters).every(v => !v)) {
+          return "The user is browsing all properties with no specific filters applied.";
+        }
+        
+        let interest = "The user is currently interested in ";
+        const parts = [];
+        
+        if (currentFilters.propertyType) {
+          parts.push(`${currentFilters.propertyType.toLowerCase()} properties`);
+        } else {
+          parts.push("properties");
+        }
+        
+        if (currentFilters.priceMin && currentFilters.priceMax) {
+          parts.push(`priced between $${Number(currentFilters.priceMin).toLocaleString()} and $${Number(currentFilters.priceMax).toLocaleString()}`);
+        } else if (currentFilters.priceMin) {
+          parts.push(`priced over $${Number(currentFilters.priceMin).toLocaleString()}`);
+        } else if (currentFilters.priceMax) {
+          parts.push(`priced under $${Number(currentFilters.priceMax).toLocaleString()}`);
+        }
+        
+        if (currentFilters.bedMin) {
+          parts.push(`with ${currentFilters.bedMin}+ bedrooms`);
+        }
+        
+        if (currentFilters.suburb) {
+          parts.push(`in ${currentFilters.suburb}`);
+        }
+        
+        if (currentFilters.availability) {
+          parts.push(`that are ${currentFilters.availability.toLowerCase()}`);
+        }
+        
+        return interest + parts.join(", ") + ".";
+      };
+      
+      const currentInterest = buildCurrentInterest();
+      
+      const contextualMessage = `${currentInput}\n\nCONTEXT:\n- Current user interest: ${currentInterest}\n- Active filters: ${activeFilters}\n- Currently showing: ${propertyCount} matching properties\n- The user can see these ${propertyCount} properties on the left side of their screen right now.`;
+
+      // Get AI response with filters
+      const filterResponse = await aiService.generateFilterResponse(contextualMessage, conversationHistory);
+      
+      // Show AI-generated content
+      console.log('🤖 AI Generated Response:', filterResponse);
       
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: aiResponseText,
+        text: filterResponse.message,
         isUser: false,
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, aiResponse]);
+
+      // Apply filters if onFiltersChange is provided
+      if (onFiltersChange && filterResponse.filters) {
+        const { clearAll, ...filterValues } = filterResponse.filters;
+        
+        if (clearAll && onClearFilters) {
+          onClearFilters();
+        } else {
+          // Apply the filters
+          onFiltersChange(filterValues);
+        }
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       const errorResponse: Message = {
@@ -104,7 +173,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
     setMessages([
       {
         id: Date.now().toString(),
-        text: "Hi! I'm Auz, your AuzLand Real Estate assistant. How can I help you today?",
+        text: `Hi! I'm Auz from AuzLand Real Estate. I can see ${propertyCount} properties on the left. I can help you filter them to find your perfect property. What are you looking for?`,
         isUser: false,
         timestamp: new Date()
       }
@@ -181,7 +250,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask Auz about properties, locations, prices..."
+              placeholder="Ask me to filter the listings: 'Show houses under $1M' or 'Properties with 3+ bedrooms'"
               rows={1}
               className="chatbot-input"
             />
