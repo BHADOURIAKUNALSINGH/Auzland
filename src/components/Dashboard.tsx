@@ -1485,7 +1485,7 @@ const Dashboard: React.FC = () => {
     <aside className="filters-sidebar">
       <div className="filters-section">
         {/* Quick Search */}
-        <div className="filter-group">
+        <div className="filter-group quick-search-group">
           <label>Quick Search</label>
           <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
             <input
@@ -1541,6 +1541,43 @@ const Dashboard: React.FC = () => {
               <option value="Under Offer">Under Offer</option>
               <option value="Sold">Sold</option>
             </select>
+          </div>
+          <div className="filter-group">
+            <label>Status</label>
+            <select 
+              value={filters.registrationConstructionStatus} 
+              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="Registered">Registered</option>
+              <option value="Unregistered">Unregistered</option>
+              <option value="Under Construction">Under Construction</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Price Range</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.priceMin}
+                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+              <span className="range-separator">to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.priceMax}
+                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+                className="range-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
           </div>
           <div className="filter-group">
             <label>Frontage (m)</label>
@@ -1679,43 +1716,6 @@ const Dashboard: React.FC = () => {
                 min="0"
               />
             </div>
-          </div>
-          <div className="filter-group">
-            <label>Price Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Status</label>
-            <select 
-              value={filters.registrationConstructionStatus} 
-              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
-            >
-              <option value="">All Statuses</option>
-              <option value="Registered">Registered</option>
-              <option value="Unregistered">Unregistered</option>
-              <option value="Under Construction">Under Construction</option>
-              <option value="Completed">Completed</option>
-            </select>
           </div>
           
           {/* Clear All Filters Button - At Bottom */}

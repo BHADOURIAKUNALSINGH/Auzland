@@ -785,6 +785,11 @@ aside.filters-sidebar,
   overflow: hidden !important; /* Prevent any overflow */
 }
 
+/* Reduce gap specifically between Quick Search and Filter By Property Details */
+.quick-search-group {
+  margin-bottom: 0.5rem !important; /* Reduced gap between Quick Search and Filter sections */
+}
+
 .filter-group:last-child {
   margin-bottom: 0;
 }
@@ -1455,8 +1460,6 @@ aside.filters-sidebar,
 .properties-table td:nth-child(5) {
   min-width: 120px;
   max-width: 150px;
-  font-weight: 600;
-  color: #E9C46A; /* Gold/Amber - Accent */
 }
 
 .properties-table th:nth-child(6),  /* STATUS */
@@ -1560,21 +1563,11 @@ aside.filters-sidebar,
   padding: 0.5rem 0.5rem; /* Reduced padding for more rows */
 }
 
-/* Highlight important columns in headers */
-.properties-table th:nth-child(5) {  /* AVAILABILITY */
-  background: #374151;
-  color: #fbbf24;
-  font-weight: 700;
-}
+/* Removed special highlighting for availability column */
 
 
 
-/* Additional styling for availability column */
-.properties-table td:nth-child(5) {
-  background: rgba(251, 191, 36, 0.1);
-  border-left: 2px solid #fbbf24;
-  padding-left: 0.75rem;
-}
+/* Removed special styling for availability column */
 
 
 
