@@ -201,7 +201,8 @@
   display: inline-block;
 }
 
-.filter-group label::after {
+/* Only apply red underline to hero section filter groups, not dashboard */
+.hero-section .filter-group label::after {
   content: '';
   position: absolute;
   bottom: -2px;
@@ -212,7 +213,7 @@
   transition: width 0.3s ease;
 }
 
-.filter-group:hover label::after {
+.hero-section .filter-group:hover label::after {
   width: 100%;
 }
 
