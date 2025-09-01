@@ -375,30 +375,33 @@ const Dashboard: React.FC = () => {
         const propertyStatus = property.registrationConstructionStatus?.toLowerCase() || '';
         const filterStatus = filters.registrationConstructionStatus.toLowerCase();
         
+        // Debug logging
+        console.log(`Filtering: property="${propertyStatus}", filter="${filterStatus}"`);
+        
         // Exact match first
         if (propertyStatus === filterStatus) return true;
         
-        // Handle common variations with dashes, spaces, and abbreviations
-        if (filterStatus === 'unregistered') {
-          return propertyStatus === 'unregistered' || 
-                 propertyStatus === 'un-registered' || 
-                 propertyStatus === 'un registered' ||
-                 propertyStatus === 'unreg' ||
-                 propertyStatus.includes('unregistered');
-        }
-        if (filterStatus === 'un-registered') {
-          return propertyStatus === 'unregistered' || 
-                 propertyStatus === 'un-registered' || 
-                 propertyStatus === 'un registered' ||
-                 propertyStatus === 'unreg' ||
-                 propertyStatus.includes('unregistered');
-        }
+        // Handle specific status matching more precisely
         if (filterStatus === 'registered') {
+          // Only match truly registered statuses
           return propertyStatus === 'registered' || 
                  propertyStatus === 're-registered' || 
                  propertyStatus === 're registered' ||
                  propertyStatus === 'rego' ||
-                 propertyStatus.includes('registered');
+                 propertyStatus === 'reg' ||
+                 (propertyStatus.startsWith('reg') && !propertyStatus.includes('unreg'));
+        }
+        
+        if (filterStatus === 'unregistered') {
+          // Only match truly unregistered statuses
+          return propertyStatus === 'unregistered' || 
+                 propertyStatus === 'un-registered' || 
+                 propertyStatus === 'un registered' ||
+                 propertyStatus === 'unreg' ||
+                 propertyStatus === 'not registered' ||
+                 propertyStatus.startsWith('unreg') ||
+                 propertyStatus.startsWith('un-reg') ||
+                 propertyStatus.startsWith('un reg');
         }
         if (filterStatus === 'under construction') {
           return propertyStatus === 'under construction' || 
