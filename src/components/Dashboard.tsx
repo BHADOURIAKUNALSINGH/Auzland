@@ -243,8 +243,9 @@ const Dashboard: React.FC = () => {
     if (filters.quickSearch.trim()) {
       const searchTerm = filters.quickSearch.toLowerCase().trim();
       filtered = filtered.filter(property => 
-        // Property type search
+        // Property type search (handle both old and new formats)
         property.propertyType?.toLowerCase().includes(searchTerm) ||
+        (property.propertyType?.toLowerCase() === 'home and land packages' && searchTerm.includes('home') && searchTerm.includes('land')) ||
         // Address and location search
         property.address?.toLowerCase().includes(searchTerm) ||
         property.suburb?.toLowerCase().includes(searchTerm) ||
@@ -270,9 +271,17 @@ const Dashboard: React.FC = () => {
 
     // Property type filter
     if (filters.propertyType) {
-      filtered = filtered.filter(property => 
-        property.propertyType?.toLowerCase() === filters.propertyType.toLowerCase()
-      );
+      filtered = filtered.filter(property => {
+        const propertyType = property.propertyType?.toLowerCase() || '';
+        const filterType = filters.propertyType.toLowerCase();
+        
+        // Handle "Home & Land" filtering for both old and new formats
+        if (filterType === 'home & land') {
+          return propertyType === 'home & land' || propertyType === 'home and land packages';
+        }
+        
+        return propertyType === filterType;
+      });
     }
 
     // Suburb filter
@@ -1517,7 +1526,7 @@ const Dashboard: React.FC = () => {
               <option value="Dual occupancy">Dual occupancy</option>
               <option value="Apartment">Apartment</option>
               <option value="Townhouse">Townhouse</option>
-              <option value="Home and Land Packages">Home and Land Packages</option>
+              <option value="Home & Land">Home & Land</option>
             </select>
           </div>
           <div className="filter-group">
@@ -1830,7 +1839,7 @@ const Dashboard: React.FC = () => {
             ) : (
               filteredProperties.map((property, index) => (
                 <tr key={index}>
-                  <td>{property.propertyType || '-'}</td>
+                  <td>{property.propertyType === 'Home and Land Packages' ? 'Home & Land' : (property.propertyType || '-')}</td>
                   <td>{property.lot}</td>
                   <td>{property.address}</td>
                   <td>{property.suburb || '-'}</td>
@@ -1994,6 +2003,12 @@ const Dashboard: React.FC = () => {
     if (!input) return '';
     
     const normalizedInput = input.toLowerCase().trim().replace(/\s+/g, ' ');
+    
+    // Handle legacy "Home and Land Packages" specifically
+    if (normalizedInput === 'home and land packages') {
+      return 'Home & Land';
+    }
+    
     const propertyTypes = [
       'Land only',
       'Single story', 
@@ -2001,7 +2016,7 @@ const Dashboard: React.FC = () => {
       'Dual occupancy',
       'Apartment',
       'Townhouse',
-      'Home and Land Packages'
+      'Home & Land'
     ];
     
     // Exact match first
@@ -2042,7 +2057,7 @@ const Dashboard: React.FC = () => {
       // Check for common abbreviations
       if (normalizedInput.includes('apt') && normalizedType.includes('apartment')) score += 2;
       if (normalizedInput.includes('town') && normalizedType.includes('townhouse')) score += 2;
-      if (normalizedInput.includes('hlp') && normalizedType.includes('home and land packages')) score += 2;
+      if (normalizedInput.includes('hlp') && normalizedType.includes('home & land')) score += 2;
       if (normalizedInput.includes('pkg') && normalizedType.includes('packages')) score += 2;
       if (normalizedInput.includes('1') && normalizedType.includes('single')) score += 1;
       if (normalizedInput.includes('2') && normalizedType.includes('double')) score += 1;
@@ -2543,7 +2558,7 @@ const Dashboard: React.FC = () => {
                     <option value="Dual occupancy">Dual occupancy</option>
                     <option value="Apartment">Apartment</option>
                     <option value="Townhouse">Townhouse</option>
-                    <option value="Home and Land Packages">Home and Land Packages</option>
+                    <option value="Home & Land">Home & Land</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -3006,7 +3021,7 @@ const Dashboard: React.FC = () => {
                     <li><strong>Required:</strong> lot OR address</li>
                     <li><strong>Optional:</strong> All other fields</li>
                     <li><strong>Warning:</strong> This replaces existing properties</li>
-                    <li><strong>Property Types:</strong> Land, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home and Land Packages</li>
+                    <li><strong>Property Types:</strong> Land, Single story, Double story, Dual occupancy, Apartment, Townhouse, Home & Land</li>
                   </ul>
                   
                   <div className="field-mapping-info">
