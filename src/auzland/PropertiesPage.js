@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropertyCard from './PropertyCard';
+import PropertyModal from './PropertyModal';
 import './PropertiesPage.css';
 
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
@@ -20,6 +21,8 @@ const PropertiesPage = () => {
   const [garageMin, setGarageMin] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [suburb, setSuburb] = useState('');
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const parseCsv = (csv) => {
     const rows = [];
@@ -41,6 +44,16 @@ const PropertiesPage = () => {
     return Number.isFinite(n) ? n : undefined;
   };
 
+  const handlePropertyClick = (property) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProperty(null);
+  };
+
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
@@ -54,7 +67,16 @@ const PropertiesPage = () => {
         const placeholder = [
           'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop',
           'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop'
+          'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600607687644-c7171b42498b?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600607687644-c7171b42498b?q=80&w=1200&auto=format&fit=crop'
         ];
         const mapped = rows.map((r, idx) => ({
           id: r.id || `${r.address || 'property'}-${idx}`,
@@ -125,10 +147,12 @@ const PropertiesPage = () => {
               <input type="text" className="text-input" placeholder="e.g. Austral, Leppington" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-              <button className="btn btn-secondary" onClick={() => setShowFilters((s) => !s)}>Filters</button>
+              <button className="filter-toggle-btn" onClick={() => setShowFilters((s) => !s)}>
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </button>
             </div>
             {showFilters && (
-              <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+              <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, maxWidth: '100%' }}>
                 <div className="filter-group">
                   <label>Suburb</label>
                   <input className="text-input" type="text" value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Austral, Leppington" />
@@ -210,9 +234,9 @@ const PropertiesPage = () => {
           </div>
           <div className="properties-grid">
                 {filtered.map((p) => (
-                  <a key={p.id} href={`/buy/${encodeURIComponent(p.id)}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div key={p.id} onClick={() => handlePropertyClick(p)} style={{ cursor: 'pointer' }}>
                     <PropertyCard property={p} />
-                  </a>
+                  </div>
             ))}
           </div>
             </>
@@ -226,6 +250,12 @@ const PropertiesPage = () => {
           )}
         </div>
       </div>
+
+      <PropertyModal 
+        property={selectedProperty}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 };
