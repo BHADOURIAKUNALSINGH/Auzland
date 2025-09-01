@@ -1505,16 +1505,6 @@ const Dashboard: React.FC = () => {
         <div className="filter-category">
           <h4>Filter By Property Details</h4>
           <div className="filter-group">
-            <label>Suburb</label>
-            <input
-              type="text"
-              placeholder="Enter suburb name..."
-              value={filters.suburb}
-              onChange={(e) => handleFilterChange('suburb', e.target.value)}
-              className="filter-input"
-            />
-          </div>
-          <div className="filter-group">
             <label>Property Type</label>
             <select 
               value={filters.propertyType} 
@@ -1529,6 +1519,16 @@ const Dashboard: React.FC = () => {
               <option value="Townhouse">Townhouse</option>
               <option value="Home and Land Packages">Home and Land Packages</option>
             </select>
+          </div>
+          <div className="filter-group">
+            <label>Suburb</label>
+            <input
+              type="text"
+              placeholder="Enter suburb name..."
+              value={filters.suburb}
+              onChange={(e) => handleFilterChange('suburb', e.target.value)}
+              className="filter-input"
+            />
           </div>
           <div className="filter-group">
             <label>Availability</label>
