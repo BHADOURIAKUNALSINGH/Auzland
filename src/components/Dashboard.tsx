@@ -2695,7 +2695,7 @@ const Dashboard: React.FC = () => {
                       -- Select Status --
                     </option>
                     <option value="Registered">Registered</option>
-                    <option value="Un-Registered">Un-Registered</option>
+                    <option value="Unregistered">Unregistered</option>
                     <option value="Under Construction">Under Construction</option>
                     <option value="Completed">Completed</option>
                   </select>
