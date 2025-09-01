@@ -20,8 +20,6 @@ const ContactPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,26 +38,21 @@ const ContactPage = () => {
           throw new Error(err.error || `Request failed: ${res.status}`);
         }
         setShowSuccess(true);
-        setShowError(false);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         setTimeout(() => setShowSuccess(false), 5000);
       } catch (err) {
         console.error('Contact submit failed:', err);
         setShowSuccess(false);
-        setShowError(true);
-        setErrorMessage(err.message || 'Failed to send message. Please try again.');
-        setTimeout(() => setShowError(false), 5000);
+        // Show error in console, user will see form didn't reset
       } finally {
         setIsSubmitting(false);
       }
       return;
     }
 
-    // For testing - show success notification even without API
-    setShowSuccess(true);
-    setShowError(false);
+    // No fallback - API must be configured
+    // Form not configured
     setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    setTimeout(() => setShowSuccess(false), 5000);
   };
 
   return (
@@ -116,10 +109,10 @@ const ContactPage = () => {
                       <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <div>
-                    <h3>Email</h3>
-                    <p>jsharma1454@sdsu.edu</p>
-                  </div>
+                                     <div>
+                     <h3>Email</h3>
+                     <p>Abhi@auzlandre.com.au</p>
+                   </div>
                 </div>
                 
                 <div className="contact-item">
@@ -218,51 +211,8 @@ const ContactPage = () => {
               </form>
               
               {showSuccess && (
-                <div className="contact-success-notification">
-                  <div className="success-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.7088 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.76488 14.1003 1.98232 16.07 2.85999" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div className="success-content">
-                    <h3>Message Sent Successfully!</h3>
-                    <p>Thank you for contacting us. We'll get back to you within 24 hours.</p>
-                  </div>
-                  <button 
-                    className="close-notification" 
-                    onClick={() => setShowSuccess(false)}
-                    aria-label="Close notification"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-              )}
-              
-              {showError && (
-                <div className="contact-error-notification">
-                  <div className="error-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                  <div className="error-content">
-                    <h3>Message Failed to Send</h3>
-                    <p>{errorMessage}</p>
-                  </div>
-                  <button 
-                    className="close-notification" 
-                    onClick={() => setShowError(false)}
-                    aria-label="Close notification"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
+                <div className="success-message">
+                  ✓ Message sent successfully!
                 </div>
               )}
             </div>
@@ -273,37 +223,77 @@ const ContactPage = () => {
       {/* Map Section */}
       <div className="section map-section">
         <div className="container">
-          <h2 className="section-title">Find Us</h2>
-          <div className="map-container card" style={{ overflow: 'hidden', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.25)' }}>
-            <iframe
-              title="AuzLandRE Location"
-              src={`https://www.google.com/maps?q=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}&z=16&output=embed`}
-              width="100%"
-              height="450"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
-          </div>
-          <div className="map-actions" style={{ marginTop: '0.75rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <a
-              className="btn btn-secondary"
-              href={`https://www.google.com/maps?q=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open in Google Maps
-            </a>
-            <a
-              className="btn btn-primary"
-              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Get Directions
-            </a>
-          </div>
+                     <h2 className="section-title">Find Us</h2>
+           
+           {/* Office 1 - Oran Park Map */}
+           <div style={{ marginBottom: '2rem' }}>
+             <h3 style={{ marginBottom: '1rem', color: '#dc2626', fontSize: '1.5rem' }}>Office 1 - Oran Park</h3>
+             <div className="map-container card" style={{ overflow: 'hidden', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.25)' }}>
+               <iframe
+                 title="AuzLandRE Oran Park Location"
+                 src={`https://www.google.com/maps?q=${encodeURIComponent('Unit 107, 3 Fordham Way, Oran Park NSW 2570, Australia')}&z=16&output=embed`}
+                 width="100%"
+                 height="400"
+                 style={{ border: 0 }}
+                 allowFullScreen
+                 loading="lazy"
+                 referrerPolicy="no-referrer-when-downgrade"
+               ></iframe>
+             </div>
+             <div className="map-actions" style={{ marginTop: '0.75rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+               <a
+                 className="btn btn-secondary"
+                 href={`https://www.google.com/maps?q=${encodeURIComponent('Unit 107, 3 Fordham Way, Oran Park NSW 2570, Australia')}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+               >
+                 Open in Google Maps
+               </a>
+               <a
+                 className="btn btn-primary"
+                 href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('Unit 107, 3 Fordham Way, Oran Park NSW 2570, Australia')}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+               >
+                 Get Directions
+               </a>
+             </div>
+           </div>
+
+           {/* Office 2 - Austral Map */}
+           <div>
+             <h3 style={{ marginBottom: '1rem', color: '#dc2626', fontSize: '1.5rem' }}>Office 2 - Austral</h3>
+             <div className="map-container card" style={{ overflow: 'hidden', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.25)' }}>
+               <iframe
+                 title="AuzLandRE Austral Location"
+                 src={`https://www.google.com/maps?q=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}&z=16&output=embed`}
+                 width="100%"
+                 height="400"
+                 style={{ border: 0 }}
+                 allowFullScreen
+                 loading="lazy"
+                 referrerPolicy="no-referrer-when-downgrade"
+               ></iframe>
+             </div>
+             <div className="map-actions" style={{ marginTop: '0.75rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+               <a
+                 className="btn btn-secondary"
+                 href={`https://www.google.com/maps?q=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+               >
+                 Open in Google Maps
+               </a>
+               <a
+                 className="btn btn-primary"
+                 href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('172 Eight Avenue, Austral NSW 2179, Australia')}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+               >
+                 Get Directions
+               </a>
+             </div>
+           </div>
         </div>
       </div>
     </div>
