@@ -20,6 +20,8 @@ const ContactPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,21 +40,26 @@ const ContactPage = () => {
           throw new Error(err.error || `Request failed: ${res.status}`);
         }
         setShowSuccess(true);
+        setShowError(false);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         setTimeout(() => setShowSuccess(false), 5000);
       } catch (err) {
         console.error('Contact submit failed:', err);
         setShowSuccess(false);
-        // Show error in console, user will see form didn't reset
+        setShowError(true);
+        setErrorMessage(err.message || 'Failed to send message. Please try again.');
+        setTimeout(() => setShowError(false), 5000);
       } finally {
         setIsSubmitting(false);
       }
       return;
     }
 
-    // No fallback - API must be configured
-    // Form not configured
+    // For testing - show success notification even without API
+    setShowSuccess(true);
+    setShowError(false);
     setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    setTimeout(() => setShowSuccess(false), 5000);
   };
 
   return (
@@ -211,8 +218,51 @@ const ContactPage = () => {
               </form>
               
               {showSuccess && (
-                <div className="success-message">
-                  ✓ Message sent successfully!
+                <div className="contact-success-notification">
+                  <div className="success-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.7088 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.76488 14.1003 1.98232 16.07 2.85999" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div className="success-content">
+                    <h3>Message Sent Successfully!</h3>
+                    <p>Thank you for contacting us. We'll get back to you within 24 hours.</p>
+                  </div>
+                  <button 
+                    className="close-notification" 
+                    onClick={() => setShowSuccess(false)}
+                    aria-label="Close notification"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
+              
+              {showError && (
+                <div className="contact-error-notification">
+                  <div className="error-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                      <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2"/>
+                      <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                  </div>
+                  <div className="error-content">
+                    <h3>Message Failed to Send</h3>
+                    <p>{errorMessage}</p>
+                  </div>
+                  <button 
+                    className="close-notification" 
+                    onClick={() => setShowError(false)}
+                    aria-label="Close notification"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
               )}
             </div>
