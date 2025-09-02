@@ -151,11 +151,11 @@ const FilterChatbot: React.FC<FilterChatbotProps> = ({
 
       // Convert messages to the format expected by AI service
       const conversationHistory = messages
-        .filter(msg => !msg.isUser || msg.text.trim())
         .map(msg => ({
           role: msg.isUser ? 'user' as const : 'assistant' as const,
           content: msg.text
-        }));
+        }))
+        .slice(-10); // Keep last 10 messages for context
 
       // Get AI response
       const aiResponseText = await aiService.generateResponse(contextualMessage, conversationHistory);

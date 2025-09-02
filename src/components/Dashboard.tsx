@@ -243,11 +243,12 @@ const Dashboard: React.FC = () => {
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
-    console.log('🔍 applyFilters called with:', { 
-      totalProperties: properties.length, 
-      activeFilters: Object.entries(filters).filter(([k,v]) => v).length,
-      filters 
-    });
+    console.log('🔍 =========================== FILTER DEBUG ===========================');
+    console.log('🔍 All Current Filters:', filters);
+    console.log('🔍 Active Filters Only:', Object.fromEntries(Object.entries(filters).filter(([k,v]) => v && v !== '')));
+    console.log('🔍 Total Properties Available:', properties.length);
+    console.log('🔍 Filter Count:', Object.entries(filters).filter(([k,v]) => v && v !== '').length);
+    console.log('🔍 ================================================================');
     
     let filtered = [...properties];
 
@@ -298,9 +299,14 @@ const Dashboard: React.FC = () => {
 
     // Suburb filter
     if (filters.suburb) {
+      console.log('🏘️ Suburb filter:', {
+        filterSuburb: filters.suburb,
+        samplePropertySuburbs: filtered.slice(0, 5).map(p => ({ id: p.id, suburb: p.suburb }))
+      });
       filtered = filtered.filter(property => 
         property.suburb?.toLowerCase().includes(filters.suburb.toLowerCase())
       );
+      console.log('🏘️ After suburb filter:', filtered.length, 'properties remain');
     }
 
 
@@ -377,6 +383,10 @@ const Dashboard: React.FC = () => {
 
     // Registration & Construction Status filter
     if (filters.registrationConstructionStatus) {
+      console.log('📋 Registration Status filter:', {
+        filterStatus: filters.registrationConstructionStatus,
+        samplePropertyStatuses: filtered.slice(0, 5).map(p => ({ id: p.id, status: p.registrationConstructionStatus }))
+      });
       filtered = filtered.filter(property => {
         const propertyStatus = property.registrationConstructionStatus?.toLowerCase() || '';
         const filterStatus = filters.registrationConstructionStatus.toLowerCase();
@@ -2468,14 +2478,16 @@ const Dashboard: React.FC = () => {
             return filteredProperties.length;
           })()}
           onFiltersChange={(newFilters) => {
-            // Debug: Check if filters are being received and applied
-            console.log('🔧 Dashboard receiving new filters:', newFilters);
+            console.log('🔧 ===================== FILTER UPDATE =====================');
+            console.log('🔧 Dashboard receiving new filters from Chatbot:', newFilters);
             console.log('🔧 Current filters before update:', filters);
             
             // Apply multiple filter changes at once
             setFilters(prev => {
               const updated = { ...prev, ...newFilters };
               console.log('🔧 Filters after update:', updated);
+              console.log('🔧 Active filters after update:', Object.fromEntries(Object.entries(updated).filter(([k,v]) => v && v !== '')));
+              console.log('🔧 ========================================================');
               return updated;
             });
           }}

@@ -69,8 +69,13 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
     setIsTyping(true);
 
     try {
-      // Don't pass conversation history - each filter request should be independent
-      const conversationHistory: any[] = [];
+      // Build conversation history from messages (excluding system prompt and JSON responses)
+      const conversationHistory = messages
+        .map(msg => ({
+          role: msg.isUser ? 'user' as const : 'assistant' as const,
+          content: msg.text
+        }))
+        .slice(-10); // Keep last 10 messages for context
 
       // Build comprehensive context about current user interest
       const activeFilters = currentFilters ? Object.entries(currentFilters)
@@ -120,8 +125,8 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
       
       const contextualMessage = `${currentInput}\n\nCONTEXT:\n- Current user interest: ${currentInterest}\n- Active filters: ${activeFilters}\n- Currently showing: ${propertyCount} matching properties\n- The user can see these ${propertyCount} properties on the left side of their screen right now.`;
 
-      // Get AI response with filters
-      const filterResponse = await aiService.generateFilterResponse(contextualMessage, conversationHistory);
+      // Get AI response with filters (pass current filters for proper removal handling)
+      const filterResponse = await aiService.generateFilterResponse(contextualMessage, conversationHistory, currentFilters);
       
       // Show AI-generated content
       console.log('🤖 AI Generated Response:', filterResponse);
@@ -142,7 +147,11 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
         if (clearAll && onClearFilters) {
           onClearFilters();
         } else {
-          // Apply the filters
+          // Send ALL filters including empty ones (empty = reset to default)
+          console.log('🚀 ChatbotSidebar sending filters to Dashboard:', filterValues);
+          console.log('🚀 Filters include empty values for removal:', 
+            Object.entries(filterValues).filter(([key, value]) => value === '').map(([key]) => key)
+          );
           onFiltersChange(filterValues);
         }
       }
