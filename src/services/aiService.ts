@@ -56,7 +56,7 @@ CRITICAL RULES:
 - For suburb names: use the exact suburb name mentioned (e.g. "Oran Park" not "oran park").
 - clearAll = true if user says "clear all", "reset all", "remove all filters", "start over".  
 - If user asks irrelevant things, respond with fallback JSON asking what property they want.  
-- Keep "message" short (2 lines max).  
+- ALWAYS provide a helpful "message" field - never leave it empty. Describe what filters were applied (e.g. "Showing Land only properties in Austral").  
 
 RESPONSE FORMAT:
 {
@@ -105,7 +105,12 @@ COMMON PATTERNS:
 - "garage for 2 cars" → garageMin = "2"  
 - "land size over 500sqm" → landSizeMin = "500"  
 - "build size under 200sqm" → buildSizeMax = "200"  
-- Convert $1M=1000000, $500k=500000, $2.5M=2500000  
+- Convert $1M=1000000, $500k=500000, $2.5M=2500000
+
+ADDRESS vs SUBURB FILTERING:
+- Specific addresses/streets → use quickSearch (e.g. "123 Main St" → quickSearch = "123 Main St")
+- Street names only → use quickSearch (e.g. "properties on George Street" → quickSearch = "George Street")  
+- Suburb names only → use suburb 
 `;
 
   // Map AI-generated values to exact dropdown options expected by the filtering system
@@ -293,7 +298,7 @@ COMMON PATTERNS:
       const parsedResponse = JSON.parse(jsonMatch[0]) as FilterResponse;
       
       // Validate the response structure
-      if (!parsedResponse.message || !parsedResponse.filters) {
+      if (parsedResponse.message === undefined || !parsedResponse.filters) {
         throw new Error('Invalid response structure');
       }
 
@@ -307,12 +312,18 @@ COMMON PATTERNS:
       console.log('🔧 Normalized filter values:', normalizedFilters);
       console.log('🎯 Final filters with defaults:', filtersWithDefaults);
 
+      // Ensure message is never empty - provide a fallback
+      if (!parsedResponse.message || parsedResponse.message.trim() === '') {
+        parsedResponse.message = "Filters applied! Check the updated results on the left.";
+      }
+
       return parsedResponse;
     } catch (error) {
       console.error('Failed to parse AI response as JSON:', error);
-      // Fallback response if parsing fails
+      console.error('Raw AI response that failed to parse:', response);
+      // Fallback response if parsing fails - never show raw JSON to user
       return {
-        message: response || "I'm sorry, I couldn't process that request. Please try again.",
+        message: "I'm sorry, I couldn't process that request. Please try again.",
         filters: {
           quickSearch: '',
           suburb: '',

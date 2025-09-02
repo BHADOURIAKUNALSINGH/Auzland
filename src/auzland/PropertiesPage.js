@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
-import FilterChatbot from '../components/FilterChatbot';
+import ChatbotSidebar from '../components/ChatbotSidebar';
 import './PropertiesPage.css';
 
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
@@ -67,6 +67,7 @@ const PropertiesPage = () => {
 
   // Helper function for chatbot filter integration
   const handleChatbotFilterChange = (filterName, value) => {
+    console.log('🔧 Setting filter:', filterName, '=', value);
     switch (filterName) {
       case 'priceMin':
         setPriceMin(value);
@@ -93,7 +94,22 @@ const PropertiesPage = () => {
         setSuburb(value);
         break;
       case 'searchText':
+      case 'quickSearch':
         setSearchText(value);
+        break;
+      // Additional AI service filter names that we don't use in this component
+      case 'availability':
+      case 'frontageMin':
+      case 'frontageMax':
+      case 'landSizeMin':
+      case 'landSizeMax':
+      case 'buildSizeMin':
+      case 'buildSizeMax':
+      case 'bedMax':
+      case 'bathMax':
+      case 'garageMax':
+      case 'registrationConstructionStatus':
+        console.log('⚠️ Filter not implemented in this component:', filterName, value);
         break;
       default:
         console.log('Unknown filter:', filterName, value);
@@ -335,12 +351,17 @@ const PropertiesPage = () => {
       />
 
       {/* Filter Chatbot */}
-      <FilterChatbot 
+      <ChatbotSidebar 
         isOpen={isChatbotOpen}
         onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
         currentFilters={currentFilters}
         propertyCount={filtered.length}
-        onFilterChange={handleChatbotFilterChange}
+        onFiltersChange={(newFilters) => {
+          // Apply multiple filter changes at once using the new filters object
+          Object.entries(newFilters).forEach(([key, value]) => {
+            handleChatbotFilterChange(key, value);
+          });
+        }}
         onClearFilters={handleClearFilters}
       />
 
