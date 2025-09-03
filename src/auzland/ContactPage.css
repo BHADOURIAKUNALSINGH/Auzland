@@ -174,6 +174,75 @@
   margin-top: 1rem;
 }
 
+/* Modern, sleek submit button */
+.btn-modern {
+  --btn-bg: #dc2626;
+  --btn-bg-hover: #b91c1c;
+  --btn-shadow: 0 10px 20px rgba(220, 38, 38, 0.25);
+  --btn-shadow-hover: 0 12px 24px rgba(220, 38, 38, 0.35);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(180deg, var(--btn-bg) 0%, #d61f1f 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-modern:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, var(--btn-bg-hover) 0%, #b11a1a 100%);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.btn-modern:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-modern:disabled {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.btn-modern .spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.btn-modern .icon-check {
+  font-size: 18px;
+}
+
+.btn-modern .label {
+  display: inline-block;
+}
+
+.btn-modern.success {
+  background: linear-gradient(180deg, #10b981 0%, #0ea86b 100%);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
+}
+
+.btn-modern.loading .label {
+  opacity: 0.9;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Specific white text styling for contact page header */
 .page-header .white-text {
   color: white !important;

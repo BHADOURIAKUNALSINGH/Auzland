@@ -20,6 +20,7 @@ const ContactPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [justSent, setJustSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,8 +39,10 @@ const ContactPage = () => {
           throw new Error(err.error || `Request failed: ${res.status}`);
         }
         setShowSuccess(true);
+        setJustSent(true);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         setTimeout(() => setShowSuccess(false), 5000);
+        setTimeout(() => setJustSent(false), 2000);
       } catch (err) {
         console.error('Contact submit failed:', err);
         setShowSuccess(false);
@@ -205,8 +208,21 @@ const ContactPage = () => {
                   ></textarea>
                 </div>
                 
-                <button type="submit" className="btn btn-primary btn-large" disabled={isSubmitting}>
-                  {isSubmitting ? 'Sending…' : 'Send Message'}
+                <button
+                  type="submit"
+                  className={`btn-modern ${isSubmitting ? 'loading' : ''} ${justSent ? 'success' : ''}`}
+                  disabled={isSubmitting}
+                  aria-live="polite"
+                >
+                  {isSubmitting && (
+                    <span className="spinner" aria-hidden="true"></span>
+                  )}
+                  {justSent && !isSubmitting && (
+                    <span className="icon-check" aria-hidden="true">✓</span>
+                  )}
+                  <span className="label">
+                    {isSubmitting ? 'Sending' : justSent ? 'Sent!' : 'Send Message'}
+                  </span>
                 </button>
               </form>
               

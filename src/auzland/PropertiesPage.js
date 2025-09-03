@@ -158,13 +158,13 @@ const PropertiesPage = () => {
 
       <div className="section">
         <div className="container">
-          <div className="filters-section" style={{ marginBottom: 16 }}>
+          <div className="filters-section" style={{ marginBottom: 15, alignItems: 'center' }}>
             <div className="filter-group" style={{ width: '100%' }}>
               <label>Search by address or suburb</label>
               <input type="text" className="text-input" placeholder="e.g. Austral, Leppington" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-              <button className="filter-toggle-btn" onClick={() => setShowFilters((s) => !s)}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <button className="filter-toggle-btn" style={{ height: 36, marginTop: 20 }} onClick={() => setShowFilters((s) => !s)}>
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
             </div>

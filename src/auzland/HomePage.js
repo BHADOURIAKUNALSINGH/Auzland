@@ -1,9 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import PropertyCard from './PropertyCard';
 import './HomePage.css';
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   // Sample property data
   const featuredProperties = [
     {
@@ -105,7 +108,12 @@ const HomePage = () => {
           </div>
           
           <div className="view-all-container">
-            <button className="btn btn-secondary btn-large">View All Properties</button>
+            <button 
+              className="btn btn-secondary btn-large"
+              onClick={() => navigate('/buy')}
+            >
+              View All Properties
+            </button>
           </div>
         </div>
       </section>

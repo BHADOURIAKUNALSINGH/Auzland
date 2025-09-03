@@ -76,8 +76,8 @@
 }
 
 .search-input-wrapper:focus-within {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 .search-icon {
@@ -163,6 +163,7 @@
   margin-right: auto;
   position: relative;
   overflow: hidden;
+  color-scheme: light; /* prevent OS dark mode black controls */
 }
 
 .filters-dropdown::before {
@@ -223,7 +224,7 @@
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 15px;
-  color: #3b82f6;
+  color: #dc2626;
   background: #ffffff;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
@@ -231,6 +232,21 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
+  color-scheme: light; /* ensure light themed form controls */
+}
+
+/* Hard override to avoid any dark/global theme styles */
+.hero .filters-dropdown .filter-input,
+.hero .filters-dropdown .filter-select {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* Autofill fixes (Chrome/Safari) */
+.hero .filters-dropdown input.filter-input:-webkit-autofill,
+.hero .filters-dropdown select.filter-select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
 }
 
 .filter-input::before,
@@ -261,7 +277,7 @@
 }
 
 .filter-input::placeholder {
-  color: #60a5fa;
+  color: #f87171;
   font-weight: 400;
 }
 
@@ -269,8 +285,10 @@
   cursor: pointer;
   font-weight: 500;
   background: #ffffff;
-  color: #3b82f6;
+  color: #dc2626;
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23dc2626' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 12px center;
   background-repeat: no-repeat;
@@ -281,10 +299,20 @@
 .filter-select option {
   font-size: 15px;
   padding: 12px 16px;
-  background: #ffffff;
-  color: #3b82f6;
+  background: #ffffff !important;
+  color: #dc2626;
   border: none;
   transition: all 0.2s ease;
+}
+
+/* Windows/Chrome dark mode overrides */
+.filter-select::-ms-expand {
+  display: none;
+}
+.filter-select:-internal-list-box, /* Chromium internal selector fallback */
+.filter-select:-internal-autofill-selected {
+  background-color: #ffffff !important;
+  color: #dc2626 !important;
 }
 
 .filter-select option:hover {
@@ -333,7 +361,7 @@
 
 /* Style the select element when it has a selected value */
 .filter-select:not([value=""]) {
-  color: #3b82f6;
+  color: #dc2626;
   font-weight: 600;
   border-color: #dc2626;
   background: #ffffff;

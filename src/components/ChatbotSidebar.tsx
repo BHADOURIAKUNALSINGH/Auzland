@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatbotSidebar.css';
-import { aiService } from '../services/aiService';
 
 interface Message {
   id: string;
@@ -58,16 +57,24 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({ isOpen, onToggle }) => 
     setIsTyping(true);
 
     try {
-      // Convert messages to the format expected by AI service
-      const conversationHistory = messages
-        .filter(msg => !msg.isUser || msg.text.trim()) // Filter out empty messages
-        .map(msg => ({
-          role: msg.isUser ? 'user' as const : 'assistant' as const,
-          content: msg.text
-        }));
-
-      // Get AI response
-      const aiResponseText = await aiService.generateResponse(currentInput, conversationHistory);
+      // Simulate AI response delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simple mock responses for real estate queries
+      let aiResponseText = "I'm here to help with AuzLand properties! ";
+      
+      const lowerInput = currentInput.toLowerCase();
+      if (lowerInput.includes('price') || lowerInput.includes('cost')) {
+        aiResponseText += "Our properties range from $500,000 to $3,000,000+. What's your budget range?";
+      } else if (lowerInput.includes('location') || lowerInput.includes('suburb')) {
+        aiResponseText += "We have properties in Oran Park, Austral, Leppington, and surrounding areas. Which area interests you?";
+      } else if (lowerInput.includes('bedroom') || lowerInput.includes('bathroom')) {
+        aiResponseText += "We have properties from 1-5+ bedrooms and 1-4+ bathrooms. What size home are you looking for?";
+      } else if (lowerInput.includes('viewing') || lowerInput.includes('inspect')) {
+        aiResponseText += "I can help arrange a viewing! Please contact us at Abhi@auzlandre.com.au or visit our contact page.";
+      } else {
+        aiResponseText += "What type of property are you looking for? I can help with houses, apartments, townhouses, or land.";
+      }
       
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
