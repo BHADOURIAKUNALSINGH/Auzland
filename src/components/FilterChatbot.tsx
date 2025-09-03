@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatbotSidebar.css'; // Reuse existing styles
-import { aiService } from '../services/aiService';
 
 interface Message {
   id: string;
@@ -145,20 +144,24 @@ const FilterChatbot: React.FC<FilterChatbotProps> = ({
     setIsTyping(true);
 
     try {
-      // Build context about current filters and properties
-      const filterContext = buildFilterContext();
-      const contextualMessage = `${currentInput}\n\nContext: ${filterContext}`;
-
-      // Convert messages to the format expected by AI service
-      const conversationHistory = messages
-        .map(msg => ({
-          role: msg.isUser ? 'user' as const : 'assistant' as const,
-          content: msg.text
-        }))
-        .slice(-10); // Keep last 10 messages for context
-
-      // Get AI response
-      const aiResponseText = await aiService.generateResponse(contextualMessage, conversationHistory);
+      // Simulate AI response delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simple mock responses for real estate queries
+      let aiResponseText = "I'm here to help you filter AuzLand properties! ";
+      
+      const lowerInput = currentInput.toLowerCase();
+      if (lowerInput.includes('price') || lowerInput.includes('cost')) {
+        aiResponseText += "I can help filter by price range. What's your budget?";
+      } else if (lowerInput.includes('location') || lowerInput.includes('suburb')) {
+        aiResponseText += "I can filter by location. Which suburb interests you?";
+      } else if (lowerInput.includes('bedroom') || lowerInput.includes('bathroom')) {
+        aiResponseText += "I can filter by bedrooms and bathrooms. What size home are you looking for?";
+      } else if (lowerInput.includes('house') || lowerInput.includes('apartment') || lowerInput.includes('townhouse')) {
+        aiResponseText += "I can filter by property type. What type of property are you interested in?";
+      } else {
+        aiResponseText += "I can help filter properties by price, location, bedrooms, bathrooms, or property type. What would you like to filter by?";
+      }
       
       // Try to parse and apply filters automatically
       const filtersApplied = parseFilterCommands(aiResponseText);
