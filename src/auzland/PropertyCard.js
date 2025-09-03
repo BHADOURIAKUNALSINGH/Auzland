@@ -72,7 +72,7 @@ const PropertyCard = ({ property }) => {
                 <path d="M21 17V19C21 20.1046 20.1046 21 19 21H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M17 3H19C20.1046 3 21 3.89543 21 5V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>{landSize}</span>
+              <span>{landSize} sqm</span>
             </div>
           ) : (
             <>
