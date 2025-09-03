@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
+import ChatbotSidebar from '../components/ChatbotSidebar';
 import './PropertiesPage.css';
 
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
@@ -23,6 +24,7 @@ const PropertiesPage = () => {
   const [suburb, setSuburb] = useState('');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   const parseCsv = (csv) => {
     const rows = [];
@@ -61,6 +63,80 @@ const PropertiesPage = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedProperty(null);
+  };
+
+  // Helper function for chatbot filter integration
+  const handleChatbotFilterChange = (filterName, value) => {
+    console.log('🔧 Setting filter:', filterName, '=', value);
+    switch (filterName) {
+      case 'priceMin':
+        setPriceMin(value);
+        break;
+      case 'priceMax':
+        setPriceMax(value);
+        break;
+      case 'bedroomsMin':
+      case 'bedMin':
+        setBedMin(value);
+        break;
+      case 'bathroomsMin':
+      case 'bathMin':
+        setBathMin(value);
+        break;
+      case 'garageMin':
+        setGarageMin(value);
+        break;
+      case 'propertyType':
+      case 'typeFilter':
+        setTypeFilter(value);
+        break;
+      case 'suburb':
+        setSuburb(value);
+        break;
+      case 'searchText':
+      case 'quickSearch':
+        setSearchText(value);
+        break;
+      // Additional AI service filter names that we don't use in this component
+      case 'availability':
+      case 'frontageMin':
+      case 'frontageMax':
+      case 'landSizeMin':
+      case 'landSizeMax':
+      case 'buildSizeMin':
+      case 'buildSizeMax':
+      case 'bedMax':
+      case 'bathMax':
+      case 'garageMax':
+      case 'registrationConstructionStatus':
+        console.log('⚠️ Filter not implemented in this component:', filterName, value);
+        break;
+      default:
+        console.log('Unknown filter:', filterName, value);
+    }
+  };
+
+  const handleClearFilters = () => {
+    setSearchText('');
+    setPriceMin('');
+    setPriceMax('');
+    setBedMin('');
+    setBathMin('');
+    setGarageMin('');
+    setTypeFilter('');
+    setSuburb('');
+  };
+
+  // Build current filters object for chatbot context
+  const currentFilters = {
+    searchText,
+    priceMin,
+    priceMax,
+    bedMin,
+    bathMin,
+    garageMin,
+    typeFilter,
+    suburb
   };
 
   useEffect(() => {
@@ -273,6 +349,50 @@ const PropertiesPage = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
       />
+
+      {/* Filter Chatbot */}
+      <ChatbotSidebar 
+        isOpen={isChatbotOpen}
+        onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
+        currentFilters={currentFilters}
+        propertyCount={filtered.length}
+        onFiltersChange={(newFilters) => {
+          // Apply multiple filter changes at once using the new filters object
+          Object.entries(newFilters).forEach(([key, value]) => {
+            handleChatbotFilterChange(key, value);
+          });
+        }}
+        onClearFilters={handleClearFilters}
+      />
+
+      {/* Chatbot Toggle Button - Fixed position */}
+      {!isChatbotOpen && (
+        <button 
+          className="chatbot-fab"
+          onClick={() => setIsChatbotOpen(true)}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            zIndex: 1000,
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          title="Open Filter Assistant"
+        >
+          🔍
+        </button>
+      )}
     </div>
   );
 };

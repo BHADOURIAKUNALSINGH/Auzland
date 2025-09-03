@@ -243,6 +243,13 @@ const Dashboard: React.FC = () => {
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
+    console.log('🔍 =========================== FILTER DEBUG ===========================');
+    console.log('🔍 All Current Filters:', filters);
+    console.log('🔍 Active Filters Only:', Object.fromEntries(Object.entries(filters).filter(([k,v]) => v && v !== '')));
+    console.log('🔍 Total Properties Available:', properties.length);
+    console.log('🔍 Filter Count:', Object.entries(filters).filter(([k,v]) => v && v !== '').length);
+    console.log('🔍 ================================================================');
+    
     let filtered = [...properties];
 
     // Universal quick search filter (searches across multiple fields)
@@ -292,9 +299,14 @@ const Dashboard: React.FC = () => {
 
     // Suburb filter
     if (filters.suburb) {
+      console.log('🏘️ Suburb filter:', {
+        filterSuburb: filters.suburb,
+        samplePropertySuburbs: filtered.slice(0, 5).map(p => ({ id: p.id, suburb: p.suburb }))
+      });
       filtered = filtered.filter(property => 
         property.suburb?.toLowerCase().includes(filters.suburb.toLowerCase())
       );
+      console.log('🏘️ After suburb filter:', filtered.length, 'properties remain');
     }
 
 
@@ -371,6 +383,10 @@ const Dashboard: React.FC = () => {
 
     // Registration & Construction Status filter
     if (filters.registrationConstructionStatus) {
+      console.log('📋 Registration Status filter:', {
+        filterStatus: filters.registrationConstructionStatus,
+        samplePropertyStatuses: filtered.slice(0, 5).map(p => ({ id: p.id, status: p.registrationConstructionStatus }))
+      });
       filtered = filtered.filter(property => {
         const propertyStatus = property.registrationConstructionStatus?.toLowerCase() || '';
         const filterStatus = filters.registrationConstructionStatus.toLowerCase();
@@ -425,22 +441,10 @@ const Dashboard: React.FC = () => {
     }
 
     // Apply sorting
-    console.log('Applying sorting:', { 
-      sortBy, 
-      sortOrder, 
-      filteredCount: filtered.length,
-      sampleValues: filtered.slice(0, 3).map(p => ({ 
-        [sortBy]: p[sortBy], 
-        type: typeof p[sortBy],
-        parsed: !isNaN(parseFloat(p[sortBy])) ? parseFloat(p[sortBy]) : 'not a number'
-      }))
-    });
     
     filtered.sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
-
-      console.log(`Comparing ${sortBy}:`, { a: aValue, b: bValue, aType: typeof aValue, bType: typeof bValue });
 
       // Handle numeric values (including string numbers)
       const aNum = typeof aValue === 'number' ? aValue : parseFloat(aValue) || 0;
@@ -448,7 +452,6 @@ const Dashboard: React.FC = () => {
       
       if (!isNaN(aNum) && !isNaN(bNum)) {
         const result = sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
-        console.log(`Numeric comparison: ${aNum} vs ${bNum}, order: ${sortOrder}, result: ${result}`);
         return result;
       }
 
@@ -457,7 +460,6 @@ const Dashboard: React.FC = () => {
         const aDate = aValue ? new Date(aValue).getTime() : 0;
         const bDate = bValue ? new Date(bValue).getTime() : 0;
         const result = sortOrder === 'asc' ? aDate - bDate : bDate - aDate;
-        console.log(`Date comparison: ${aDate} vs ${bDate}, order: ${sortOrder}, result: ${result}`);
         return result;
       }
 
@@ -478,8 +480,12 @@ const Dashboard: React.FC = () => {
 
       return 0;
     });
-    
-    console.log('Sorting completed. First few items:', filtered.slice(0, 3).map(p => p[sortBy]));
+
+    console.log('🔍 applyFilters result:', { 
+      originalCount: properties.length, 
+      filteredCount: filtered.length,
+      sampleFiltered: filtered.slice(0, 2).map(p => ({ id: p.id, address: p.address, suburb: p.suburb }))
+    });
 
     setFilteredProperties(filtered);
   };
@@ -1901,18 +1907,23 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        {hasEditAccess && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {getActiveFiltersCount() > 0 && (
-              <button className="clear-filters-header-btn" onClick={clearAllFilters}>
-                Clear Filters
-              </button>
-            )}
-            <button className="export-button" onClick={handleExport}>Export</button>
-            <button className="export-button" onClick={handleNewProperty}>Add New Entry</button>
-            <button className="import-button" onClick={() => setShowCsvUploadModal(true)}>Import CSV</button>
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {/* Clear Filters - Available to all users */}
+          {getActiveFiltersCount() > 0 && (
+            <button className="clear-filters-header-btn" onClick={clearAllFilters}>
+              Clear Filters
+            </button>
+          )}
+          
+          {/* Admin-only buttons */}
+          {hasEditAccess && (
+            <>
+              <button className="export-button" onClick={handleExport}>Export</button>
+              <button className="export-button" onClick={handleNewProperty}>Add New Entry</button>
+              <button className="import-button" onClick={() => setShowCsvUploadModal(true)}>Import CSV</button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Properties Table */}
@@ -2459,7 +2470,50 @@ const Dashboard: React.FC = () => {
         {/* Chatbot Sidebar */}
         <ChatbotSidebar 
           isOpen={isChatbotOpen} 
-          onToggle={() => setIsChatbotOpen(!isChatbotOpen)} 
+          onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
+          currentFilters={filters}
+          propertyCount={(() => {
+            console.log('🏠 Passing to chatbot - filteredProperties.length:', filteredProperties.length);
+            console.log('🏠 Passing to chatbot - properties.length:', properties.length);
+            return filteredProperties.length;
+          })()}
+          onFiltersChange={(newFilters) => {
+            console.log('🔧 ===================== FILTER UPDATE =====================');
+            console.log('🔧 Dashboard receiving new filters from Chatbot:', newFilters);
+            console.log('🔧 Current filters before update:', filters);
+            
+            // Apply multiple filter changes at once
+            setFilters(prev => {
+              const updated = { ...prev, ...newFilters };
+              console.log('🔧 Filters after update:', updated);
+              console.log('🔧 Active filters after update:', Object.fromEntries(Object.entries(updated).filter(([k,v]) => v && v !== '')));
+              console.log('🔧 ========================================================');
+              return updated;
+            });
+          }}
+          onClearFilters={() => {
+            setFilters({
+              quickSearch: '',
+              suburb: '',
+              propertyType: '',
+              availability: '',
+              frontageMin: '',
+              frontageMax: '',
+              landSizeMin: '',
+              landSizeMax: '',
+              buildSizeMin: '',
+              buildSizeMax: '',
+              bedMin: '',
+              bedMax: '',
+              bathMin: '',
+              bathMax: '',
+              garageMin: '',
+              garageMax: '',
+              priceMin: '',
+              priceMax: '',
+              registrationConstructionStatus: ''
+            });
+          }}
         />
         
         <div className="content-area">
