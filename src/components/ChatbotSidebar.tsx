@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatbotSidebar.css';
+import { aiService, FilterResponse } from '../services/aiService';
 
 interface Message {
   id: string;
@@ -68,33 +69,92 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
     setIsTyping(true);
 
     try {
-      // Simulate AI response delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Build conversation history from messages (excluding system prompt and JSON responses)
+      const conversationHistory = messages
+        .map(msg => ({
+          role: msg.isUser ? 'user' as const : 'assistant' as const,
+          content: msg.text
+        }))
+        .slice(-10); // Keep last 10 messages for context
+
+      // Build comprehensive context about current user interest
+      const activeFilters = currentFilters ? Object.entries(currentFilters)
+        .filter(([key, value]) => value && value !== '')
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ') : 'None';
       
-      // Simple mock responses for real estate queries
-      let aiResponseText = "I'm here to help with AuzLand properties! ";
+      // Build a user-friendly description of current interest
+      const buildCurrentInterest = () => {
+        if (!currentFilters || Object.values(currentFilters).every(v => !v)) {
+          return "The user is browsing all properties with no specific filters applied.";
+        }
+        
+        let interest = "The user is currently interested in ";
+        const parts = [];
+        
+        if (currentFilters.propertyType) {
+          parts.push(`${currentFilters.propertyType.toLowerCase()} properties`);
+        } else {
+          parts.push("properties");
+        }
+        
+        if (currentFilters.priceMin && currentFilters.priceMax) {
+          parts.push(`priced between $${Number(currentFilters.priceMin).toLocaleString()} and $${Number(currentFilters.priceMax).toLocaleString()}`);
+        } else if (currentFilters.priceMin) {
+          parts.push(`priced over $${Number(currentFilters.priceMin).toLocaleString()}`);
+        } else if (currentFilters.priceMax) {
+          parts.push(`priced under $${Number(currentFilters.priceMax).toLocaleString()}`);
+        }
+        
+        if (currentFilters.bedMin) {
+          parts.push(`with ${currentFilters.bedMin}+ bedrooms`);
+        }
+        
+        if (currentFilters.suburb) {
+          parts.push(`in ${currentFilters.suburb}`);
+        }
+        
+        if (currentFilters.availability) {
+          parts.push(`that are ${currentFilters.availability.toLowerCase()}`);
+        }
+        
+        return interest + parts.join(", ") + ".";
+      };
       
-      const lowerInput = currentInput.toLowerCase();
-      if (lowerInput.includes('price') || lowerInput.includes('cost')) {
-        aiResponseText += "Our properties range from $500,000 to $3,000,000+. What's your budget range?";
-      } else if (lowerInput.includes('location') || lowerInput.includes('suburb')) {
-        aiResponseText += "We have properties in Oran Park, Austral, Leppington, and surrounding areas. Which area interests you?";
-      } else if (lowerInput.includes('bedroom') || lowerInput.includes('bathroom')) {
-        aiResponseText += "We have properties from 1-5+ bedrooms and 1-4+ bathrooms. What size home are you looking for?";
-      } else if (lowerInput.includes('viewing') || lowerInput.includes('inspect')) {
-        aiResponseText += "I can help arrange a viewing! Please contact us at Abhi@auzlandre.com.au or visit our contact page.";
-      } else {
-        aiResponseText += "What type of property are you looking for? I can help with houses, apartments, townhouses, or land.";
-      }
+      const currentInterest = buildCurrentInterest();
+      
+      const contextualMessage = `${currentInput}\n\nCONTEXT:\n- Current user interest: ${currentInterest}\n- Active filters: ${activeFilters}\n- Currently showing: ${propertyCount} matching properties\n- The user can see these ${propertyCount} properties on the left side of their screen right now.`;
+
+      // Get AI response with filters (pass current filters for proper removal handling)
+      const filterResponse = await aiService.generateFilterResponse(contextualMessage, conversationHistory, currentFilters);
+      
+      // Show AI-generated content
+      console.log('🤖 AI Generated Response:', filterResponse);
       
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: aiResponseText,
+        text: filterResponse.message,
         isUser: false,
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, aiResponse]);
+
+      // Apply filters if onFiltersChange is provided
+      if (onFiltersChange && filterResponse.filters) {
+        const { clearAll, ...filterValues } = filterResponse.filters;
+        
+        if (clearAll && onClearFilters) {
+          onClearFilters();
+        } else {
+          // Send ALL filters including empty ones (empty = reset to default)
+          console.log('🚀 ChatbotSidebar sending filters to Dashboard:', filterValues);
+          console.log('🚀 Filters include empty values for removal:', 
+            Object.entries(filterValues).filter(([key, value]) => value === '').map(([key]) => key)
+          );
+          onFiltersChange(filterValues);
+        }
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       const errorResponse: Message = {
