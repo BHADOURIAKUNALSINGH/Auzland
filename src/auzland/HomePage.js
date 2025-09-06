@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import PropertyCard from './PropertyCard';
+import PropertyModal from './PropertyModal';
 import './HomePage.css';
 
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
@@ -11,6 +12,19 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [featuredProperties, setFeaturedProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Modal handlers
+  const handlePropertyClick = (property) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProperty(null);
+  };
 
   // Helper functions from PropertiesPage
   const parseCsv = (csv) => {
@@ -73,20 +87,26 @@ const HomePage = () => {
   const getAllImagesFromMedia = useCallback(async (mediaString) => {
     if (!mediaString) return [];
     
+    console.log('🔍 Processing media string:', mediaString);
+    
     try {
       // Fix CSV double-quote escaping issues: "" -> "
       let cleanedString = mediaString.toString();
+      console.log('🔍 Original string:', cleanedString);
       
       // Remove outer quotes if present
       if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
         cleanedString = cleanedString.slice(1, -1);
+        console.log('🔍 After removing outer quotes:', cleanedString);
       }
       
       // Fix double-escaped quotes: "" -> "
       cleanedString = cleanedString.replace(/""/g, '"');
+      console.log('🔍 After fixing quotes:', cleanedString);
       
       // Parse the cleaned JSON
       const mediaKeys = JSON.parse(cleanedString);
+      console.log('🔍 Parsed media keys:', mediaKeys);
       
       if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
         return [];
@@ -97,8 +117,12 @@ const HomePage = () => {
         if (typeof key !== 'string') return false;
         const extension = key.toLowerCase().split('.').pop();
         const allowedImageFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
-        return allowedImageFormats.includes(extension);
+        const isImage = allowedImageFormats.includes(extension);
+        console.log(`🔍 File: ${key}, Extension: ${extension}, Is Image: ${isImage}`);
+        return isImage;
       });
+      
+      console.log('🔍 Filtered image keys:', imageKeys);
       
       if (imageKeys.length === 0) return [];
       
@@ -254,8 +278,8 @@ const HomePage = () => {
         console.log('🏠 CSV data length:', csv.length);
         const rows = parseCsv(csv);
         
-        // Randomly select 6 properties from the dataset - no filtering
-        const shuffledRows = [...rows].sort(() => Math.random() - 0.5); // Shuffle the array
+        // Randomly select 6 properties from the dataset
+        const shuffledRows = [...rows].sort(() => Math.random() - 0.5);
         const mapped = shuffledRows.slice(0, 6).map((r, idx) => {
           const property = {
             id: r.id || `property-${idx}`,
@@ -297,6 +321,7 @@ const HomePage = () => {
           
           console.log(`🏠 ${propertiesWithMedia.length} out of ${mapped.length} properties have media data`);
           console.log(`🏠 ${mapped.length - propertiesWithMedia.length} properties will show hourglass`);
+          console.log('🏠 Properties with media:', propertiesWithMedia.map(p => ({ address: p.address, media: p.media })));
           
           for (let i = 0; i < propertiesWithMedia.length; i++) {
             const property = propertiesWithMedia[i];
@@ -304,11 +329,12 @@ const HomePage = () => {
             
             try {
               console.log(`🖼️ Loading images for ${property.address || property.suburb}...`);
+              console.log(`🖼️ Raw media data:`, property.media);
               const imageUrls = await getAllImagesFromMedia(property.media);
               results[originalIndex] = { ...property, images: imageUrls };
               
               if (imageUrls && imageUrls.length > 0) {
-                console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}`);
+                console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}:`, imageUrls);
               } else {
                 console.log(`⚠️ No images for ${property.address || property.suburb}`);
               }
@@ -386,7 +412,9 @@ const HomePage = () => {
               ))
             ) : featuredProperties.length > 0 ? (
               featuredProperties.map(property => (
-                <PropertyCard key={property.id} property={property} />
+                <div key={property.id} onClick={() => handlePropertyClick(property)} style={{ cursor: 'pointer' }}>
+                  <PropertyCard property={property} />
+                </div>
               ))
             ) : (
               <div className="no-properties-message">
@@ -485,6 +513,12 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <PropertyModal 
+        property={selectedProperty}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 };

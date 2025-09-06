@@ -30,21 +30,37 @@ const PropertiesPage = () => {
     if (!csv) return rows;
     const lines = csv.split(/\r?\n/).filter(Boolean);
     if (lines.length < 2) return rows;
-    const headers = lines[0].split(',').map((h) => h.trim());
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
     for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(',');
-      const obj = {};
-      for (let j = 0; j < headers.length; j++) {
-        let value = (cols[j] || '').trim();
-        
-        // Transform legacy "Home and Land Packages" to "Home & Land"
-        if (value.toLowerCase() === 'home and land packages') {
-          value = 'Home & Land';
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let j = 0; j < lines[i].length; j++) {
+        const char = lines[i][j];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
         }
-        
-        obj[headers[j]] = value;
       }
-      rows.push(obj);
+      values.push(current.trim());
+      if (values.length === headers.length) {
+        const obj = {};
+        headers.forEach((header, index) => {
+          let value = (values[index]?.replace(/"/g, '') || '').trim();
+          
+          // Transform legacy "Home and Land Packages" to "Home & Land"
+          if (value.toLowerCase() === 'home and land packages') {
+            value = 'Home & Land';
+          }
+          
+          obj[header] = value;
+        });
+        rows.push(obj);
+      }
     }
     return rows;
   };

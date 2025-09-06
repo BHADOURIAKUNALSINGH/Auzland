@@ -122,6 +122,16 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
   
   // For single image properties, create a temporary array for consistency
   const displayImages = property?.images || (property?.image ? [property.image] : []);
+  
+  // Debug logging
+  console.log('🖼️ PropertyModal Debug:', {
+    hasImages,
+    hasMultipleImages,
+    imagesLength: property?.images?.length,
+    displayImagesLength: displayImages.length,
+    currentImageIndex,
+    imageLoading
+  });
 
   return (
     <div className="property-modal-overlay" onClick={onClose}>
@@ -187,24 +197,6 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
               )}
               
               
-              {/* Thumbnail strip */}
-              {hasMultipleImages && !imageLoading && (
-                <div className="thumbnail-strip">
-                  {displayImages.map((image, index) => (
-                    <button
-                      key={index}
-                      className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                      onClick={() => {
-                        setImageLoading(true);
-                        setCurrentImageIndex(index);
-                        setImageError(false);
-                      }}
-                    >
-                      <img src={image} alt={`Thumbnail ${index + 1}`} />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
