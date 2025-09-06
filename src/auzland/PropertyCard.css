@@ -289,6 +289,41 @@
   }
 }
 
+/* Image loading placeholder */
+.image-loading-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #6c757d;
+  text-align: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  /* Removed spin animation for hourglass */
+}
+
+.image-loading-placeholder p {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .property-card,
@@ -300,4 +335,6 @@
   .property-card:hover {
     transform: none;
   }
+  
+  /* Loading spinner already has no animation */
 } 

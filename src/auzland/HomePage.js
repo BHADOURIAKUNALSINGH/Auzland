@@ -1,14 +1,168 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import PropertyCard from './PropertyCard';
 import './HomePage.css';
 
+const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
+const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
+
 const HomePage = () => {
   const navigate = useNavigate();
+  const [featuredProperties, setFeaturedProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sample property data
-  const featuredProperties = [
+  // Helper functions from PropertiesPage
+  const parseCsv = (csv) => {
+    const rows = [];
+    if (!csv) return rows;
+    const lines = csv.split(/\r?\n/).filter(Boolean);
+    if (lines.length < 2) return rows;
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    for (let i = 1; i < lines.length; i++) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let j = 0; j < lines[i].length; j++) {
+        const char = lines[i][j];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      if (values.length === headers.length) {
+        const obj = {};
+        headers.forEach((header, index) => {
+          obj[header] = values[index]?.replace(/"/g, '') || '';
+        });
+        rows.push(obj);
+      }
+    }
+    return rows;
+  };
+
+  const toNumber = (val) => {
+    const n = Number(val);
+    return Number.isFinite(n) ? n : undefined;
+  };
+
+  // Fetch presigned URLs for media files
+  const fetchPresignedUrl = async (mediaKey) => {
+    try {
+      const response = await fetch(`${MEDIA_API_URL}?key=${encodeURIComponent(mediaKey)}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch presigned URL: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (!data.ok || !data.presignedUrl) {
+        throw new Error('Invalid response from media service');
+      }
+      return data.presignedUrl;
+    } catch (error) {
+      console.error('❌ Error fetching presigned URL:', error);
+      throw new Error(`Failed to get media access: ${error.message}`);
+    }
+  };
+
+  // Extract all images from media array with CSV formatting fixes
+  const getAllImagesFromMedia = useCallback(async (mediaString) => {
+    if (!mediaString) return [];
+    
+    try {
+      // Fix CSV double-quote escaping issues: "" -> "
+      let cleanedString = mediaString.toString();
+      
+      // Remove outer quotes if present
+      if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
+        cleanedString = cleanedString.slice(1, -1);
+      }
+      
+      // Fix double-escaped quotes: "" -> "
+      cleanedString = cleanedString.replace(/""/g, '"');
+      
+      // Parse the cleaned JSON
+      const mediaKeys = JSON.parse(cleanedString);
+      
+      if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
+        return [];
+      }
+      
+      // Filter for image files only
+      const imageKeys = mediaKeys.filter(key => {
+        if (typeof key !== 'string') return false;
+        const extension = key.toLowerCase().split('.').pop();
+        const allowedImageFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+        return allowedImageFormats.includes(extension);
+      });
+      
+      if (imageKeys.length === 0) return [];
+      
+      // Get presigned URLs for all images
+      const imagePromises = imageKeys.map(async (imageKey) => {
+        try {
+          const presignedUrl = await fetchPresignedUrl(imageKey);
+          return presignedUrl;
+        } catch (error) {
+          console.error(`❌ Failed to get presigned URL for ${imageKey}:`, error);
+          return null;
+        }
+      });
+      
+      const presignedUrls = await Promise.all(imagePromises);
+      const validUrls = presignedUrls.filter(url => url !== null);
+      return validUrls;
+    } catch (error) {
+      console.error('❌ Error processing media:', error);
+      
+      // Try alternative parsing approaches for malformed JSON
+      try {
+        // Approach 1: Maybe it's a simple file path, not JSON
+        if (typeof mediaString === 'string' && mediaString.includes('media/') && !mediaString.includes('[')) {
+          const cleanPath = mediaString.replace(/['"]/g, '').trim();
+          const extension = cleanPath.toLowerCase().split('.').pop();
+          const allowedImageFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+          
+          if (allowedImageFormats.includes(extension)) {
+            const presignedUrl = await fetchPresignedUrl(cleanPath);
+            return [presignedUrl];
+          }
+        }
+        
+        // Approach 2: Try to extract file paths with regex
+        const mediaPathRegex = /media\/[^"'\s,\]]+\.(jpg|jpeg|png|gif|webp|bmp|svg)/gi;
+        const matches = mediaString.match(mediaPathRegex);
+        
+        if (matches && matches.length > 0) {
+          const imagePromises = matches.map(async (imagePath) => {
+            try {
+              const presignedUrl = await fetchPresignedUrl(imagePath);
+              return presignedUrl;
+            } catch (error) {
+              console.error(`❌ Failed to get presigned URL for ${imagePath}:`, error);
+              return null;
+            }
+          });
+          
+          const presignedUrls = await Promise.all(imagePromises);
+          const validUrls = presignedUrls.filter(url => url !== null);
+          return validUrls;
+        }
+        
+      } catch (altError) {
+        console.error('❌ Alternative parsing also failed:', altError);
+      }
+      
+      return [];
+    }
+  }, []);
+
+  // Sample property data (keeping as fallback)
+  const fallbackProperties = [
     {
       id: 1,
       image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop',
@@ -83,6 +237,119 @@ const HomePage = () => {
     }
   ];
 
+  // Load real properties from API
+  useEffect(() => {
+    const loadFeaturedProperties = async () => {
+      setIsLoading(true);
+      try {
+        console.log('🏠 Loading featured properties from API...');
+        console.log('🏠 API URL:', LISTINGS_API_URL);
+        let res = await fetch(LISTINGS_API_URL);
+        console.log('🏠 API Response status:', res.status, res.statusText);
+        if (!res.ok) throw new Error(`Network response was not ok: ${res.status} ${res.statusText}`);
+        
+        const responseData = await res.json();
+        console.log('🏠 Raw API response:', responseData);
+        const csv = responseData.csv || responseData;
+        console.log('🏠 CSV data length:', csv.length);
+        const rows = parseCsv(csv);
+        
+        // Randomly select 6 properties from the dataset - no filtering
+        const shuffledRows = [...rows].sort(() => Math.random() - 0.5); // Shuffle the array
+        const mapped = shuffledRows.slice(0, 6).map((r, idx) => {
+          const property = {
+            id: r.id || `property-${idx}`,
+            address: r.address || r.suburb || `Property ${idx + 1}`,
+            suburb: r.suburb || '',
+            propertyType: r.propertyType || '',
+            bedrooms: toNumber(r.bed) || 0,
+            bathrooms: toNumber(r.bath) || 0,
+            parking: toNumber(r.garage) || 0,
+            landSize: toNumber(r.landSize) || 0,
+            media: r.media || '',
+            images: [], // Will be populated with real images (or stay empty for hourglass)
+            price: '',
+            status: r.availability || 'For Sale',
+            priceNumber: (() => { 
+              const raw = (r.price || '').toString(); 
+              const n = Number(raw.replace(/[^0-9]/g, '')); 
+              return Number.isFinite(n) ? n : 0; 
+            })()
+          };
+          console.log(`🏠 Mapped property ${idx}:`, property);
+          return property;
+        });
+        
+        console.log(`🏠 Found ${rows.length} total properties, randomly selected ${mapped.length} for homepage`);
+        console.log('🏠 Sample property:', mapped[0]);
+        console.log('🏠 All properties addresses:', mapped.map(p => p.address));
+        console.log('🏠 Raw CSV rows (first 3):', rows.slice(0, 3));
+        
+        // Set initial properties without images
+        setFeaturedProperties(mapped);
+        console.log('🏠 Properties set in state:', mapped.length);
+        setIsLoading(false); // Set loading to false so we can see properties immediately
+        
+        // Only load images for properties that have media data
+        const loadImages = async () => {
+          const results = [...mapped];
+          const propertiesWithMedia = mapped.filter(p => p.media && p.media.trim());
+          
+          console.log(`🏠 ${propertiesWithMedia.length} out of ${mapped.length} properties have media data`);
+          console.log(`🏠 ${mapped.length - propertiesWithMedia.length} properties will show hourglass`);
+          
+          for (let i = 0; i < propertiesWithMedia.length; i++) {
+            const property = propertiesWithMedia[i];
+            const originalIndex = mapped.findIndex(p => p.id === property.id);
+            
+            try {
+              console.log(`🖼️ Loading images for ${property.address || property.suburb}...`);
+              const imageUrls = await getAllImagesFromMedia(property.media);
+              results[originalIndex] = { ...property, images: imageUrls };
+              
+              if (imageUrls && imageUrls.length > 0) {
+                console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}`);
+              } else {
+                console.log(`⚠️ No images for ${property.address || property.suburb}`);
+              }
+              
+              // Update state after each property to show progressive loading
+              setFeaturedProperties([...results]);
+              
+            } catch (error) {
+              console.error(`❌ Failed to load images for ${property.address}:`, error);
+              results[originalIndex] = { ...property, images: [] };
+            }
+            
+            // Small delay between requests
+            if (i < propertiesWithMedia.length - 1) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          }
+          
+          const totalWithImages = results.filter(p => p.images && p.images.length > 0).length;
+          const totalWithoutMedia = mapped.length - propertiesWithMedia.length;
+          console.log(`✅ Featured properties loaded: ${totalWithImages} have images, ${totalWithoutMedia} show hourglass`);
+        };
+        
+        loadImages();
+        
+      } catch (error) {
+        console.error('❌ Error loading featured properties:', error);
+        // Use fallback properties if API fails
+        console.log('🔄 Using fallback properties...');
+        setFeaturedProperties(fallbackProperties);
+        setIsLoading(false);
+      }
+    };
+    
+    loadFeaturedProperties();
+  }, []); // Run only once on component mount
+
+  // Debug logging for render
+  console.log('🏠 HomePage render - isLoading:', isLoading, 'featuredProperties.length:', featuredProperties.length);
+  console.log('🏠 Featured properties data:', featuredProperties);
+
   return (
     <div className="home-page">
       <Hero />
@@ -102,9 +369,30 @@ const HomePage = () => {
           </div>
           
           <div className="properties-grid">
-            {featuredProperties.map(property => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
+            {isLoading && featuredProperties.length === 0 ? (
+              // Show loading placeholders
+              Array.from({ length: 6 }, (_, index) => (
+                <div key={`loading-${index}`} className="property-card-loading">
+                  <div className="loading-image">
+                    <div className="loading-spinner">⏳</div>
+                    <p>Loading real listings...</p>
+                  </div>
+                  <div className="loading-content">
+                    <div className="loading-line loading-line-title"></div>
+                    <div className="loading-line loading-line-subtitle"></div>
+                    <div className="loading-line loading-line-features"></div>
+                  </div>
+                </div>
+              ))
+            ) : featuredProperties.length > 0 ? (
+              featuredProperties.map(property => (
+                <PropertyCard key={property.id} property={property} />
+              ))
+            ) : (
+              <div className="no-properties-message">
+                <p>No properties available at the moment. Please check back later.</p>
+              </div>
+            )}
           </div>
           
           <div className="view-all-container">
@@ -131,7 +419,7 @@ const HomePage = () => {
               </div>
               <h3>Get Estimated Property Prices</h3>
               <p>See how much your property's worth whether you own it or want to buy it.</p>
-              <button className="btn btn-primary">Check Property Values</button>
+              <button className="btn btn-primary" onClick={() => navigate('/contact')}>Check Property Values</button>
             </div>
             
             <div className="service-card card">
@@ -144,7 +432,7 @@ const HomePage = () => {
               </div>
               <h3>Need Help with a Mortgage?</h3>
               <p>Compare your finance options to make an informed call.</p>
-              <button className="btn btn-primary">Explore Home Loans</button>
+              <button className="btn btn-primary" onClick={() => navigate('/contact')}>Explore Home Loans</button>
             </div>
             
             <div className="service-card card">
@@ -157,7 +445,7 @@ const HomePage = () => {
               </div>
               <h3>Explore Suburb Profiles</h3>
               <p>Check out different suburb profiles and find one that's right for you.</p>
-              <button className="btn btn-primary">Research Suburbs</button>
+              <button className="btn btn-primary" onClick={() => navigate('/blog')}>Research Suburbs</button>
             </div>
           </div>
         </div>

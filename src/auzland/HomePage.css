@@ -169,4 +169,104 @@
   .news-content {
     padding: 1rem;
   }
+}
+
+/* Loading states for real property cards */
+.property-card-loading {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.loading-image {
+  height: 250px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #6c757d;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  /* Removed spin animation for hourglass */
+}
+
+.loading-image p {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.loading-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.loading-line {
+  height: 1rem;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 0.5rem;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.loading-line-title {
+  height: 1.25rem;
+  width: 75%;
+}
+
+.loading-line-subtitle {
+  height: 1rem;
+  width: 50%;
+}
+
+.loading-line-features {
+  height: 1rem;
+  width: 60%;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .property-card-loading,
+  .loading-line {
+    animation: none;
+  }
+  
+  /* Loading spinner already has no animation */
 } 

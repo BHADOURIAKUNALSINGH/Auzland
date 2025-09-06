@@ -16,32 +16,20 @@ const PropertyCard = ({ property }) => {
     landSize
   } = property;
 
-  // Fallback images if the main image fails to load
-  const fallbackImages = [
-    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop'
-  ];
 
-  // Use real images if available, otherwise fallback to single image or placeholder
-  const displayImage = (images && images.length > 0) ? images[0] : image;
+  // Check if we have real images available
+  const hasRealImages = images && images.length > 0;
+  const displayImage = hasRealImages ? images[0] : null;
   const [imageUrl, setImageUrl] = useState(displayImage);
   const [imageError, setImageError] = useState(false);
 
   const handleImageError = () => {
-    if (!imageError) {
-      setImageError(true);
-      // Use a random fallback image
-      const randomIndex = Math.floor(Math.random() * fallbackImages.length);
-      setImageUrl(fallbackImages[randomIndex]);
-    }
+    setImageError(true);
   };
 
   // Update imageUrl when images or image prop changes
   useEffect(() => {
-    const newDisplayImage = (images && images.length > 0) ? images[0] : image;
+    const newDisplayImage = (images && images.length > 0) ? images[0] : null;
     setImageUrl(newDisplayImage);
     setImageError(false);
   }, [images, image]);
@@ -49,7 +37,14 @@ const PropertyCard = ({ property }) => {
   return (
     <div className="property-card card">
       <div className="property-image">
-        <img src={imageUrl} alt={address} onError={handleImageError} />
+        {imageUrl && !imageError ? (
+          <img src={imageUrl} alt={address} onError={handleImageError} />
+        ) : (
+          <div className="image-loading-placeholder">
+            <div className="loading-spinner">⏳</div>
+            <p>Loading images...</p>
+          </div>
+        )}
         <div className="property-overlay">
           <button className="btn btn-primary">View Details</button>
         </div>
