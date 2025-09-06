@@ -4,8 +4,9 @@ import './PropertyModal.css';
 
 const PropertyModal = ({ property, isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [imageUrl, setImageUrl] = useState(property?.image || '');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Fallback images if the main image fails to load
   const fallbackImages = [
@@ -16,20 +17,78 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
     'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop'
   ];
 
+  // Get current image to display - support both images array and single image
+  const getCurrentImage = () => {
+    // First try the images array (new format)
+    if (property?.images && property.images.length > 0 && !imageError) {
+      return property.images[currentImageIndex];
+    }
+    // Fallback to single image property (old format)
+    if (property?.image && !imageError) {
+      return property.image;
+    }
+    // Use fallback image only if we have an error
+    if (imageError) {
+      const randomIndex = Math.floor(Math.random() * fallbackImages.length);
+      return fallbackImages[randomIndex];
+    }
+    return null;
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
   const handleImageError = () => {
+    setImageLoading(false);
     if (!imageError) {
       setImageError(true);
-      const randomIndex = Math.floor(Math.random() * fallbackImages.length);
-      setImageUrl(fallbackImages[randomIndex]);
+    }
+  };
+
+  const nextImage = () => {
+    const images = property?.images || (property?.image ? [property.image] : []);
+    if (images && images.length > 1) {
+      setImageLoading(true);
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      setImageError(false);
+    }
+  };
+
+  const prevImage = () => {
+    const images = property?.images || (property?.image ? [property.image] : []);
+    if (images && images.length > 1) {
+      setImageLoading(true);
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      setImageError(false);
     }
   };
 
   useEffect(() => {
-    if (property?.image) {
-      setImageUrl(property.image);
-      setImageError(false);
-    }
+    setCurrentImageIndex(0);
+    setImageError(false);
+    setImageLoading(true);
   }, [property]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isOpen) return;
+      
+      switch (e.key) {
+        case 'ArrowLeft':
+          prevImage();
+          break;
+        case 'ArrowRight':
+          nextImage();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, property]);
 
   // Create Google Maps URL for the property address
   const createGoogleMapsUrl = () => {
@@ -49,7 +108,20 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
     navigate('/contact'); // Navigate to contact page
   };
 
+  // Handle schedule viewing click
+  const handleScheduleViewing = () => {
+    onClose(); // Close the modal first
+    navigate('/contact'); // Navigate to contact page
+  };
+
   if (!isOpen || !property) return null;
+
+  const currentImage = getCurrentImage();
+  const hasImages = (property?.images && property.images.length > 0) || property?.image;
+  const hasMultipleImages = property?.images && property.images.length > 1;
+  
+  // For single image properties, create a temporary array for consistency
+  const displayImages = property?.images || (property?.image ? [property.image] : []);
 
   return (
     <div className="property-modal-overlay" onClick={onClose}>
@@ -63,17 +135,76 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
         <div className="modal-content">
           <div className="modal-left">
             <div className="property-image-section">
-              <img 
-                src={imageUrl} 
-                alt={property.address} 
-                onError={handleImageError}
-                className="modal-property-image"
-              />
-              <div className="property-status">
-                <span className={`status-badge ${property.status?.toLowerCase()}`}>
-                  {property.status}
-                </span>
-              </div>
+              {/* Loading state */}
+              {imageLoading && !imageError && (
+                <div className="image-loading-placeholder">
+                  <div className="loading-spinner">⏳</div>
+                  <p>Loading images...</p>
+                </div>
+              )}
+              
+              {/* No images state */}
+              {!hasImages && !imageError && !imageLoading && (
+                <div className="no-images-placeholder">
+                  <div className="no-images-icon">🏠</div>
+                  <p>No images available</p>
+                </div>
+              )}
+              
+              {/* Image display */}
+              {currentImage && (
+                <img 
+                  src={currentImage} 
+                  alt={property.address} 
+                  onLoad={handleImageLoad}
+                  onError={handleImageError}
+                  className="modal-property-image"
+                  style={{ display: imageLoading ? 'none' : 'block' }}
+                />
+              )}
+              
+              {/* Navigation arrows */}
+              {hasMultipleImages && !imageLoading && (
+                <>
+                  <button className="slideshow-nav-btn prev-btn" onClick={prevImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button className="slideshow-nav-btn next-btn" onClick={nextImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </>
+              )}
+              
+              {/* Image counter */}
+              {hasMultipleImages && !imageLoading && (
+                <div className="slideshow-counter">
+                  {currentImageIndex + 1} / {displayImages.length}
+                </div>
+              )}
+              
+              
+              {/* Thumbnail strip */}
+              {hasMultipleImages && !imageLoading && (
+                <div className="thumbnail-strip">
+                  {displayImages.map((image, index) => (
+                    <button
+                      key={index}
+                      className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                      onClick={() => {
+                        setImageLoading(true);
+                        setCurrentImageIndex(index);
+                        setImageError(false);
+                      }}
+                    >
+                      <img src={image} alt={`Thumbnail ${index + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -102,30 +233,31 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                   <div className="features-grid">
                     <div className="feature-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 7V5C3 3.89543 3.89543 3 5 3H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 21H5C3.89543 21 3 20.1046 3 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M21 17V19C21 20.1046 20.1046 21 19 21H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M17 3H19C20.1046 3 21 3.89543 21 5V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 7H17V15H7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M4 15H20V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M4 15V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M20 15V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       <span className="feature-text">{property.bedrooms} Bedrooms</span>
                     </div>
                     
                     <div className="feature-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 14V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 14V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M16 14V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M3 21H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M3 7H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M4 7V4C4 3.44772 4.44772 3 5 3H9C9.55228 3 10 3.44772 10 4V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M14 7V4C14 3.44772 14.4477 3 15 3H19C19.5523 3 20 3.44772 20 4V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 6L9 3C9 2.44772 9.44772 2 10 2H14C14.5523 2 15 2.44772 15 3V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M6 6H18C19.1046 6 20 6.89543 20 8V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V8C4 6.89543 4.89543 6 6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 12H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M12 12V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       <span className="feature-text">{property.bathrooms} Bathrooms</span>
                     </div>
                     
                     <div className="feature-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 7H16V6C16 4.89543 15.1046 4 14 4H10C8.89543 4 8 4.89543 8 6V7H5C3.89543 7 3 7.89543 3 9V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M5 17H4C3.44772 17 3 16.5523 3 16V10C3 8.89543 3.89543 8 5 8H19C20.1046 8 21 8.89543 21 10V16C21 16.5523 20.5523 17 20 17H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <circle cx="7" cy="17" r="2" stroke="currentColor" strokeWidth="2"/>
+                        <circle cx="17" cy="17" r="2" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M5 8L6 6H18L19 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       <span className="feature-text">{property.parking} Parking</span>
                     </div>
@@ -141,7 +273,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                   </svg>
                   Contact Agent
                 </button>
-                <button className="btn btn-secondary">
+                <button className="btn btn-outline" onClick={handleScheduleViewing}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 2V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M16 2V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

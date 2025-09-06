@@ -17,32 +17,33 @@
 
 .property-modal {
   background: white;
-  border-radius: 1rem;
-  max-width: 1200px;
-  width: 100%;
-  max-height: 90vh;
+  border-radius: 20px;
+  max-width: 1400px;
+  width: 95%;
+  max-height: 95vh;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
 }
 
 .modal-close-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
+  z-index: 100;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .modal-close-btn:hover {
@@ -76,49 +77,205 @@
 .property-image-section {
   position: relative;
   height: 100%;
-  min-height: 400px;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 30%, #991b1b 70%, #7f1d1d 100%);
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 60% 20%, rgba(255, 255, 255, 0.06) 0%, transparent 40%),
+    linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0.04) 58%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.03) 42%, rgba(255, 255, 255, 0.03) 58%, transparent 60%);
+  background-size: 300px 300px, 200px 200px, 150px 150px, 60px 60px, 40px 40px;
+  background-position: 0 0, 150px 150px, 80px 80px, 0 0, 20px 20px;
+  border-radius: 20px 0 0 20px;
+  overflow: hidden;
 }
 
 .modal-property-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   transition: transform 0.3s ease;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .property-image-section:hover .modal-property-image {
   transform: scale(1.02);
 }
 
+/* Slideshow navigation */
+.slideshow-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 3;
+  backdrop-filter: blur(4px);
+}
+
+.slideshow-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slideshow-nav-btn.prev-btn {
+  left: 20px;
+}
+
+.slideshow-nav-btn.next-btn {
+  right: 20px;
+}
+
+/* Slideshow counter */
+.slideshow-counter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 3;
+  backdrop-filter: blur(4px);
+}
+
 .property-status {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  z-index: 2;
+  z-index: 3;
+}
+
+/* Thumbnail strip */
+.thumbnail-strip {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  overflow-x: auto;
+  border-top: 1px solid #e9ecef;
+  margin-top: auto;
+}
+
+.thumbnail {
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+  flex-shrink: 0;
+  width: 80px;
+  height: 60px;
+}
+
+.thumbnail:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border: 3px solid var(--primary-color);
+  transform: scale(1.1);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Loading and no-images placeholders */
+.image-loading-placeholder,
+.no-images-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #6c757d;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.loading-spinner {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: pulse 1.5s infinite;
+}
+
+.no-images-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.image-loading-placeholder p,
+.no-images-placeholder p {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
 }
 
 .status-badge {
   display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--primary-color);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  color: #dc2626;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .status-badge.for-sale {
-  background: rgba(59, 130, 246, 0.9);
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .status-badge.sold {
-  background: rgba(239, 68, 68, 0.9);
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-badge.under-contract {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .modal-right {
@@ -264,19 +421,42 @@
 
 .action-buttons .btn {
   flex: 1;
-  min-width: 150px;
+  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
-.action-buttons .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.action-buttons .btn-primary {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+}
+
+.action-buttons .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+.action-buttons .btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(107, 114, 128, 0.3);
+}
+
+.action-buttons .btn-secondary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
 }
 
 .map-section {

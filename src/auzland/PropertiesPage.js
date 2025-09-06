@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
-import ChatbotSidebar from '../components/ChatbotSidebar';
 import './PropertiesPage.css';
 
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
+const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
 
 const PropertiesPage = () => {
   const location = useLocation();
@@ -24,7 +24,6 @@ const PropertiesPage = () => {
   const [suburb, setSuburb] = useState('');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   const parseCsv = (csv) => {
     const rows = [];
@@ -55,6 +54,149 @@ const PropertiesPage = () => {
     return Number.isFinite(n) ? n : undefined;
   };
 
+  // Fetch presigned URLs for media files (same as Dashboard)
+  const fetchPresignedUrl = async (mediaKey) => {
+    try {
+      console.log('🔍 Fetching presigned URL for key:', mediaKey);
+      const response = await fetch(`${MEDIA_API_URL}?key=${encodeURIComponent(mediaKey)}`);
+      console.log('🔍 Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch presigned URL: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('🔍 Response data:', data);
+      
+      if (!data.ok || !data.presignedUrl) {
+        throw new Error('Invalid response from media service');
+      }
+      console.log('🔍 Returning presigned URL:', data.presignedUrl);
+      return data.presignedUrl;
+    } catch (error) {
+      console.error('❌ Error fetching presigned URL:', error);
+      throw new Error(`Failed to get media access: ${error.message}`);
+    }
+  };
+
+  // Extract all images from media array with CSV formatting fixes
+  const getAllImagesFromMedia = useCallback(async (mediaString) => {
+    if (!mediaString) {
+      console.log('🔍 No media string provided');
+      return [];
+    }
+    
+    console.log('🔍 Processing media string:', mediaString);
+    
+    try {
+      // Fix CSV double-quote escaping issues: "" -> "
+      let cleanedString = mediaString.toString();
+      
+      // Remove outer quotes if present
+      if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
+        cleanedString = cleanedString.slice(1, -1);
+      }
+      
+      // Fix double-escaped quotes: "" -> "
+      cleanedString = cleanedString.replace(/""/g, '"');
+      
+      console.log('🔍 Cleaned media string:', cleanedString);
+      
+      // Now parse the cleaned JSON
+      const mediaKeys = JSON.parse(cleanedString);
+      console.log('🔍 Parsed media keys:', mediaKeys);
+      
+      if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
+        console.log('🔍 No media keys found or not an array');
+        return [];
+      }
+      
+      // Filter for image files only
+      const imageKeys = mediaKeys.filter(key => {
+        if (typeof key !== 'string') return false;
+        const extension = key.toLowerCase().split('.').pop();
+        const allowedImageFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+        const isImage = allowedImageFormats.includes(extension);
+        console.log(`🔍 Checking ${key}: extension=${extension}, isImage=${isImage}`);
+        return isImage;
+      });
+      
+      console.log('🔍 Filtered image keys:', imageKeys);
+      
+      if (imageKeys.length === 0) {
+        console.log('🔍 No image files found in media');
+        return [];
+      }
+      
+      // Get presigned URLs for all images
+      console.log('🔍 Fetching presigned URLs for all images...');
+      const imagePromises = imageKeys.map(async (imageKey) => {
+        try {
+          const presignedUrl = await fetchPresignedUrl(imageKey);
+          console.log(`🔍 Got presigned URL for ${imageKey}:`, presignedUrl);
+          return presignedUrl;
+        } catch (error) {
+          console.error(`❌ Failed to get presigned URL for ${imageKey}:`, error);
+          return null;
+        }
+      });
+      
+      const presignedUrls = await Promise.all(imagePromises);
+      const validUrls = presignedUrls.filter(url => url !== null);
+      console.log('🔍 Got valid presigned URLs:', validUrls);
+      
+      return validUrls;
+    } catch (error) {
+      console.error('❌ Error processing media:', error);
+      console.error('❌ Original string:', mediaString);
+      
+      // Try alternative parsing approaches for malformed JSON
+      try {
+        console.log('🔄 Trying alternative parsing...');
+        
+        // Approach 1: Maybe it's a simple file path, not JSON
+        if (typeof mediaString === 'string' && mediaString.includes('media/') && !mediaString.includes('[')) {
+          console.log('🔄 Treating as single file path');
+          const cleanPath = mediaString.replace(/['"]/g, '').trim();
+          const extension = cleanPath.toLowerCase().split('.').pop();
+          const allowedImageFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+          
+          if (allowedImageFormats.includes(extension)) {
+            console.log('✅ Single image file found:', cleanPath);
+            const presignedUrl = await fetchPresignedUrl(cleanPath);
+            return [presignedUrl];
+          }
+        }
+        
+        // Approach 2: Try to extract file paths with regex
+        const mediaPathRegex = /media\/[^"'\s,\]]+\.(jpg|jpeg|png|gif|webp|bmp|svg)/gi;
+        const matches = mediaString.match(mediaPathRegex);
+        
+        if (matches && matches.length > 0) {
+          console.log('🔄 Found paths with regex:', matches);
+          const imagePromises = matches.map(async (imagePath) => {
+            try {
+              console.log('✅ Using image from regex:', imagePath);
+              const presignedUrl = await fetchPresignedUrl(imagePath);
+              return presignedUrl;
+            } catch (error) {
+              console.error(`❌ Failed to get presigned URL for ${imagePath}:`, error);
+              return null;
+            }
+          });
+          
+          const presignedUrls = await Promise.all(imagePromises);
+          const validUrls = presignedUrls.filter(url => url !== null);
+          return validUrls;
+        }
+        
+      } catch (altError) {
+        console.error('❌ Alternative parsing also failed:', altError);
+      }
+      
+      return [];
+    }
+  }, []);
+
   const handlePropertyClick = (property) => {
     setSelectedProperty(property);
     setIsModalOpen(true);
@@ -65,79 +207,6 @@ const PropertiesPage = () => {
     setSelectedProperty(null);
   };
 
-  // Helper function for chatbot filter integration
-  const handleChatbotFilterChange = (filterName, value) => {
-    console.log('🔧 Setting filter:', filterName, '=', value);
-    switch (filterName) {
-      case 'priceMin':
-        setPriceMin(value);
-        break;
-      case 'priceMax':
-        setPriceMax(value);
-        break;
-      case 'bedroomsMin':
-      case 'bedMin':
-        setBedMin(value);
-        break;
-      case 'bathroomsMin':
-      case 'bathMin':
-        setBathMin(value);
-        break;
-      case 'garageMin':
-        setGarageMin(value);
-        break;
-      case 'propertyType':
-      case 'typeFilter':
-        setTypeFilter(value);
-        break;
-      case 'suburb':
-        setSuburb(value);
-        break;
-      case 'searchText':
-      case 'quickSearch':
-        setSearchText(value);
-        break;
-      // Additional AI service filter names that we don't use in this component
-      case 'availability':
-      case 'frontageMin':
-      case 'frontageMax':
-      case 'landSizeMin':
-      case 'landSizeMax':
-      case 'buildSizeMin':
-      case 'buildSizeMax':
-      case 'bedMax':
-      case 'bathMax':
-      case 'garageMax':
-      case 'registrationConstructionStatus':
-        console.log('⚠️ Filter not implemented in this component:', filterName, value);
-        break;
-      default:
-        console.log('Unknown filter:', filterName, value);
-    }
-  };
-
-  const handleClearFilters = () => {
-    setSearchText('');
-    setPriceMin('');
-    setPriceMax('');
-    setBedMin('');
-    setBathMin('');
-    setGarageMin('');
-    setTypeFilter('');
-    setSuburb('');
-  };
-
-  // Build current filters object for chatbot context
-  const currentFilters = {
-    searchText,
-    priceMin,
-    priceMax,
-    bedMin,
-    bathMin,
-    garageMin,
-    typeFilter,
-    suburb
-  };
 
   useEffect(() => {
     const load = async () => {
@@ -172,12 +241,63 @@ const PropertiesPage = () => {
           bathrooms: toNumber(r.bath),
           parking: toNumber(r.garage),
           landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
-          image: r.media || r.media_url || placeholder[idx % placeholder.length],
+          media: r.media || r.media_url || '', // Store the raw media data
+          images: [], // Will be populated with real images
+          image: placeholder[idx % placeholder.length], // Fallback for old compatibility
           price: '',
           status: r.status || 'For Sale',
           priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })()
         })).filter((p) => p.address || p.suburb);
+        
+        // Set initial properties without images
         setProperties(mapped);
+        
+        // Load images asynchronously in batches to avoid overwhelming the API
+        console.log(`🖼️ Loading images for ${mapped.length} properties...`);
+        const loadImages = async () => {
+          const batchSize = 5; // Process 5 images at a time
+          const results = [...mapped]; // Copy the array
+          
+          for (let i = 0; i < mapped.length; i += batchSize) {
+            const batch = mapped.slice(i, i + batchSize);
+            console.log(`📦 Loading batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(mapped.length/batchSize)}`);
+            let batchSuccessCount = 0;
+            
+            await Promise.all(
+              batch.map(async (property, batchIndex) => {
+                const actualIndex = i + batchIndex;
+                try {
+                  const imageUrls = await getAllImagesFromMedia(property.media);
+                  results[actualIndex] = { ...property, images: imageUrls };
+                  if (imageUrls && imageUrls.length > 0) {
+                    batchSuccessCount++;
+                    console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}`);
+                  } else {
+                    console.log(`⚠️ No images for ${property.address || property.suburb} (media: ${property.media?.substring(0, 50)}...)`);
+                  }
+                } catch (error) {
+                  console.error(`❌ Failed to load images for ${property.address}:`, error);
+                  results[actualIndex] = { ...property, images: [] };
+                }
+              })
+            );
+            
+            // Update properties after each batch
+            setProperties([...results]);
+            
+            console.log(`📦 Batch completed: ${batchSuccessCount} images loaded`);
+            
+            // Small delay between batches
+            if (i + batchSize < mapped.length) {
+              await new Promise(resolve => setTimeout(resolve, 200));
+            }
+          }
+          
+          const totalSuccess = results.filter(p => p.images && p.images.length > 0).length;
+          console.log(`✅ Loaded images for ${totalSuccess} out of ${mapped.length} properties`);
+        };
+        
+        loadImages();
       } catch (e) {
         setError(e?.message || 'Failed to load properties');
       } finally {
@@ -185,7 +305,7 @@ const PropertiesPage = () => {
       }
     };
     load();
-  }, []);
+  }, [getAllImagesFromMedia]);
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
@@ -350,49 +470,6 @@ const PropertiesPage = () => {
         onClose={closeModal}
       />
 
-      {/* Filter Chatbot */}
-      <ChatbotSidebar 
-        isOpen={isChatbotOpen}
-        onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
-        currentFilters={currentFilters}
-        propertyCount={filtered.length}
-        onFiltersChange={(newFilters) => {
-          // Apply multiple filter changes at once using the new filters object
-          Object.entries(newFilters).forEach(([key, value]) => {
-            handleChatbotFilterChange(key, value);
-          });
-        }}
-        onClearFilters={handleClearFilters}
-      />
-
-      {/* Chatbot Toggle Button - Fixed position */}
-      {!isChatbotOpen && (
-        <button 
-          className="chatbot-fab"
-          onClick={() => setIsChatbotOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            fontSize: '24px',
-            cursor: 'pointer',
-            zIndex: 1000,
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          title="Open Filter Assistant"
-        >
-          🔍
-        </button>
-      )}
     </div>
   );
 };

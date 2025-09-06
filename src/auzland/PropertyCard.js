@@ -3,7 +3,7 @@ import './PropertyCard.css';
 
 const PropertyCard = ({ property }) => {
   const {
-    id,
+    images,
     image,
     address,
     suburb,
@@ -25,7 +25,9 @@ const PropertyCard = ({ property }) => {
     'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop'
   ];
 
-  const [imageUrl, setImageUrl] = useState(image);
+  // Use real images if available, otherwise fallback to single image or placeholder
+  const displayImage = (images && images.length > 0) ? images[0] : image;
+  const [imageUrl, setImageUrl] = useState(displayImage);
   const [imageError, setImageError] = useState(false);
 
   const handleImageError = () => {
@@ -37,21 +39,17 @@ const PropertyCard = ({ property }) => {
     }
   };
 
-  // Update imageUrl when image prop changes
+  // Update imageUrl when images or image prop changes
   useEffect(() => {
-    setImageUrl(image);
+    const newDisplayImage = (images && images.length > 0) ? images[0] : image;
+    setImageUrl(newDisplayImage);
     setImageError(false);
-  }, [image]);
+  }, [images, image]);
 
   return (
     <div className="property-card card">
       <div className="property-image">
         <img src={imageUrl} alt={address} onError={handleImageError} />
-        <div className="property-status">
-          <span className={`status-badge ${status.toLowerCase()}`}>
-            {status}
-          </span>
-        </div>
         <div className="property-overlay">
           <button className="btn btn-primary">View Details</button>
         </div>
