@@ -55,7 +55,9 @@
   background: white;
   border-radius: 1rem;
   padding: 0.5rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
+  border: none;
+  outline: none;
   display: flex;
   max-width: 600px;
   margin: 0 auto;
@@ -98,7 +100,7 @@
 }
 
 .search-button {
-  background: var(--primary-color);
+  background: #6b7280;
   border: none;
   padding: 1rem;
   border-radius: 0 0.75rem 0.75rem 0;
@@ -108,7 +110,7 @@
 }
 
 .search-button:hover {
-  background: var(--primary-dark);
+  background: #4b5563;
 }
 
 /* Hero CTA */
