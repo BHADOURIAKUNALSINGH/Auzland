@@ -1476,7 +1476,7 @@ const Dashboard: React.FC = () => {
       if (mediaKeys.length === 0) return <td>-</td>;
       
       return (
-        <td className="media-column">
+        <td>
           <div className="media-controls">
             <button 
               className="view-media-btn"

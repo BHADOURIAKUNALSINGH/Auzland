@@ -1416,7 +1416,7 @@ aside.filters-sidebar,
   padding: 0.5rem 0.5rem; /* Reduced padding for more rows */
   text-align: left;
   border-bottom: 1px solid #E9C46A; /* Gold/Amber - Accent border */
-  vertical-align: top;
+  vertical-align: middle; /* Changed from top to middle for better alignment */
   word-wrap: break-word;
   overflow: visible;
   white-space: nowrap;
@@ -1517,6 +1517,9 @@ aside.filters-sidebar,
 .properties-table td:nth-child(14) {
   min-width: 150px;
   max-width: 200px;
+  vertical-align: middle; /* Ensure media column is vertically centered */
+  text-align: left; /* Align with other columns instead of center */
+  padding-left: 0.5rem; /* Consistent padding with other columns */
 }
 
 .properties-table th:nth-child(15), /* REMARK */
@@ -2818,12 +2821,7 @@ aside.filters-sidebar,
   background: #b91c1c;
 }
 
-/* Media Column Styles */
-.media-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
+/* Media Column Styles - Removed, now using standard td styles */
 
 .media-item {
   display: flex;
@@ -2867,28 +2865,37 @@ aside.filters-sidebar,
   transform: scale(1.1);
 }
 
-/* Media Column Display Styles */
-.media-column {
-  max-width: 300px;
-}
+/* Media Column Display Styles - Now handled by standard td styling */
 
 .media-controls {
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align to left like other columns */
+  margin: 0; /* Remove margin that was causing misalignment */
+  height: auto; /* Let height be natural */
+  width: 100%; /* Take full width */
 }
 
 .view-media-btn {
   background: #3b82f6;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 6px 12px; /* Consistent with table cell padding */
   border-radius: 6px;
   font-size: 0.875rem;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  margin: 0; /* Remove any margin */
+  line-height: normal; /* Ensure consistent line height */
 }
 
 .view-media-btn:hover {
   background: #2563eb;
+  transform: translateY(-1px);
 }
 
 
@@ -2909,9 +2916,9 @@ aside.filters-sidebar,
 
 .media-viewer-modal {
   width: 95vw;
-  height: 95vh;
+  height: auto;
   max-width: 95vw;
-  max-height: 95vh;
+  max-height: calc(100vh - 120px); /* Dynamic height based on viewport minus header space */
   display: flex;
   flex-direction: column;
   background: #0f1720;
@@ -3071,8 +3078,9 @@ aside.filters-sidebar,
   width: 100%;
   min-height: 0; /* Allow content to shrink */
   overflow: hidden;
-  /* Reserve space for footer thumbnails */
-  max-height: calc(100% - 140px); /* Account for footer height */
+  /* Dynamic height that adapts to available space */
+  height: auto;
+  max-height: calc(100vh - 280px); /* Account for header + footer + padding dynamically */
 }
 
 .media-navigation {
@@ -3138,8 +3146,9 @@ aside.filters-sidebar,
   width: 100%;
   flex: 1;
   min-height: 0;
-  /* Ensure content doesn't exceed available space */
-  max-height: calc(95vh - 280px); /* Account for header + footer + padding */
+  /* Dynamic height that adapts to available column space */
+  height: 100%;
+  max-height: calc(100vh - 320px); /* Account for header + footer + padding dynamically */
 }
 
 .media-content {
@@ -3202,6 +3211,7 @@ aside.filters-sidebar,
   backdrop-filter: blur(10px);
   flex-shrink: 0; /* Prevent footer from shrinking */
   min-height: 120px; /* Ensure minimum height for thumbnails */
+  max-height: 140px; /* Ensure footer doesn't take too much space */
 }
 
 .media-thumbnails {
@@ -3256,9 +3266,9 @@ aside.filters-sidebar,
 @media (max-width: 768px) {
   .media-viewer-modal {
     width: 98vw;
-    height: 95vh;
+    height: auto;
     max-width: 98vw;
-    max-height: 95vh;
+    max-height: calc(100vh - 80px); /* Dynamic height for mobile */
   }
   
   .media-navigation {
@@ -3277,17 +3287,22 @@ aside.filters-sidebar,
     min-height: 500px;
   }
   
+  .media-viewer-content {
+    max-height: calc(100vh - 240px); /* Adjusted for mobile */
+  }
+  
   .media-item-display {
-    max-height: calc(95vh - 320px); /* More space for mobile footer */
+    max-height: calc(100vh - 280px); /* More space for mobile footer */
   }
   
   .media-image,
   .media-video {
-    max-height: calc(95vh - 320px);
+    max-height: calc(100vh - 280px);
   }
 
   .media-viewer-footer {
-    min-height: 100px; /* Smaller on mobile */
+    min-height: 80px; /* Smaller on mobile */
+    max-height: 100px;
     padding: 1rem;
   }
   
