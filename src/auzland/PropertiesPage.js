@@ -22,10 +22,35 @@ const PropertiesPage = () => {
   const [garageMin, setGarageMin] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [suburb, setSuburb] = useState('');
+  const [frontageMin, setFrontageMin] = useState('');
+  const [frontageMax, setFrontageMax] = useState('');
+  const [buildMin, setBuildMin] = useState('');
+  const [buildMax, setBuildMax] = useState('');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(6); // Show 6 properties per page
+
+  const clearFilters = () => {
+    setSearchText('');
+    setTypeFilter('');
+    setSuburb('');
+    setPriceMin('');
+    setPriceMax('');
+    setFrontageMin('');
+    setFrontageMax('');
+    setBuildMin('');
+    setBuildMax('');
+    setBedMin('');
+    setBathMin('');
+    setGarageMin('');
+    setShowFilters(false);
+    try {
+      const url = new URL(window.location.href);
+      url.search = '';
+      window.history.replaceState({}, '', url.pathname);
+    } catch (_) {}
+  };
 
   const parseCsv = (csv) => {
     const rows = [];
@@ -339,6 +364,17 @@ const PropertiesPage = () => {
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     setSearchText(p.get('q') || '');
+    setTypeFilter(p.get('type') || '');
+    setSuburb(p.get('suburb') || '');
+    setPriceMin(p.get('priceMin') || '');
+    setPriceMax(p.get('priceMax') || '');
+    setFrontageMin(p.get('frontageMin') || '');
+    setFrontageMax(p.get('frontageMax') || '');
+    setBuildMin(p.get('buildMin') || '');
+    setBuildMax(p.get('buildMax') || '');
+    setBedMin(p.get('bedMin') || '');
+    setBathMin(p.get('bathMin') || '');
+    setGarageMin(p.get('garageMin') || '');
   }, [location.search]);
 
   const filtered = useMemo(() => {
@@ -349,6 +385,10 @@ const PropertiesPage = () => {
     const minBed = bedMin ? Number(bedMin) : undefined;
     const minBath = bathMin ? Number(bathMin) : undefined;
     const minGarage = garageMin ? Number(garageMin) : undefined;
+    const minFront = frontageMin ? Number(frontageMin) : undefined;
+    const maxFront = frontageMax ? Number(frontageMax) : undefined;
+    const minBuild = buildMin ? Number(buildMin) : undefined;
+    const maxBuild = buildMax ? Number(buildMax) : undefined;
     const type = (typeFilter || '').toLowerCase();
     const suburbQ = (suburb || '').toLowerCase();
     result = result.filter((p) => {
@@ -357,6 +397,10 @@ const PropertiesPage = () => {
       if (typeof minBed === 'number' && (p.bedrooms ?? 0) < minBed) return false;
       if (typeof minBath === 'number' && (p.bathrooms ?? 0) < minBath) return false;
       if (typeof minGarage === 'number' && (p.parking ?? 0) < minGarage) return false;
+      if (typeof minFront === 'number' && (p.frontage ?? 0) < minFront) return false;
+      if (typeof maxFront === 'number' && (p.frontage ?? Infinity) > maxFront) return false;
+      if (typeof minBuild === 'number' && (p.buildSize ?? 0) < minBuild) return false;
+      if (typeof maxBuild === 'number' && (p.buildSize ?? Infinity) > maxBuild) return false;
       if (type) {
         const propertyType = (p.propertyType || '').toLowerCase();
         // Handle "Home & Land" filtering for both old and new formats
@@ -370,7 +414,7 @@ const PropertiesPage = () => {
       return true;
     });
     return result;
-  }, [properties, searchText, priceMin, priceMax, bedMin, bathMin, garageMin, typeFilter, suburb]);
+  }, [properties, searchText, priceMin, priceMax, bedMin, bathMin, garageMin, typeFilter, suburb, frontageMin, frontageMax, buildMin, buildMax]);
 
   // Pagination logic
   const totalPages = Math.ceil(filtered.length / propertiesPerPage);
@@ -419,17 +463,37 @@ const PropertiesPage = () => {
               <label>Search by address or suburb</label>
               <input type="text" className="text-input" placeholder="e.g. Austral, Leppington" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+              {(typeFilter || suburb || priceMin || priceMax || frontageMin || frontageMax || buildMin || buildMax || bedMin || bathMin || garageMin) && (
+                <button className="filter-toggle-btn" style={{ height: 36, marginTop: 20 }} onClick={clearFilters}>
+                  Clear Filters
+                </button>
+              )}
               <button className="filter-toggle-btn" style={{ height: 36, marginTop: 20 }} onClick={() => setShowFilters((s) => !s)}>
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
             </div>
             {showFilters && (
-              <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, maxWidth: '100%' }}>
+              <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, maxWidth: '100%' }}>
+                <div className="filter-group">
+                  <label>Type</label>
+                  <select className="text-input" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                    <option value="">All Types</option>
+                    <option value="land only">Land only</option>
+                    <option value="single story">Single story</option>
+                    <option value="double story">Double story</option>
+                    <option value="dual occupancy">Dual occupancy</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="townhouse">Townhouse</option>
+                    <option value="home & land">Home & Land</option>
+                  </select>
+                </div>
+
                 <div className="filter-group">
                   <label>Suburb</label>
                   <input className="text-input" type="text" value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Austral, Leppington" />
                 </div>
+
                 <div className="filter-group">
                   <label>Min Price</label>
                   <select className="text-input" value={priceMin} onChange={(e) => setPriceMin(e.target.value)}>
@@ -440,6 +504,7 @@ const PropertiesPage = () => {
                     <option value="1500000">$1.5M</option>
                   </select>
                 </div>
+
                 <div className="filter-group">
                   <label>Max Price</label>
                   <select className="text-input" value={priceMax} onChange={(e) => setPriceMax(e.target.value)}>
@@ -450,6 +515,54 @@ const PropertiesPage = () => {
                     <option value="5000000">$5M</option>
                   </select>
                 </div>
+
+                <div className="filter-group">
+                  <label>Min Frontage (m)</label>
+                  <select className="text-input" value={frontageMin} onChange={(e) => setFrontageMin(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="12.5">12.5</option>
+                    <option value="15">15</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Max Frontage (m)</label>
+                  <select className="text-input" value={frontageMax} onChange={(e) => setFrontageMax(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="10">10</option>
+                    <option value="12.5">12.5</option>
+                    <option value="15">15</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label>Min Build Size (sqm)</label>
+                  <select className="text-input" value={buildMin} onChange={(e) => setBuildMin(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="100">100</option>
+                    <option value="150">150</option>
+                    <option value="200">200</option>
+                    <option value="250">250</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Max Build Size (sqm)</label>
+                  <select className="text-input" value={buildMax} onChange={(e) => setBuildMax(e.target.value)}>
+                    <option value="">Any</option>
+                    <option value="150">150</option>
+                    <option value="200">200</option>
+                    <option value="250">250</option>
+                    <option value="300">300</option>
+                    <option value="400">400</option>
+                  </select>
+                </div>
+
                 <div className="filter-group">
                   <label>Min Bed</label>
                   <select className="text-input" value={bedMin} onChange={(e) => setBedMin(e.target.value)}>
@@ -480,20 +593,7 @@ const PropertiesPage = () => {
                     <option value="3">3+</option>
                   </select>
                 </div>
-            <div className="filter-group">
-                  <label>Type</label>
-                  <select className="text-input" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-                    <option value="">All Types</option>
-                    <option value="land only">Land only</option>
-                    <option value="single story">Single story</option>
-                    <option value="double story">Double story</option>
-                    <option value="dual occupancy">Dual occupancy</option>
-                <option value="apartment">Apartment</option>
-                <option value="townhouse">Townhouse</option>
-                <option value="home & land">Home & Land</option>
-              </select>
-            </div>
-            </div>
+              </div>
             )}
           </div>
 
