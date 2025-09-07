@@ -97,10 +97,58 @@
   width: 100%;
   flex: 1;
   display: flex;
-  flex-direction: row;
-  gap: 20px;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* Horizontal Property Info Layout */
+.property-info-horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 1rem;
+}
+
+.property-main {
+  flex: 1;
+}
+
+.property-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+.property-details .detail-item {
+  display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.property-details .detail-item svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+}
+
+.property-details .detail-item.price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.property-details .detail-item.availability {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 /* Header */
@@ -114,8 +162,8 @@
 }
 
 .property-address {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: #111827;
   margin: 0;
   line-height: 1.2;
@@ -124,8 +172,8 @@
 
 .property-suburb {
   color: #6b7280;
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 600;
   margin: 0;
 }
 
