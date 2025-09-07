@@ -227,10 +227,10 @@
 .filter-input,
 .filter-select {
   padding: 16px 20px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid #d1d5db;
   border-radius: 12px;
   font-size: 15px;
-  color: #dc2626;
+  color: #111827;
   background: #ffffff;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
@@ -246,6 +246,7 @@
 .hero .filters-dropdown .filter-select {
   background-color: #ffffff !important;
   color: #111827 !important;
+  border-color: #d1d5db !important;
 }
 
 /* Autofill fixes (Chrome/Safari) */
@@ -283,7 +284,7 @@
 }
 
 .filter-input::placeholder {
-  color: #f87171;
+  color: #9ca3af;
   font-weight: 400;
 }
 
@@ -291,11 +292,11 @@
   cursor: pointer;
   font-weight: 500;
   background: #ffffff;
-  color: #dc2626;
+  color: #111827;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23dc2626' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 12px center;
   background-repeat: no-repeat;
   background-size: 16px;
@@ -306,7 +307,7 @@
   font-size: 15px;
   padding: 12px 16px;
   background: #ffffff !important;
-  color: #dc2626;
+  color: #111827;
   border: none;
   transition: all 0.2s ease;
 }
@@ -322,10 +323,10 @@
 }
 
 .filter-select option:hover {
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  color: #dc2626;
+  background: #f3f4f6;
+  color: #111827;
   font-weight: 600;
-  transform: translateX(4px);
+  transform: translateX(0);
 }
 
 .filter-select option:checked,
@@ -367,7 +368,7 @@
 
 /* Style the select element when it has a selected value */
 .filter-select:not([value=""]) {
-  color: #dc2626;
+  color: #111827;
   font-weight: 600;
   border-color: #dc2626;
   background: #ffffff;
