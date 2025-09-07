@@ -3792,3 +3792,77 @@ aside.filters-sidebar,
   font-weight: 600;
   font-size: 1rem;
 }
+
+/* Customer Visibility Controls */
+.visibility-controls {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #374151;
+  border-radius: 8px;
+  border: 1px solid #4B5563;
+}
+
+.visibility-controls h4 {
+  margin: 0 0 15px 0;
+  color: #F3F4F6;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.visibility-controls .form-row {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.visibility-controls .form-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+/* Custom checkbox styling for visibility controls */
+.visibility-controls input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #6B7280;
+  border-radius: 4px;
+  background-color: #1F2937;
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  transition: all 0.2s ease;
+}
+
+.visibility-controls input[type="checkbox"]:hover {
+  border-color: #9CA3AF;
+}
+
+.visibility-controls input[type="checkbox"]:checked {
+  background-color: #3B82F6;
+  border-color: #3B82F6;
+}
+
+.visibility-controls input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.visibility-controls label {
+  margin: 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #E5E7EB;
+  user-select: none;
+}

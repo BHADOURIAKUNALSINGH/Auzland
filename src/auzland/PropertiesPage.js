@@ -273,8 +273,10 @@ const PropertiesPage = () => {
           media: r.media || r.media_url || '', // Store the raw media data
           images: [], // Will be populated with real images
           image: placeholder[idx % placeholder.length], // Fallback for old compatibility
-          priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })()
-        })).filter((p) => p.address || p.suburb);
+          priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })(),
+          propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
+          priceCustomerVisibility: r.priceCustomerVisibility || '0'
+        })).filter((p) => (p.address || p.suburb) && p.propertyCustomerVisibility === '1');
         
         // Set initial properties without images
         setProperties(mapped);

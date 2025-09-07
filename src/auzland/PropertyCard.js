@@ -16,7 +16,8 @@ const PropertyCard = ({ property }) => {
     bedrooms,
     bathrooms,
     parking,
-    propertyType
+    propertyType,
+    priceCustomerVisibility
   } = property;
 
   // Format price with AUD currency
@@ -83,7 +84,9 @@ const PropertyCard = ({ property }) => {
 
         {/* Price */}
         <div className="price-section">
-          <div className="price">{formatPrice(price)}</div>
+          <div className="price">
+            {priceCustomerVisibility === '1' ? formatPrice(price) : 'Price on request'}
+          </div>
           <div className="status-info">
             <span className="status">{status || 'Available'}</span>
             {availability && <span className="availability">{availability}</span>}

@@ -316,8 +316,9 @@ const HomePage = () => {
         console.log('🏠 CSV data length:', csv.length);
         const rows = parseCsv(csv);
         
-        // Randomly select 6 properties from the dataset
-        const shuffledRows = [...rows].sort(() => Math.random() - 0.5);
+        // Filter for visible properties and randomly select 6 from the dataset
+        const visibleRows = rows.filter(r => (r.propertyCustomerVisibility || '1') === '1');
+        const shuffledRows = [...visibleRows].sort(() => Math.random() - 0.5);
         const mapped = shuffledRows.slice(0, 6).map((r, idx) => {
           const property = {
             id: r.id || `property-${idx}`,
@@ -336,7 +337,9 @@ const HomePage = () => {
               const raw = (r.price || '').toString(); 
               const n = Number(raw.replace(/[^0-9]/g, '')); 
               return Number.isFinite(n) ? n : 0; 
-            })()
+            })(),
+            propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
+            priceCustomerVisibility: r.priceCustomerVisibility || '0'
           };
           console.log(`🏠 Mapped property ${idx}:`, property);
           return property;

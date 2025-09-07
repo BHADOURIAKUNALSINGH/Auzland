@@ -107,7 +107,9 @@ const Dashboard: React.FC = () => {
     registrationConstructionStatus: '',
     price: '',
     media: '',
-    remark: ''
+    remark: '',
+    propertyCustomerVisibility: '1',
+    priceCustomerVisibility: '0'
   });
 
   // Tab state
@@ -574,6 +576,8 @@ const Dashboard: React.FC = () => {
         media: r.media || r.media_url || '',
         remark: r.remark || '',
         updatedAt: r.updatedAt || r.updated_at || '',
+        propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
+        priceCustomerVisibility: r.priceCustomerVisibility || '0',
       })).filter((p) => p.lot || p.address);
       setProperties(mapped);
       setMessage(null);
@@ -603,6 +607,8 @@ const Dashboard: React.FC = () => {
     'media',
     'remark',
     'updated_at',
+    'propertyCustomerVisibility',
+    'priceCustomerVisibility',
   ];
 
   const csvEscape = (value: any): string => {
@@ -634,6 +640,8 @@ const Dashboard: React.FC = () => {
         p.media ?? '',
         p.remark ?? '',
         p.updatedAt ?? '',
+        p.propertyCustomerVisibility ?? '1',
+        p.priceCustomerVisibility ?? '0',
       ].map(csvEscape);
       lines.push(row.join(','));
     }
@@ -664,7 +672,9 @@ const Dashboard: React.FC = () => {
       registrationConstructionStatus: property.registrationConstructionStatus || property.regoDue || property.readyBy || '',
       price: property.price || property.priceGuide || '',
       media: property.media || '',
-      remark: property.remark || ''
+      remark: property.remark || '',
+      propertyCustomerVisibility: property.propertyCustomerVisibility || '1',
+      priceCustomerVisibility: property.priceCustomerVisibility || '0'
     });
     
     // Clear any existing media files when editing
@@ -699,7 +709,9 @@ const Dashboard: React.FC = () => {
       registrationConstructionStatus: '',
       price: '',
       media: '',
-      remark: ''
+      remark: '',
+      propertyCustomerVisibility: '1',
+      priceCustomerVisibility: '0'
     });
     setShowPropertyForm(true);
   };
@@ -818,7 +830,9 @@ const Dashboard: React.FC = () => {
         registrationConstructionStatus: '',
         price: '',
         media: '',
-        remark: ''
+        remark: '',
+        propertyCustomerVisibility: '1',
+        priceCustomerVisibility: '0'
       });
       setMediaFiles([]);
       setMediaUploadProgress({});
@@ -2395,7 +2409,9 @@ const Dashboard: React.FC = () => {
           price: (row.price || row.price_guide || row.Price || row['Price Guide'] || row['PRICE'] || row['price'] || '').replace(/^\$/, '').replace(/[,\s]/g, ''),
           media: row.media || row.media_url || row.Media || row.MEDIA || '',
           remark: row.remark || row.Remark || row.REMARK || '',
-          updatedAt: new Date().toISOString().split('T')[0]
+          updatedAt: new Date().toISOString().split('T')[0],
+          propertyCustomerVisibility: row.propertyCustomerVisibility || row['Property Customer Visibility'] || row['property customer visibility'] || '1',
+          priceCustomerVisibility: row.priceCustomerVisibility || row['Price Customer Visibility'] || row['price customer visibility'] || '0'
         };
 
         console.log(`Mapped property ${index}:`, property);
@@ -2729,6 +2745,35 @@ const Dashboard: React.FC = () => {
                   {message.text}
                 </div>
               )}
+              
+              {/* Customer Visibility Controls */}
+              <div className="visibility-controls">
+                <h4>Customer Visibility Settings</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <input
+                      type="checkbox"
+                      id="propertyCustomerVisibility"
+                      checked={propertyForm.propertyCustomerVisibility === '1'}
+                      onChange={(e) => handlePropertyFormChange('propertyCustomerVisibility', e.target.checked ? '1' : '0')}
+                    />
+                    <label htmlFor="propertyCustomerVisibility">
+                      Show property to customers
+                    </label>
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="checkbox"
+                      id="priceCustomerVisibility"
+                      checked={propertyForm.priceCustomerVisibility === '1'}
+                      onChange={(e) => handlePropertyFormChange('priceCustomerVisibility', e.target.checked ? '1' : '0')}
+                    />
+                    <label htmlFor="priceCustomerVisibility">
+                      Show price to customers
+                    </label>
+                  </div>
+                </div>
+              </div>
               
               <div className="form-row">
                 <div className="form-group">
