@@ -93,33 +93,50 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  /* Ensure proper touch target */
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-btn:active {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .hamburger {
-  width: 24px;
-  height: 2px;
+  width: 28px;
+  height: 3px;
   background-color: white;
   position: relative;
   transition: all 0.3s ease;
+  border-radius: 2px;
 }
 
 .hamburger::before,
 .hamburger::after {
   content: '';
   position: absolute;
-  width: 24px;
-  height: 2px;
+  width: 28px;
+  height: 3px;
   background-color: white;
   transition: all 0.3s ease;
+  border-radius: 2px;
 }
 
 .hamburger::before {
-  top: -8px;
+  top: -10px;
 }
 
 .hamburger::after {
-  bottom: -8px;
+  bottom: -10px;
 }
 
 .hamburger.open {
@@ -168,7 +185,11 @@
   }
   
   .mobile-menu-btn {
-    display: block;
+    display: flex;
+  }
+  
+  .header-content {
+    padding: 0.75rem 0;
   }
   
   .logo-text h1 {
@@ -195,5 +216,43 @@
   
   .logo-text p {
     font-size: 0.75rem;
+  }
+  
+  .mobile-menu-btn {
+    padding: 0.5rem;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .hamburger {
+    width: 24px;
+    height: 2px;
+  }
+  
+  .hamburger::before,
+  .hamburger::after {
+    width: 24px;
+    height: 2px;
+  }
+  
+  .hamburger::before {
+    top: -8px;
+  }
+  
+  .hamburger::after {
+    bottom: -8px;
+  }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-menu-btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .mobile-menu-btn:active {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
   }
 } 
