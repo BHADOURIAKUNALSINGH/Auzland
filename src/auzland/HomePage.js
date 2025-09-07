@@ -423,14 +423,6 @@ const HomePage = () => {
         <div className="container">
           <h2 className="section-title">Properties We Think You'll Love</h2>
           
-          {/* Special Banner */}
-          <div className="special-banner">
-            <div className="banner-content">
-              <h3>CALLING ALL INVESTORS</h3>
-              <p>Caravan Park With DA Approved For Conversion Into Modern Village</p>
-              <button className="btn btn-primary">Learn More</button>
-            </div>
-          </div>
           
           {isLoading && featuredProperties.length === 0 ? (
             // Show loading placeholders
