@@ -664,11 +664,25 @@
   }
   
   .modal-left {
-    height: 250px;
+    height: 360px;
   }
   
   .modal-right {
     padding: 1rem;
+  }
+  
+  /* Ensure the image renders proportionally on small screens */
+  .property-image-section {
+    height: auto;
+    min-height: unset;
+  }
+
+  .modal-property-image {
+    width: 100%;
+    height: auto;
+    max-height: 65vh;
+    object-fit: contain;
+    background: #0000;
   }
   
   .property-header h2 {
@@ -712,7 +726,7 @@
   }
   
   .modal-left {
-    height: 200px;
+    height: 300px;
   }
   
   .modal-right {

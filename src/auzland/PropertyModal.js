@@ -7,6 +7,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Only show real property images - no stock/fallback images
   const getCurrentImage = () => {
@@ -27,6 +28,9 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
       setImageError(true);
     }
   };
+
+  const openFullscreen = () => setIsFullscreen(true);
+  const closeFullscreen = () => setIsFullscreen(false);
 
   const nextImage = useCallback(() => {
     const images = property?.images || (property?.image ? [property.image] : []);
@@ -166,6 +170,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                   onError={handleImageError}
                   className="modal-property-image"
                   style={{ display: imageLoading ? 'none' : 'block' }}
+                  onClick={openFullscreen}
                 />
               )}
               
@@ -185,12 +190,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                 </>
               )}
               
-              {/* Image counter */}
-              {hasMultipleImages && !imageLoading && (
-                <div className="slideshow-counter">
-                  {currentImageIndex + 1} / {displayImages.length}
-                </div>
-              )}
+              {/* Image counter removed per design */}
               
               
             </div>
@@ -338,6 +338,36 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
           </div>
         </div>
       </div>
+
+      {isFullscreen && (
+        <div className="property-modal-overlay" onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}>
+          <div className="property-modal" style={{ background: 'transparent', boxShadow: 'none' }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={currentImage} alt={property.address} style={{ width: '100%', height: 'auto', maxHeight: '90vh', objectFit: 'contain', background: 'transparent', borderRadius: 0 }} />
+              {hasMultipleImages && (
+                <>
+                  <button className="slideshow-nav-btn prev-btn" onClick={prevImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button className="slideshow-nav-btn next-btn" onClick={nextImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {/* Counter removed in fullscreen as well */}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
