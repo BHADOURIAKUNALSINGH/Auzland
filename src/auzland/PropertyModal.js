@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PropertyModal.css';
 
@@ -28,23 +28,23 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
     }
   };
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     const images = property?.images || (property?.image ? [property.image] : []);
     if (images && images.length > 1) {
       setImageLoading(true);
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
       setImageError(false);
     }
-  };
+  }, [property?.images, property?.image]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     const images = property?.images || (property?.image ? [property.image] : []);
     if (images && images.length > 1) {
       setImageLoading(true);
       setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
       setImageError(false);
     }
-  };
+  }, [property?.images, property?.image]);
 
   useEffect(() => {
     setCurrentImageIndex(0);

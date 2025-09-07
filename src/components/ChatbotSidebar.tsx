@@ -29,7 +29,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: `Hi! I'm Auz from AuzLand Real Estate. I can see ${propertyCount} properties on the left. I can help you filter them to find your perfect property. What are you looking for?`,
+      text: `Hi! I'm Auz from AuzLand Real Estate. Loading properties... Try quick filters like 'land', 'townhouse', or a suburb name. I can also help with basic analytics like averages and counts. What interests you?`,
       isUser: false,
       timestamp: new Date()
     }
@@ -38,6 +38,28 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  // Update welcome message when property count changes
+  useEffect(() => {
+    if (propertyCount !== undefined) {
+      const propertyText = propertyCount === 0 
+        ? "Loading properties..." 
+        : `I can see ${propertyCount} properties on the left.`;
+      
+      const newWelcomeText = `Hi! I'm Auz from AuzLand Real Estate. ${propertyText} Try quick filters like 'land', 'townhouse', or a suburb name. I can also help with basic analytics like averages and counts. What interests you?`;
+      
+      setMessages(prev => {
+        const newMessages = [...prev];
+        if (newMessages[0] && newMessages[0].id === '1') {
+          newMessages[0] = {
+            ...newMessages[0],
+            text: newWelcomeText
+          };
+        }
+        return newMessages;
+      });
+    }
+  }, [propertyCount]);
 
   // Always scroll to top when sidebar opens
   useEffect(() => {
@@ -69,7 +91,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
     setIsTyping(true);
 
     try {
-      // Build conversation history from messages (excluding system prompt and JSON responses)
+      // Build conversation history for Lambda function
       const conversationHistory = messages
         .map(msg => ({
           role: msg.isUser ? 'user' as const : 'assistant' as const,
@@ -77,96 +99,174 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
         }))
         .slice(-10); // Keep last 10 messages for context
 
-      // Build comprehensive context about current user interest
-      const activeFilters = currentFilters ? Object.entries(currentFilters)
-        .filter(([key, value]) => value && value !== '')
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(', ') : 'None';
-      
-      // Build a user-friendly description of current interest
-      const buildCurrentInterest = () => {
-        if (!currentFilters || Object.values(currentFilters).every(v => !v)) {
-          return "The user is browsing all properties with no specific filters applied.";
-        }
-        
-        let interest = "The user is currently interested in ";
-        const parts = [];
-        
-        if (currentFilters.propertyType) {
-          parts.push(`${currentFilters.propertyType.toLowerCase()} properties`);
-        } else {
-          parts.push("properties");
-        }
-        
-        if (currentFilters.priceMin && currentFilters.priceMax) {
-          parts.push(`priced between $${Number(currentFilters.priceMin).toLocaleString()} and $${Number(currentFilters.priceMax).toLocaleString()}`);
-        } else if (currentFilters.priceMin) {
-          parts.push(`priced over $${Number(currentFilters.priceMin).toLocaleString()}`);
-        } else if (currentFilters.priceMax) {
-          parts.push(`priced under $${Number(currentFilters.priceMax).toLocaleString()}`);
-        }
-        
-        if (currentFilters.bedMin) {
-          parts.push(`with ${currentFilters.bedMin}+ bedrooms`);
-        }
-        
-        if (currentFilters.suburb) {
-          parts.push(`in ${currentFilters.suburb}`);
-        }
-        
-        if (currentFilters.availability) {
-          parts.push(`that are ${currentFilters.availability.toLowerCase()}`);
-        }
-        
-        return interest + parts.join(", ") + ".";
+      // Prepare request payload for Lambda function
+      const requestPayload = {
+        message: currentInput,
+        history: conversationHistory,
+        currentFilters: currentFilters || {}
       };
-      
-      const currentInterest = buildCurrentInterest();
-      
-      const contextualMessage = `${currentInput}\n\nCONTEXT:\n- Current user interest: ${currentInterest}\n- Active filters: ${activeFilters}\n- Currently showing: ${propertyCount} matching properties\n- The user can see these ${propertyCount} properties on the left side of their screen right now.`;
 
-      // Get AI response with filters (pass current filters for proper removal handling)
-      const filterResponse = await aiService.generateFilterResponse(contextualMessage, conversationHistory, currentFilters);
+      console.log('🚀 Sending request to Lambda:', requestPayload);
+
+      // Call the Lambda function via API Gateway
+      const response = await fetch('https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const lambdaResponse = await response.json();
+      console.log('📥 Lambda response:', lambdaResponse);
+
+      // Handle different response types from Lambda
+      await handleLambdaResponse(lambdaResponse);
+
+    } catch (error) {
+      console.error('Error calling Lambda function:', error);
       
-      // Show AI-generated content
-      console.log('🤖 AI Generated Response:', filterResponse);
-      
-      const aiResponse: Message = {
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: filterResponse.message,
+        text: "I'm having trouble processing your request right now. Please try again in a moment.",
         isUser: false,
         timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, errorMessage]);
+    }
 
-      // Apply filters if onFiltersChange is provided
-      if (onFiltersChange && filterResponse.filters) {
-        const { clearAll, ...filterValues } = filterResponse.filters;
-        
+    setIsTyping(false);
+  };
+
+  const handleLambdaResponse = async (lambdaResponse: any) => {
+    const responseType = lambdaResponse.type;
+
+    switch (responseType) {
+      case 'filters':
+        await handleFilterResponse(lambdaResponse);
+        break;
+      
+      case 'analytics':
+        await handleAnalyticsResponse(lambdaResponse);
+        break;
+      
+      case 'small_talk':
+        await handleSmallTalkResponse(lambdaResponse);
+        break;
+      
+      default:
+        console.warn('Unknown response type from Lambda:', responseType);
+        const fallbackMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: "I received an unexpected response format. Could you please rephrase your request?",
+          isUser: false,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, fallbackMessage]);
+    }
+  };
+
+  const handleFilterResponse = async (response: any) => {
+    console.log('🔧 Handling filter response:', response);
+    
+    // Apply filters if provided and not clearing all
+    if (response.filters) {
+      const hasFiltersToApply = Object.values(response.filters).some((value: any) => 
+        value !== '' && value !== false && value !== null && value !== undefined
+      );
+
+      if (hasFiltersToApply && !response.filters.clearAll) {
+        console.log('🤖 Chatbot applying new filters:', response.filters);
+        if (onFiltersChange) {
+          const { clearAll, ...filterValues } = response.filters;
+          onFiltersChange(filterValues);
+        }
+      } else if (response.filters.clearAll) {
+        console.log('🤖 Chatbot clearing all filters');
+        if (onClearFilters) {
+          onClearFilters();
+        }
+      }
+    }
+
+    // Only show the Lambda response
+    let messageText = response.message || "Filters have been updated!";
+
+    // Add AI response message
+    const aiMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: messageText,
+      isUser: false,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, aiMessage]);
+  };
+
+  const handleAnalyticsResponse = async (response: any) => {
+    console.log('📊 Handling analytics response:', response);
+    
+    // Keep technical details in console for debugging
+    if (response.rowsConsidered !== undefined) {
+      console.log(`📊 Analysis based on ${response.rowsConsidered} properties`);
+    }
+    if (response.facts) {
+      console.log('📊 Structured facts received:', response.facts);
+      if (response.facts.metrics) {
+        console.log('📈 Key metrics:', response.facts.metrics);
+      }
+      if (response.facts.items) {
+        console.log('🏠 Highlighted properties:', response.facts.items);
+      }
+    }
+    if (response.vegaLite) {
+      console.log('📈 Chart data received:', response.vegaLite);
+    }
+
+    // Handle proposed filters from Lambda
+    if (response.proposedFilters) {
+      console.log('🔧 Lambda proposed filters:', response.proposedFilters);
+      console.log('💬 Proposed filters message:', response.proposedFiltersMessage);
+      
+      // Apply proposed filters automatically for hybrid queries
+      if (onFiltersChange) {
+        const { clearAll, ...filterValues } = response.proposedFilters;
         if (clearAll && onClearFilters) {
           onClearFilters();
         } else {
-          // Send ALL filters including empty ones (empty = reset to default)
-          console.log('🚀 ChatbotSidebar sending filters to Dashboard:', filterValues);
-          console.log('🚀 Filters include empty values for removal:', 
-            Object.entries(filterValues).filter(([key, value]) => value === '').map(([key]) => key)
-          );
           onFiltersChange(filterValues);
         }
+        console.log('🤖 Applied proposed filters from analytics query');
       }
-    } catch (error) {
-      console.error('Error getting AI response:', error);
-      const errorResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
-        isUser: false,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorResponse]);
-    } finally {
-      setIsTyping(false);
     }
+
+    // Show the analytics answer
+    const aiMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: response.answer || "Here's your analytics result:",
+      isUser: false,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, aiMessage]);
+  };
+
+  const handleSmallTalkResponse = async (response: any) => {
+    console.log('💬 Handling small talk response:', response);
+    
+    const aiMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: response.message || "Hi! How can I help you with property searches today?",
+      isUser: false,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, aiMessage]);
   };
 
 
@@ -179,10 +279,14 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
   };
 
   const clearChat = () => {
+    const propertyText = propertyCount === 0 
+      ? "Loading properties..." 
+      : `I can see ${propertyCount} properties on the left.`;
+    
     setMessages([
       {
         id: Date.now().toString(),
-        text: `Hi! I'm Auz from AuzLand Real Estate. I can see ${propertyCount} properties on the left. I can help you filter them to find your perfect property. What are you looking for?`,
+        text: `Hi! I'm Auz from AuzLand Real Estate. ${propertyText} Try quick filters like 'land', 'townhouse', or a suburb name. I can also help with basic analytics like averages and counts. What interests you?`,
         isUser: false,
         timestamp: new Date()
       }
@@ -259,7 +363,7 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me to filter the listings: 'Show houses under $1M' or 'Properties with 3+ bedrooms'"
+              placeholder="Try: 'land', 'Oran Park', 'average price of apartments in Box Hill', or 'most expensive townhouses'"
               rows={1}
               className="chatbot-input"
             />
@@ -279,3 +383,4 @@ const ChatbotSidebar: React.FC<ChatbotSidebarProps> = ({
 };
 
 export default ChatbotSidebar;
+
