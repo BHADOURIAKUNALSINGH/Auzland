@@ -308,11 +308,25 @@
   /* Removed spin animation for hourglass */
 }
 
+.loading-spinner.hourglass {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
 .image-loading-placeholder p {
   font-size: 0.875rem;
   font-weight: 500;
-  margin: 0;
+  margin: 0 0 0.25rem 0;
   opacity: 0.8;
+}
+
+.image-loading-placeholder small {
+  font-size: 0.75rem;
+  color: #6c757d;
+  opacity: 0.6;
+  margin: 0;
+  text-align: center;
 }
 
 @keyframes spin {

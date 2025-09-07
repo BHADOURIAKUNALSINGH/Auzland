@@ -1,49 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './PropertyCard.css';
 
 const PropertyCard = ({ property }) => {
   const {
     images,
-    image,
     address,
     suburb,
-    price,
     bedrooms,
     bathrooms,
     parking,
     propertyType,
-    status,
     landSize
   } = property;
 
 
-  // Check if we have real images available
+  // Only use real property images, no stock/placeholder images
   const hasRealImages = images && images.length > 0;
-  const displayImage = hasRealImages ? images[0] : null;
-  const [imageUrl, setImageUrl] = useState(displayImage);
   const [imageError, setImageError] = useState(false);
 
   const handleImageError = () => {
     setImageError(true);
   };
 
-  // Update imageUrl when images or image prop changes
-  useEffect(() => {
-    const newDisplayImage = (images && images.length > 0) ? images[0] : null;
-    setImageUrl(newDisplayImage);
-    setImageError(false);
-  }, [images, image]);
+  // Only show real property images or hourglass - no stock images
+  const shouldShowHourglass = () => {
+    return !hasRealImages || imageError;
+  };
+
+  const displayImage = hasRealImages && !imageError ? images[0] : null;
 
   return (
     <div className="property-card card">
       <div className="property-image">
-        {imageUrl && !imageError ? (
-          <img src={imageUrl} alt={address} onError={handleImageError} />
-        ) : (
+        {/* Show hourglass when no images are available */}
+        {shouldShowHourglass() ? (
           <div className="image-loading-placeholder">
-            <div className="loading-spinner">⏳</div>
-            <p>Loading images...</p>
+            <div className="loading-spinner hourglass">⏳</div>
+            <p>No images available</p>
+            <small>Images may still be loading...</small>
           </div>
+        ) : (
+          /* Show actual image when available */
+          displayImage && (
+            <img 
+              src={displayImage} 
+              alt={address} 
+              onError={handleImageError}
+            />
+          )
         )}
         <div className="property-overlay">
           <button className="btn btn-primary">View Details</button>

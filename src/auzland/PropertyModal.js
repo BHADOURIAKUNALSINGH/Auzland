@@ -8,29 +8,11 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  // Fallback images if the main image fails to load
-  const fallbackImages = [
-    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop'
-  ];
-
-  // Get current image to display - support both images array and single image
+  // Only show real property images - no stock/fallback images
   const getCurrentImage = () => {
-    // First try the images array (new format)
+    // Only use real property images
     if (property?.images && property.images.length > 0 && !imageError) {
       return property.images[currentImageIndex];
-    }
-    // Fallback to single image property (old format)
-    if (property?.image && !imageError) {
-      return property.image;
-    }
-    // Use fallback image only if we have an error
-    if (imageError) {
-      const randomIndex = Math.floor(Math.random() * fallbackImages.length);
-      return fallbackImages[randomIndex];
     }
     return null;
   };
@@ -88,7 +70,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, property]);
+  }, [isOpen, property, nextImage, prevImage]);
 
   // Create Google Maps URL for the property address
   const createGoogleMapsUrl = () => {
