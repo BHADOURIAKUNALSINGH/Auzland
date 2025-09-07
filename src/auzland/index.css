@@ -80,6 +80,12 @@ input, select, textarea {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  /* Better touch targets */
+  min-height: 44px;
+  /* Prevent zoom on focus */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Remove default focus outline and add custom one */
@@ -271,5 +277,85 @@ input:focus, select:focus, textarea:focus {
   .btn:hover,
   .card:hover {
     transform: none;
+  }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 768px) {
+  /* Improve text readability on mobile */
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  /* Better spacing for mobile */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Improve button spacing */
+  .btn + .btn {
+    margin-left: 0.5rem;
+  }
+  
+  /* Better form spacing */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  /* Improve card spacing */
+  .card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Even better mobile spacing */
+  body {
+    font-size: 15px;
+  }
+  
+  /* Stack buttons vertically on very small screens */
+  .btn + .btn {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  /* Improve readability */
+  p {
+    line-height: 1.6;
+  }
+}
+
+/* Landscape orientation optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .section {
+    padding: 1rem 0;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Very small screens (iPhone SE, etc.) */
+@media (max-width: 360px) {
+  .container {
+    padding: 0 0.25rem;
+  }
+  
+  .section {
+    padding: 0.75rem 0;
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+  }
+  
+  .btn {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.75rem;
   }
 } 

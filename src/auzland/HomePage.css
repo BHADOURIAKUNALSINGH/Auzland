@@ -120,54 +120,167 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .home-page {
+    margin-top: 60px; /* Reduced for mobile */
+  }
+  
   .properties-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0 1rem;
   }
   
   .services-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0 1rem;
   }
   
   .news-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0 1rem;
   }
   
   .special-banner {
     padding: 1.5rem;
-    margin-bottom: 2rem;
+    margin: 0 1rem 2rem 1rem;
+    border-radius: 0.75rem;
   }
   
   .banner-content h3 {
     font-size: 1.25rem;
+    line-height: 1.2;
   }
   
   .banner-content p {
     font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .view-all-container {
+    padding: 0 1rem;
+  }
+  
+  .btn-large {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 16px;
   }
 }
 
 @media (max-width: 480px) {
+  .home-page {
+    margin-top: 50px;
+  }
+  
   .properties-grid {
     gap: 1rem;
+    padding: 0 0.5rem;
   }
   
   .services-grid {
     gap: 1rem;
+    padding: 0 0.5rem;
   }
   
   .news-grid {
     gap: 1rem;
+    padding: 0 0.5rem;
+  }
+  
+  .special-banner {
+    padding: 1rem;
+    margin: 0 0.5rem 1.5rem 0.5rem;
+    border-radius: 0.5rem;
+  }
+  
+  .banner-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .banner-content p {
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+  }
+  
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .view-all-container {
+    padding: 0 0.5rem;
   }
   
   .service-card {
-    padding: 1.5rem;
+    padding: 1.25rem;
+  }
+  
+  .service-card h3 {
+    font-size: 1.1rem;
+  }
+  
+  .service-card p {
+    font-size: 0.9rem;
   }
   
   .news-content {
     padding: 1rem;
+  }
+  
+  .news-content h3 {
+    font-size: 1rem;
+  }
+  
+  .news-content p {
+    font-size: 0.85rem;
+  }
+  
+  .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  
+  .btn-large {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .banner-content h3 {
+    font-size: 1rem;
+  }
+  
+  .banner-content p {
+    font-size: 0.85rem;
+  }
+  
+  .service-card {
+    padding: 1rem;
+  }
+  
+  .news-content {
+    padding: 0.75rem;
   }
 }
 
