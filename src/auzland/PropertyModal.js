@@ -96,6 +96,20 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
     navigate('/contact'); // Navigate to contact page
   };
 
+  // Price formatter (AUD) similar to card component
+  const formatPrice = (priceStr) => {
+    if (!priceStr || priceStr === 'Price on request') return priceStr;
+    const numbers = priceStr.toString().replace(/[^0-9]/g, '');
+    const numPrice = parseInt(numbers);
+    if (Number.isNaN(numPrice)) return priceStr;
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numPrice);
+  };
+
   if (!isOpen || !property) return null;
 
   const currentImage = getCurrentImage();
@@ -190,6 +204,9 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                 <div className="property-type">
                   <span className="type-badge">{property.propertyType === 'Home and Land Packages' ? 'HOME & LAND' : property.propertyType?.toUpperCase()}</span>
                 </div>
+                {property.priceCustomerVisibility === '1' && property.price && (
+                  <div className="property-price">{formatPrice(property.price)}</div>
+                )}
               </div>
 
               {/* Property Features - Show all available info horizontally */}

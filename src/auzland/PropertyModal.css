@@ -358,6 +358,13 @@
   text-align: left;
 }
 
+.property-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-top: 0.5rem;
+}
+
 .property-type {
   display: inline-block;
   text-align: left;
