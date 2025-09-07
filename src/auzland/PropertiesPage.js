@@ -24,6 +24,8 @@ const PropertiesPage = () => {
   const [suburb, setSuburb] = useState('');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [propertiesPerPage] = useState(6); // Show 6 properties per page
 
   const parseCsv = (csv) => {
     const rows = [];
@@ -224,6 +226,7 @@ const PropertiesPage = () => {
   };
 
 
+
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
@@ -359,6 +362,37 @@ const PropertiesPage = () => {
     return result;
   }, [properties, searchText, priceMin, priceMax, bedMin, bathMin, garageMin, typeFilter, suburb]);
 
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / propertiesPerPage);
+  const startIndex = (currentPage - 1) * propertiesPerPage;
+  const endIndex = startIndex + propertiesPerPage;
+  const currentProperties = filtered.slice(startIndex, endIndex);
+
+  // Pagination functions
+  const goToPage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Reset to page 1 when filtered results change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filtered.length]);
+
   return (
     <div className="properties-page">
       <div className="page-header">
@@ -456,18 +490,79 @@ const PropertiesPage = () => {
           {isLoading && <p>Loading properties...</p>}
           {error && !isLoading && <p style={{ color: 'red' }}>{error}</p>}
 
-          {!isLoading && !error && (
+          {!isLoading && !error && filtered.length > 0 && (
             <>
-          <div className="results-info">
-                <p>Showing {filtered.length} properties</p>
-          </div>
-          <div className="properties-grid">
-                {filtered.map((p) => (
-                  <div key={p.id} onClick={() => handlePropertyClick(p)} style={{ cursor: 'pointer' }}>
-                    <PropertyCard property={p} />
+              <div className="results-info">
+                <p>Showing {startIndex + 1} - {Math.min(endIndex, filtered.length)} of {filtered.length} properties</p>
+              </div>
+              
+              <div className="properties-vertical-container">
+                {currentProperties.map((property) => (
+                  <div key={property.id} className="vertical-property-card" onClick={() => handlePropertyClick(property)}>
+                    <PropertyCard property={property} />
                   </div>
-            ))}
-          </div>
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-container">
+                  <div className="pagination">
+                    <button 
+                      className="pagination-btn prev-btn" 
+                      onClick={goToPreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      ← Previous
+                    </button>
+                    
+                    <div className="page-numbers">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <button
+                            key={pageNum}
+                            className={`page-number ${currentPage === pageNum ? 'active' : ''}`}
+                            onClick={() => goToPage(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <>
+                          <span className="ellipsis">...</span>
+                          <button
+                            className="page-number"
+                            onClick={() => goToPage(totalPages)}
+                          >
+                            {totalPages}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    
+                    <button 
+                      className="pagination-btn next-btn" 
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
 

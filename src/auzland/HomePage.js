@@ -14,6 +14,8 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage
 
   // Modal handlers
   const handlePropertyClick = (property) => {
@@ -25,6 +27,37 @@ const HomePage = () => {
     setIsModalOpen(false);
     setSelectedProperty(null);
   };
+
+  // Pagination logic
+  const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
+  const startIndex = (currentPage - 1) * propertiesPerPage;
+  const endIndex = startIndex + propertiesPerPage;
+  const currentProperties = featuredProperties.slice(startIndex, endIndex);
+
+  // Pagination functions
+  const goToPage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Reset to page 1 when featured properties change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [featuredProperties.length]);
 
   // Helper functions from PropertiesPage
   const parseCsv = (csv) => {
@@ -394,10 +427,10 @@ const HomePage = () => {
             </div>
           </div>
           
-          <div className="properties-grid">
-            {isLoading && featuredProperties.length === 0 ? (
-              // Show loading placeholders
-              Array.from({ length: 6 }, (_, index) => (
+          {isLoading && featuredProperties.length === 0 ? (
+            // Show loading placeholders
+            <div className="properties-vertical-container">
+              {Array.from({ length: 3 }, (_, index) => (
                 <div key={`loading-${index}`} className="property-card-loading">
                   <div className="loading-image">
                     <div className="loading-spinner">⏳</div>
@@ -409,19 +442,83 @@ const HomePage = () => {
                     <div className="loading-line loading-line-features"></div>
                   </div>
                 </div>
-              ))
-            ) : featuredProperties.length > 0 ? (
-              featuredProperties.map(property => (
-                <div key={property.id} onClick={() => handlePropertyClick(property)} style={{ cursor: 'pointer' }}>
-                  <PropertyCard property={property} />
-                </div>
-              ))
-            ) : (
-              <div className="no-properties-message">
-                <p>No properties available at the moment. Please check back later.</p>
+              ))}
+            </div>
+          ) : featuredProperties.length > 0 ? (
+            <>
+              <div className="properties-vertical-container">
+                {currentProperties.map((property) => (
+                  <div key={property.id} className="vertical-property-card" onClick={() => handlePropertyClick(property)}>
+                    <PropertyCard property={property} />
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-container">
+                  <div className="pagination">
+                    <button 
+                      className="pagination-btn prev-btn" 
+                      onClick={goToPreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      ← Previous
+                    </button>
+                    
+                    <div className="page-numbers">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <button
+                            key={pageNum}
+                            className={`page-number ${currentPage === pageNum ? 'active' : ''}`}
+                            onClick={() => goToPage(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <>
+                          <span className="ellipsis">...</span>
+                          <button
+                            className="page-number"
+                            onClick={() => goToPage(totalPages)}
+                          >
+                            {totalPages}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    
+                    <button 
+                      className="pagination-btn next-btn" 
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="no-properties-message">
+              <p>No properties available at the moment. Please check back later.</p>
+            </div>
+          )}
           
           <div className="view-all-container">
             <button 

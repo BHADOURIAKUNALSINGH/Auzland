@@ -40,7 +40,7 @@ exports.handler = async (event) => {
     const emailParams = {
       Source: 'noreply@auzlandre.com.au',
       Destination: {
-        ToAddresses: ['Abhi@auzlandre.com.au']
+        ToAddresses: ['abhi@auzlandre.com.au']
       },
       Message: {
         Subject: {
