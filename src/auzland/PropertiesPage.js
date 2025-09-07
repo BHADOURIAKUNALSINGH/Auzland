@@ -186,15 +186,19 @@ const PropertiesPage = () => {
         }
         
         // Approach 2: Try to extract file paths with regex
-        const mediaPathRegex = /media\/[^"'\s,\]]+\.(jpg|jpeg|png|gif|webp|bmp|svg)/gi;
+        // Robust regex that handles ANY special characters in filenames
+        // Uses a more permissive approach: match "media/" followed by anything until a valid image extension
+        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
         const matches = mediaString.match(mediaPathRegex);
         
         if (matches && matches.length > 0) {
           console.log('🔄 Found paths with regex:', matches);
           const imagePromises = matches.map(async (imagePath) => {
             try {
-              console.log('✅ Using image from regex:', imagePath);
-              const presignedUrl = await fetchPresignedUrl(imagePath);
+              // Clean up any trailing spaces or characters
+              const cleanImagePath = imagePath.trim();
+              console.log('✅ Using image from regex:', cleanImagePath);
+              const presignedUrl = await fetchPresignedUrl(cleanImagePath);
               return presignedUrl;
             } catch (error) {
               console.error(`❌ Failed to get presigned URL for ${imagePath}:`, error);
