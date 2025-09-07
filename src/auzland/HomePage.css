@@ -8,25 +8,30 @@
 }
 
 .special-banner {
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #374151 100%);
-  color: white;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #1e293b;
   padding: 2rem;
   border-radius: 1rem;
   margin-bottom: 3rem;
   text-align: center;
+  border: 2px solid #dc2626;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .banner-content h3 {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: var(--accent-color);
+  color: #dc2626;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .banner-content p {
   font-size: 1.125rem;
   margin-bottom: 1.5rem;
-  opacity: 0.9;
+  color: #475569;
+  font-weight: 500;
 }
 
 /* Vertical Properties Container */

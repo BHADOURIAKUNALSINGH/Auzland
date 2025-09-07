@@ -426,9 +426,9 @@ const HomePage = () => {
           {/* Special Banner */}
           <div className="special-banner">
             <div className="banner-content">
-              <h3>CALLING ALL INVESTORS</h3>
-              <p>Caravan Park With DA Approved For Conversion Into Modern Village</p>
-              <button className="btn btn-primary">Learn More</button>
+              <h3>EXCLUSIVE INVESTMENT OPPORTUNITY</h3>
+              <p>Prime Development Site With DA Approval - Perfect for Modern Residential Development</p>
+              <button className="btn btn-primary">View Details</button>
             </div>
           </div>
           
