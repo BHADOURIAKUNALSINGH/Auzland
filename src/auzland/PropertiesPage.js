@@ -470,7 +470,7 @@ const PropertiesPage = () => {
                   className="text-input"
                   placeholder="e.g. Austral, Leppington"
                   value={searchDraft}
-                  onChange={(e) => setSearchDraft(e.target.value)}
+                  onChange={(e) => { const v = e.target.value; setSearchDraft(v); setSearchText(v); }}
                   onKeyDown={(e) => { if (e.key === 'Enter') { setSearchText(searchDraft); } }}
                 />
                 <button className="filter-toggle-btn" style={{ height: 36 }} onClick={() => setSearchText(searchDraft)}>Search</button>
