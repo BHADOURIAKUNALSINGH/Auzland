@@ -412,21 +412,7 @@
     padding: 0 1rem;
   }
   
-  .special-banner {
-    padding: 1.5rem;
-    margin: 0 1rem 2rem 1rem;
-    border-radius: 0.75rem;
-  }
   
-  .banner-content h3 {
-    font-size: 1.25rem;
-    line-height: 1.2;
-  }
-  
-  .banner-content p {
-    font-size: 1rem;
-    line-height: 1.4;
-  }
   
   .section-title {
     font-size: 1.75rem;
@@ -512,19 +498,7 @@
     padding: 0 0.5rem;
   }
   
-  .special-banner {
-    padding: 1rem;
-    margin: 0 0.5rem 1.5rem 0.5rem;
-    border-radius: 0.5rem;
-  }
   
-  .banner-content h3 {
-    font-size: 1.1rem;
-  }
-  
-  .banner-content p {
-    font-size: 0.9rem;
-  }
   
   .section-title {
     font-size: 1.5rem;
@@ -580,13 +554,6 @@
     font-size: 1.3rem;
   }
   
-  .banner-content h3 {
-    font-size: 1rem;
-  }
-  
-  .banner-content p {
-    font-size: 0.85rem;
-  }
   
   .service-card {
     padding: 1rem;

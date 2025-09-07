@@ -152,6 +152,15 @@
   flex-shrink: 0;
 }
 
+/* Status only section (when price is hidden) */
+.status-only-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  margin-bottom: 4px;
+  min-height: 36px; /* Match the height of price-section for consistent layout */
+}
+
 .price {
   font-size: 20px;
   font-weight: 700;
@@ -353,6 +362,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+  
+  .status-only-section {
+    justify-content: flex-start;
   }
   
   .status-info {

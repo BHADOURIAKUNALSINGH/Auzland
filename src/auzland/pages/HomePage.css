@@ -7,27 +7,6 @@
   background-color: var(--background-light);
 }
 
-.special-banner {
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #374151 100%);
-  color: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-bottom: 3rem;
-  text-align: center;
-}
-
-.banner-content h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--accent-color);
-}
-
-.banner-content p {
-  font-size: 1.125rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.9;
-}
 
 .properties-grid {
   display: grid;
@@ -135,18 +114,6 @@
     gap: 1.5rem;
   }
   
-  .special-banner {
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  .banner-content h3 {
-    font-size: 1.25rem;
-  }
-  
-  .banner-content p {
-    font-size: 1rem;
-  }
 }
 
 @media (max-width: 480px) {
