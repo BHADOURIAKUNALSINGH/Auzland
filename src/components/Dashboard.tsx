@@ -1170,9 +1170,36 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  // Sanitize filename to remove spaces and special characters that could cause loading issues
+  const sanitizeFilename = (filename: string): string => {
+    // Extract the file extension
+    const lastDotIndex = filename.lastIndexOf('.');
+    const name = lastDotIndex !== -1 ? filename.substring(0, lastDotIndex) : filename;
+    const extension = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
+    
+    // Sanitize the name part:
+    // 1. Replace spaces with underscores
+    // 2. Remove or replace special characters that could cause issues
+    // 3. Keep only alphanumeric characters, underscores, hyphens, and periods
+    const sanitizedName = name
+      .replace(/\s+/g, '_')  // Replace spaces with underscores
+      .replace(/[^a-zA-Z0-9._-]/g, '_')  // Replace special chars with underscores
+      .replace(/_+/g, '_')   // Replace multiple underscores with single underscore
+      .replace(/^_+|_+$/g, ''); // Remove leading/trailing underscores
+    
+    // Ensure we don't end up with an empty filename
+    const finalName = sanitizedName || 'file';
+    
+    console.log(`📝 Sanitized filename: "${filename}" → "${finalName}${extension}"`);
+    return `${finalName}${extension}`;
+  };
+
   const uploadMediaToS3 = async (file: File, listingId: string): Promise<string> => {
     try {
       console.log(`Starting upload for file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      
+      // Sanitize the filename to prevent loading issues
+      const sanitizedFilename = sanitizeFilename(file.name);
       
       // Check if file is too large for base64 encoding (keep under 15MB for base64)
       const maxSizeForBase64 = 15 * 1024 * 1024; // 15MB
@@ -1184,7 +1211,7 @@ const Dashboard: React.FC = () => {
       console.log(`File converted to base64, size: ${(base64Data.length * 0.75 / 1024 / 1024).toFixed(2)}MB`);
       
       const payload = {
-        filename: file.name,
+        filename: sanitizedFilename,  // Use sanitized filename
         contentType: file.type,
         listingId: listingId,
         dataBase64: base64Data
@@ -1214,7 +1241,7 @@ const Dashboard: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log(`Upload successful for ${file.name}:`, result);
+      console.log(`Upload successful for "${file.name}" (sanitized: "${sanitizedFilename}"):`, result);
       return result.key; // Return the S3 key for CSV storage
     } catch (error: any) {
       console.error(`Upload failed for ${file.name}:`, error);
