@@ -1524,7 +1524,7 @@ const Dashboard: React.FC = () => {
               onClick={() => openMediaViewer(property)}
               title="View all media"
             >
-              📷 View Media ({mediaKeys.length})
+              ⛶ View Media ({mediaKeys.length})
             </button>
           </div>
 
@@ -3142,7 +3142,7 @@ const Dashboard: React.FC = () => {
                   onClick={() => openMediaInNewWindow(viewingMedia[currentMediaIndex])}
                   title="Open in new window"
                 >
-                  🔗
+                  ⛶
                 </button>
                 <button 
                   className="action-btn download-btn"
