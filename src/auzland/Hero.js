@@ -249,11 +249,7 @@ const Hero = () => {
             )}
           </form>
           
-          <div className="hero-cta">
-            <a className="btn btn-primary btn-large" href="/contact">
-              Request Appraisal Now
-            </a>
-          </div>
+          
           
           <div className="hero-stats">
             <div className="stat-item">

@@ -521,13 +521,16 @@ const HomePage = () => {
             </div>
           )}
           
-          <div className="view-all-container">
+          <div className="view-all-container" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             <button 
               className="btn btn-secondary btn-large"
               onClick={() => navigate('/buy')}
             >
               View All Properties
             </button>
+            <a className="btn btn-primary btn-large" href="/contact">
+              Request Appraisal Now
+            </a>
           </div>
         </div>
       </section>
