@@ -13,6 +13,7 @@
   z-index: 1000;
   padding: 1rem;
   animation: fadeIn 0.3s ease-out;
+  overscroll-behavior: contain;
 }
 
 .property-modal {
@@ -285,6 +286,7 @@
   overflow-y: auto;
   max-height: 90vh;
   align-items: stretch;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-right > * {
