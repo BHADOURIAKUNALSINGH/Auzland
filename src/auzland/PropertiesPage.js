@@ -11,6 +11,7 @@ const PropertiesPage = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const [searchText, setSearchText] = useState(params.get('q') || '');
+  const [searchDraft, setSearchDraft] = useState(params.get('q') || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [properties, setProperties] = useState([]);
@@ -363,7 +364,9 @@ const PropertiesPage = () => {
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
-    setSearchText(p.get('q') || '');
+    const q = p.get('q') || '';
+    setSearchText(q);
+    setSearchDraft(q);
     setTypeFilter(p.get('type') || '');
     setSuburb(p.get('suburb') || '');
     setPriceMin(p.get('priceMin') || '');
@@ -461,7 +464,17 @@ const PropertiesPage = () => {
           <div className="filters-section" style={{ marginBottom: 15, alignItems: 'center' }}>
             <div className="filter-group" style={{ width: '100%' }}>
               <label>Search by address or suburb</label>
-              <input type="text" className="text-input" placeholder="e.g. Austral, Leppington" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="text"
+                  className="text-input"
+                  placeholder="e.g. Austral, Leppington"
+                  value={searchDraft}
+                  onChange={(e) => setSearchDraft(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { setSearchText(searchDraft); } }}
+                />
+                <button className="filter-toggle-btn" style={{ height: 36 }} onClick={() => setSearchText(searchDraft)}>Search</button>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
               {(typeFilter || suburb || priceMin || priceMax || frontageMin || frontageMax || buildMin || buildMax || bedMin || bathMin || garageMin) && (
