@@ -326,6 +326,12 @@
   
   .contact-item {
     justify-content: center;
+    align-items: center;
+  }
+  
+  .contact-item h3,
+  .contact-item p {
+    text-align: center;
   }
   
   .contact-form {
