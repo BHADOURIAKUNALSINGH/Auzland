@@ -82,16 +82,26 @@ const PropertyCard = ({ property }) => {
           {lot && <span className="lot-badge">Lot {lot}</span>}
         </div>
 
-        {/* Price */}
-        <div className="price-section">
-          <div className="price">
-            {priceCustomerVisibility === '1' ? formatPrice(price) : 'Price on request'}
+        {/* Price - only show if price visibility is enabled */}
+        {priceCustomerVisibility === '1' && (
+          <div className="price-section">
+            <div className="price">{formatPrice(price)}</div>
+            <div className="status-info">
+              <span className="status">{status || 'Available'}</span>
+              {availability && <span className="availability">{availability}</span>}
+            </div>
           </div>
-          <div className="status-info">
-            <span className="status">{status || 'Available'}</span>
-            {availability && <span className="availability">{availability}</span>}
+        )}
+        
+        {/* Status info when price is hidden */}
+        {priceCustomerVisibility !== '1' && (
+          <div className="status-only-section">
+            <div className="status-info">
+              <span className="status">{status || 'Available'}</span>
+              {availability && <span className="availability">{availability}</span>}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Features */}
         <div className="features-section">
