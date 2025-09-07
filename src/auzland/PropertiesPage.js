@@ -256,15 +256,19 @@ const PropertiesPage = () => {
           address: r.address || '',
           suburb: r.suburb || '',
           propertyType: r.propertyType || r.property_type || '',
+          lot: r.lot || '',
+          availability: r.availability || '',
+          status: r.status || 'For Sale',
+          price: r.price || r.price_guide || 'Price on request',
+          frontage: toNumber(r.frontage),
+          landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
+          buildSize: toNumber(r.buildSize) || toNumber(r.build_size),
           bedrooms: toNumber(r.bed),
           bathrooms: toNumber(r.bath),
           parking: toNumber(r.garage),
-          landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
           media: r.media || r.media_url || '', // Store the raw media data
           images: [], // Will be populated with real images
           image: placeholder[idx % placeholder.length], // Fallback for old compatibility
-          price: '',
-          status: r.status || 'For Sale',
           priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })()
         })).filter((p) => p.address || p.suburb);
         
