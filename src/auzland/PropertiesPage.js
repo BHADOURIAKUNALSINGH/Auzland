@@ -29,7 +29,7 @@ const PropertiesPage = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [propertiesPerPage] = useState(6); // Show 6 properties per page
+  const [propertiesPerPage] = useState(12); // Show 12 properties per page
 
   const clearFilters = () => {
     setSearchText('');
