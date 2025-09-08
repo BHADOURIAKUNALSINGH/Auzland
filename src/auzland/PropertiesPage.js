@@ -4,19 +4,8 @@ import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './PropertiesPage.css';
 
-// Disable noisy console logs in production (keep warnings/errors)
-if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
-  try {
-    // eslint-disable-next-line no-console
-    console.log = () => {};
-    // eslint-disable-next-line no-console
-    console.debug = () => {};
-  } catch (_) {}
-}
-
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
 const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
-const USE_SIMPLE_BATCH_IMAGE_LOADING = true; // revert to simple batched loading
 
 const PropertiesPage = () => {
   const location = useLocation();
@@ -42,11 +31,6 @@ const PropertiesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(12); // Show 12 properties per page
-  const [loadingImages, setLoadingImages] = useState(false);
-  const presignCacheRef = React.useRef(new Map());
-  const loadedPropertyIdsRef = React.useRef(new Set());
-  const loadVersionRef = React.useRef(0);
-  const [resumeTick, setResumeTick] = useState(0);
 
   const clearFilters = () => {
     setSearchText('');
@@ -72,73 +56,29 @@ const PropertiesPage = () => {
   const parseCsv = (csv) => {
     const rows = [];
     if (!csv) return rows;
-    
-    console.log('🔍 Parsing CSV, length:', csv.length);
-    
-    // Use a more robust CSV parsing approach
-    const lines = [];
-    let currentLine = '';
-    let inQuotes = false;
-    let i = 0;
-    
-    while (i < csv.length) {
-      const char = csv[i];
-      const nextChar = csv[i + 1];
-      
-      if (char === '"') {
-        if (inQuotes && nextChar === '"') {
-          // Escaped quote within quoted field
-          currentLine += '"';
-          i += 2; // Skip both quotes
-        } else {
-          // Toggle quote state
-          inQuotes = !inQuotes;
-          currentLine += char;
-          i++;
-        }
-      } else if (char === '\n' && !inQuotes) {
-        // End of line only if not in quotes
-        lines.push(currentLine);
-        currentLine = '';
-        i++;
-      } else if (char === '\r' && nextChar === '\n' && !inQuotes) {
-        // Handle \r\n line endings
-        lines.push(currentLine);
-        currentLine = '';
-        i += 2; // Skip both \r and \n
-      } else {
-        // Any other character (including newlines within quotes)
-        currentLine += char;
-        i++;
-      }
-    }
-    
-    // Add the last line if it exists
-    if (currentLine.trim()) {
-      lines.push(currentLine);
-    }
-    
-    console.log('🔍 Parsed lines count:', lines.length);
-    console.log('🔍 First few lines:', lines.slice(0, 3));
-    
+    const lines = csv.split(/\r?\n/).filter(Boolean);
     if (lines.length < 2) return rows;
-    
-    // Parse headers
-    const headers = parseCsvLine(lines[0]);
-    console.log('🔍 Headers:', headers);
-    
-    // Parse data rows
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
     for (let i = 1; i < lines.length; i++) {
-      const values = parseCsvLine(lines[i]);
-      console.log(`🔍 Row ${i} values count:`, values.length, 'Expected:', headers.length);
-      
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let j = 0; j < lines[i].length; j++) {
+        const char = lines[i][j];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
       if (values.length === headers.length) {
         const obj = {};
         headers.forEach((header, index) => {
-          let value = values[index] || '';
-          
-          // Clean up escaped quotes
-          value = value.replace(/""/g, '"');
+          let value = (values[index]?.replace(/"/g, '') || '').trim();
           
           // Transform legacy "Home and Land Packages" to "Home & Land"
           if (value.toLowerCase() === 'home and land packages') {
@@ -148,54 +88,9 @@ const PropertiesPage = () => {
           obj[header] = value;
         });
         rows.push(obj);
-      } else {
-        console.warn(`⚠️ Row ${i} has ${values.length} values but expected ${headers.length}. Skipping row.`);
-        console.warn('Row content:', lines[i].substring(0, 200) + '...');
       }
     }
-    
-    console.log('🔍 Final parsed rows count:', rows.length);
     return rows;
-  };
-
-  // Helper function to parse a single CSV line
-  const parseCsvLine = (line) => {
-    const values = [];
-    let current = '';
-    let inQuotes = false;
-    let i = 0;
-    
-    while (i < line.length) {
-      const char = line[i];
-      const nextChar = line[i + 1];
-      
-      if (char === '"') {
-        if (inQuotes && nextChar === '"') {
-          // Escaped quote within quoted field
-          current += '"';
-          i += 2; // Skip both quotes
-        } else {
-          // Toggle quote state
-          inQuotes = !inQuotes;
-          i++;
-        }
-      } else if (char === ',' && !inQuotes) {
-        // Field separator
-        values.push(current);
-        current = '';
-        i++;
-      } else {
-        // Regular character (including newlines, tabs, emojis, punctuation, etc.)
-        // This handles ALL characters: letters, numbers, symbols, punctuation, emojis, unicode, etc.
-        current += char;
-        i++;
-      }
-    }
-    
-    // Add the last field
-    values.push(current);
-    
-    return values;
   };
 
   const toNumber = (val) => {
@@ -203,53 +98,9 @@ const PropertiesPage = () => {
     return Number.isFinite(n) ? n : undefined;
   };
 
-  // Test function to verify special character handling
-  const testSpecialCharacterHandling = () => {
-    const testDescription = `Test description with ALL characters:
-    • Emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯
-    • Punctuation: , ; : ? ! / \\ | < > { } [ ] ( ) @ # $ % ^ & * + = ~ \`
-    • Quotes: "double quotes" and 'single quotes'
-    • Special symbols: © ® ™ € £ ¥ § ¶ † ‡ • … – — 
-    • Math symbols: ± × ÷ ∞ ≤ ≥ ≠ ≈ ∑ ∏ ∫
-    • Arrows: ← → ↑ ↓ ↔ ↕ ⇐ ⇒ ⇑ ⇓
-    • Newlines and tabs: 
-    Line 1
-    	Tabbed line
-    Line 3
-    • Unicode: ñáéíóú üöä ß ç àèìòù`;
-    
-    console.log('🧪 Testing special character handling:', {
-      original: testDescription,
-      length: testDescription.length,
-      hasAllChars: testDescription.includes('🏠') && testDescription.includes(',') && testDescription.includes(';') && testDescription.includes(':'),
-      preserved: testDescription === testDescription // Should be true
-    });
-    
-    return testDescription;
-  };
-
-  // Test CSV parsing with multi-line description
-  const testCsvParsing = () => {
-    const testCsv = `id,address,suburb,description
-1,"123 Test St","Test Suburb","This is a test description
-with multiple lines
-and special characters: , ; : ? ! / \\ | < > { } [ ] ( ) @ # $ % ^ & * + = ~ \`
-and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
-2,"456 Another St","Another Suburb","Simple description"`;
-    
-    console.log('🧪 Testing CSV parsing with multi-line description:');
-    const result = parseCsv(testCsv);
-    console.log('🧪 Parsed result:', result);
-    return result;
-  };
-
   // Fetch presigned URLs for media files (same as Dashboard)
   const fetchPresignedUrl = async (mediaKey) => {
     try {
-      // Return from cache if available
-      if (presignCacheRef.current.has(mediaKey)) {
-        return presignCacheRef.current.get(mediaKey);
-      }
       console.log('🔍 Fetching presigned URL for key:', mediaKey);
       const response = await fetch(`${MEDIA_API_URL}?key=${encodeURIComponent(mediaKey)}`);
       console.log('🔍 Response status:', response.status);
@@ -264,7 +115,6 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         throw new Error('Invalid response from media service');
       }
       console.log('🔍 Returning presigned URL:', data.presignedUrl);
-      presignCacheRef.current.set(mediaKey, data.presignedUrl);
       return data.presignedUrl;
     } catch (error) {
       console.error('❌ Error fetching presigned URL:', error);
@@ -282,10 +132,10 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     console.log('🔍 Processing media string:', mediaString);
     
     try {
-      let mediaKeys = [];
+      // Fix CSV double-quote escaping issues: "" -> "
       let cleanedString = mediaString.toString();
       
-      // Remove outer quotes if present (from CSV escaping)
+      // Remove outer quotes if present
       if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
         cleanedString = cleanedString.slice(1, -1);
       }
@@ -295,19 +145,9 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
       
       console.log('🔍 Cleaned media string:', cleanedString);
       
-      // Check if it's a simple array format: [item1,item2,item3]
-      if (cleanedString.startsWith('[') && cleanedString.endsWith(']')) {
-        // Remove brackets and split by comma
-        const content = cleanedString.slice(1, -1);
-        if (content.trim()) {
-          mediaKeys = content.split(',').map(key => key.trim());
-        }
-        console.log('🔍 Parsed as simple array format:', mediaKeys);
-      } else {
-        // Try to parse as JSON (for backward compatibility)
-        mediaKeys = JSON.parse(cleanedString);
-        console.log('🔍 Parsed as JSON format:', mediaKeys);
-      }
+      // Now parse the cleaned JSON
+      const mediaKeys = JSON.parse(cleanedString);
+      console.log('🔍 Parsed media keys:', mediaKeys);
       
       if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
         console.log('🔍 No media keys found or not an array');
@@ -405,61 +245,14 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     }
   }, []);
 
-  // Quickly fetch only the first image from media for fast card display
-  const getFirstImageFromMedia = useCallback(async (mediaString) => {
-    try {
-      let mediaKeys = [];
-      let s = mediaString?.toString() || '';
-      if (!s) return null;
-      if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
-      s = s.replace(/""/g, '"');
-      if (s.startsWith('[') && s.endsWith(']')) {
-        const inner = s.slice(1, -1);
-        if (inner.trim()) {
-          mediaKeys = inner.split(',').map(k => k.trim());
-        }
-      } else {
-        mediaKeys = JSON.parse(s);
-      }
-      if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) return null;
-      const firstKey = mediaKeys.find((k) => {
-        const ext = typeof k === 'string' ? k.toLowerCase().split('.').pop() : '';
-        return ['jpg','jpeg','png','webp','gif','bmp','svg'].includes(ext);
-      });
-      if (!firstKey) return null;
-      const url = await fetchPresignedUrl(firstKey);
-      return url || null;
-    } catch (_) {
-      return null;
-    }
-  }, []);
-
-  const handlePropertyClick = async (property) => {
-    // Pause any background loads
-    loadVersionRef.current++;
+  const handlePropertyClick = (property) => {
     setSelectedProperty(property);
     setIsModalOpen(true);
-
-    // If this property's images aren't loaded yet, load them immediately
-    if (!property?.images || property.images.length === 0) {
-      try {
-        const imageUrls = await getAllImagesFromMedia(property.media);
-        // Update global list
-        setProperties(prev => prev.map(p => p.id === property.id ? { ...p, images: imageUrls } : p));
-        loadedPropertyIdsRef.current.add(property.id);
-        // Update selected (if still same property is open)
-        setSelectedProperty(prev => prev && prev.id === property.id ? { ...prev, images: imageUrls } : prev);
-      } catch (e) {
-        // Leave images empty on failure
-      }
-    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedProperty(null);
-    // Resume background loading by triggering effect
-    setResumeTick(t => t + 1);
   };
 
 
@@ -496,7 +289,6 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
           lot: r.lot || '',
           availability: r.availability || '',
           status: r.status || 'For Sale',
-          registrationConstructionStatus: r.registrationConstructionStatus || r.registration || r.constructionStatus || '',
           price: r.price || r.price_guide || 'Price on request',
           frontage: toNumber(r.frontage),
           landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
@@ -505,7 +297,6 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
           bathrooms: toNumber(r.bath),
           parking: toNumber(r.garage),
           media: r.media || r.media_url || '', // Store the raw media data
-          description: r.description || '', // Add description field
           images: [], // Will be populated with real images
           image: placeholder[idx % placeholder.length], // Fallback for old compatibility
           priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })(),
@@ -515,33 +306,53 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         
         // Set initial properties without images
         setProperties(mapped);
-
-        // Simple batched image loading for ALL properties (batch size 50)
-        if (USE_SIMPLE_BATCH_IMAGE_LOADING) {
-          const loadImages = async () => {
-            const batchSize = 50;
-            const results = [...mapped];
-            for (let i = 0; i < mapped.length; i += batchSize) {
-              const batch = mapped.slice(i, i + batchSize);
-              await Promise.all(
-                batch.map(async (property, batchIndex) => {
-                  const actualIndex = i + batchIndex;
-                  try {
-                    const imageUrls = await getAllImagesFromMedia(property.media);
-                    results[actualIndex] = { ...property, images: imageUrls };
-                  } catch (_) {
-                    results[actualIndex] = { ...property, images: [] };
+        
+        // Load images asynchronously in batches to avoid overwhelming the API
+        console.log(`🖼️ Loading images for ${mapped.length} properties...`);
+        const loadImages = async () => {
+          const batchSize = 5; // Process 5 images at a time
+          const results = [...mapped]; // Copy the array
+          
+          for (let i = 0; i < mapped.length; i += batchSize) {
+            const batch = mapped.slice(i, i + batchSize);
+            console.log(`📦 Loading batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(mapped.length/batchSize)}`);
+            let batchSuccessCount = 0;
+            
+            await Promise.all(
+              batch.map(async (property, batchIndex) => {
+                const actualIndex = i + batchIndex;
+                try {
+                  const imageUrls = await getAllImagesFromMedia(property.media);
+                  results[actualIndex] = { ...property, images: imageUrls };
+                  if (imageUrls && imageUrls.length > 0) {
+                    batchSuccessCount++;
+                    console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}`);
+                  } else {
+                    console.log(`⚠️ No images for ${property.address || property.suburb} (media: ${property.media?.substring(0, 50)}...)`);
                   }
-                })
-              );
-              setProperties([...results]);
-              if (i + batchSize < mapped.length) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-              }
+                } catch (error) {
+                  console.error(`❌ Failed to load images for ${property.address}:`, error);
+                  results[actualIndex] = { ...property, images: [] };
+                }
+              })
+            );
+            
+            // Update properties after each batch
+            setProperties([...results]);
+            
+            console.log(`📦 Batch completed: ${batchSuccessCount} images loaded`);
+            
+            // Small delay between batches
+            if (i + batchSize < mapped.length) {
+              await new Promise(resolve => setTimeout(resolve, 200));
             }
-          };
-          loadImages();
-        }
+          }
+          
+          const totalSuccess = results.filter(p => p.images && p.images.length > 0).length;
+          console.log(`✅ Loaded images for ${totalSuccess} out of ${mapped.length} properties`);
+        };
+        
+        loadImages();
       } catch (e) {
         setError(e?.message || 'Failed to load properties');
       } finally {
@@ -570,26 +381,8 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
   }, [location.search]);
 
   const filtered = useMemo(() => {
-    const q = (searchText || '').toLowerCase().trim();
-    console.log('🔍 Searching with query:', q);
-    let result = properties.filter((p) => {
-      // Create search string that includes all property fields
-      const searchString = `${p.address || ''} ${p.suburb || ''} ${p.propertyType || ''} ${p.description || ''}`.toLowerCase();
-      
-      // Use includes for simple substring matching - this handles ALL characters
-      const matches = searchString.includes(q);
-      
-      if (q && matches) {
-        console.log('🔍 Found match:', { 
-          address: p.address, 
-          searchString: searchString.substring(0, 100) + '...',
-          query: q,
-          hasDescription: !!p.description
-        });
-      }
-      return matches;
-    });
-    console.log('🔍 Search results count:', result.length);
+    const q = (searchText || '').toLowerCase();
+    let result = properties.filter((p) => `${p.address} ${p.suburb} ${p.propertyType}`.toLowerCase().includes(q));
     const minP = priceMin ? Number(priceMin) : undefined;
     const maxP = priceMax ? Number(priceMax) : undefined;
     const minBed = bedMin ? Number(bedMin) : undefined;
@@ -631,89 +424,6 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
   const startIndex = (currentPage - 1) * propertiesPerPage;
   const endIndex = startIndex + propertiesPerPage;
   const currentProperties = filtered.slice(startIndex, endIndex);
-
-  // Helper: load images for a list of properties (no concurrency limit)
-  const loadImagesForProperties = useCallback(async (list) => {
-    const results = new Map();
-    await Promise.all(
-      list.map(async (property) => {
-        if (!property || loadedPropertyIdsRef.current.has(property.id)) return;
-        try {
-          const imageUrls = await getAllImagesFromMedia(property.media);
-          results.set(property.id, imageUrls);
-        } catch (_) {
-          results.set(property.id, []);
-        }
-      })
-    );
-    return results;
-  }, [getAllImagesFromMedia]);
-
-  // Prioritize loading images for currently visible properties, then background the rest
-  useEffect(() => {
-    if (USE_SIMPLE_BATCH_IMAGE_LOADING) {
-      // Using simple batched loader; skip prioritized loader
-      return;
-    }
-    if (properties.length === 0) return;
-    const visibleIds = new Set(currentProperties.map(p => p.id));
-
-    // Bump version to cancel any older background loads
-    const myVersion = ++loadVersionRef.current;
-
-    const load = async () => {
-      // Phase 1a: set first image on visible cards immediately error?
-      const visibleList = properties.filter(p => visibleIds.has(p.id));
-      const firstImages = await Promise.all(
-        visibleList.map(async (p) => ({ id: p.id, url: await getFirstImageFromMedia(p.media) }))
-      );
-      if (myVersion !== loadVersionRef.current) return;
-      if (firstImages.some(fi => fi.url)) {
-        setProperties(prev => prev.map(p => {
-          const fi = firstImages.find(x => x.id === p.id);
-          if (fi && fi.url && (!p.images || p.images.length === 0)) {
-            return { ...p, images: [fi.url] };
-          }
-          return p;
-        }));
-      }
-
-      // Phase 1b: then load full image lists for visible properties
-      const visibleResults = await loadImagesForProperties(visibleList);
-      if (myVersion !== loadVersionRef.current) return; // canceled by newer run
-      if (visibleResults.size > 0) {
-        setProperties(prev => prev.map(p => {
-          if (visibleResults.has(p.id)) {
-            loadedPropertyIdsRef.current.add(p.id);
-            return { ...p, images: visibleResults.get(p.id) };
-          }
-          return p;
-        }));
-      }
-
-      // Phase 2: after visible finished, background remaining (only if still current)
-      const remaining = properties.filter(p => !loadedPropertyIdsRef.current.has(p.id));
-      if (remaining.length > 0) {
-        // Yield to UI then proceed
-        await new Promise(r => setTimeout(r, 0));
-        if (myVersion !== loadVersionRef.current) return; // canceled by newer run
-        const bgResults = await loadImagesForProperties(remaining);
-        if (myVersion !== loadVersionRef.current) return; // canceled
-        if (bgResults.size > 0) {
-          setProperties(prev => prev.map(p => {
-            if (bgResults.has(p.id)) {
-              loadedPropertyIdsRef.current.add(p.id);
-              return { ...p, images: bgResults.get(p.id) };
-            }
-            return p;
-          }));
-        }
-      }
-    };
-
-    load();
-    // Cleanup cancels this run by bumping version on next effect
-  }, [properties, currentProperties, loadImagesForProperties, resumeTick]);
 
   // Pagination functions
   const goToPage = (pageNumber) => {

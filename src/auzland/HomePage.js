@@ -5,16 +5,6 @@ import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 
-// Disable noisy console logs in production (keep warnings/errors)
-if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
-  try {
-    // eslint-disable-next-line no-console
-    console.log = () => {};
-    // eslint-disable-next-line no-console
-    console.debug = () => {};
-  } catch (_) {}
-}
-
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
 const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
 
@@ -133,11 +123,11 @@ const HomePage = () => {
     console.log('🔍 Processing media string:', mediaString);
     
     try {
-      let mediaKeys = [];
+      // Fix CSV double-quote escaping issues: "" -> "
       let cleanedString = mediaString.toString();
       console.log('🔍 Original string:', cleanedString);
       
-      // Remove outer quotes if present (from CSV escaping)
+      // Remove outer quotes if present
       if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
         cleanedString = cleanedString.slice(1, -1);
         console.log('🔍 After removing outer quotes:', cleanedString);
@@ -147,19 +137,9 @@ const HomePage = () => {
       cleanedString = cleanedString.replace(/""/g, '"');
       console.log('🔍 After fixing quotes:', cleanedString);
       
-      // Check if it's a simple array format: [item1,item2,item3]
-      if (cleanedString.startsWith('[') && cleanedString.endsWith(']')) {
-        // Remove brackets and split by comma
-        const content = cleanedString.slice(1, -1);
-        if (content.trim()) {
-          mediaKeys = content.split(',').map(key => key.trim());
-        }
-        console.log('🔍 Parsed as simple array format:', mediaKeys);
-      } else {
-        // Try to parse as JSON (for backward compatibility)
-        mediaKeys = JSON.parse(cleanedString);
-        console.log('🔍 Parsed as JSON format:', mediaKeys);
-      }
+      // Parse the cleaned JSON
+      const mediaKeys = JSON.parse(cleanedString);
+      console.log('🔍 Parsed media keys:', mediaKeys);
       
       if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
         return [];
