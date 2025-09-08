@@ -381,8 +381,11 @@ const PropertiesPage = () => {
   }, [location.search]);
 
   const filtered = useMemo(() => {
-    const q = (searchText || '').toLowerCase();
-    let result = properties.filter((p) => `${p.address} ${p.suburb} ${p.propertyType}`.toLowerCase().includes(q));
+    const q = (searchText || '').toLowerCase().trim();
+    let result = properties.filter((p) => {
+      const searchString = `${p.address || ''} ${p.suburb || ''} ${p.propertyType || ''} ${p.description || ''}`.toLowerCase();
+      return searchString.includes(q);
+    });
     const minP = priceMin ? Number(priceMin) : undefined;
     const maxP = priceMax ? Number(priceMax) : undefined;
     const minBed = bedMin ? Number(bedMin) : undefined;
