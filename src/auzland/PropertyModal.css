@@ -434,6 +434,29 @@
   white-space: nowrap;
 }
 
+/* Special styling for availability and status fields */
+.feature-item-horizontal.availability-status {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: 1px solid #b91c1c;
+  font-weight: 700;
+}
+
+.feature-item-horizontal.availability-status svg {
+  stroke: white;
+}
+
+.feature-item-horizontal.property-status {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: 1px solid #b91c1c;
+  font-weight: 700;
+}
+
+.feature-item-horizontal.property-status svg {
+  stroke: white;
+}
+
 .area-feature {
   display: flex;
   align-items: center;
