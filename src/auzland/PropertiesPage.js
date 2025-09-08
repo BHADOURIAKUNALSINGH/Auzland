@@ -31,6 +31,11 @@ const PropertiesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(12); // Show 12 properties per page
+  const [loadingImages, setLoadingImages] = useState(false);
+  const presignCacheRef = React.useRef(new Map());
+  const loadedPropertyIdsRef = React.useRef(new Set());
+  const loadVersionRef = React.useRef(0);
+  const [resumeTick, setResumeTick] = useState(0);
 
   const clearFilters = () => {
     setSearchText('');
@@ -230,6 +235,10 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
   // Fetch presigned URLs for media files (same as Dashboard)
   const fetchPresignedUrl = async (mediaKey) => {
     try {
+      // Return from cache if available
+      if (presignCacheRef.current.has(mediaKey)) {
+        return presignCacheRef.current.get(mediaKey);
+      }
       console.log('🔍 Fetching presigned URL for key:', mediaKey);
       const response = await fetch(`${MEDIA_API_URL}?key=${encodeURIComponent(mediaKey)}`);
       console.log('🔍 Response status:', response.status);
@@ -244,6 +253,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         throw new Error('Invalid response from media service');
       }
       console.log('🔍 Returning presigned URL:', data.presignedUrl);
+      presignCacheRef.current.set(mediaKey, data.presignedUrl);
       return data.presignedUrl;
     } catch (error) {
       console.error('❌ Error fetching presigned URL:', error);
@@ -261,10 +271,10 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     console.log('🔍 Processing media string:', mediaString);
     
     try {
-      // Fix CSV double-quote escaping issues: "" -> "
+      let mediaKeys = [];
       let cleanedString = mediaString.toString();
       
-      // Remove outer quotes if present
+      // Remove outer quotes if present (from CSV escaping)
       if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
         cleanedString = cleanedString.slice(1, -1);
       }
@@ -274,9 +284,19 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
       
       console.log('🔍 Cleaned media string:', cleanedString);
       
-      // Now parse the cleaned JSON
-      const mediaKeys = JSON.parse(cleanedString);
-      console.log('🔍 Parsed media keys:', mediaKeys);
+      // Check if it's a simple array format: [item1,item2,item3]
+      if (cleanedString.startsWith('[') && cleanedString.endsWith(']')) {
+        // Remove brackets and split by comma
+        const content = cleanedString.slice(1, -1);
+        if (content.trim()) {
+          mediaKeys = content.split(',').map(key => key.trim());
+        }
+        console.log('🔍 Parsed as simple array format:', mediaKeys);
+      } else {
+        // Try to parse as JSON (for backward compatibility)
+        mediaKeys = JSON.parse(cleanedString);
+        console.log('🔍 Parsed as JSON format:', mediaKeys);
+      }
       
       if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
         console.log('🔍 No media keys found or not an array');
@@ -374,14 +394,32 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     }
   }, []);
 
-  const handlePropertyClick = (property) => {
+  const handlePropertyClick = async (property) => {
+    // Pause any background loads
+    loadVersionRef.current++;
     setSelectedProperty(property);
     setIsModalOpen(true);
+
+    // If this property's images aren't loaded yet, load them immediately
+    if (!property?.images || property.images.length === 0) {
+      try {
+        const imageUrls = await getAllImagesFromMedia(property.media);
+        // Update global list
+        setProperties(prev => prev.map(p => p.id === property.id ? { ...p, images: imageUrls } : p));
+        loadedPropertyIdsRef.current.add(property.id);
+        // Update selected (if still same property is open)
+        setSelectedProperty(prev => prev && prev.id === property.id ? { ...prev, images: imageUrls } : prev);
+      } catch (e) {
+        // Leave images empty on failure
+      }
+    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedProperty(null);
+    // Resume background loading by triggering effect
+    setResumeTick(t => t + 1);
   };
 
 
@@ -465,52 +503,9 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         // Set initial properties without images
         setProperties(mapped);
         
-        // Load images asynchronously in batches to avoid overwhelming the API
-        console.log(`🖼️ Loading images for ${mapped.length} properties...`);
-        const loadImages = async () => {
-          const batchSize = 5; // Process 5 images at a time
-          const results = [...mapped]; // Copy the array
-          
-          for (let i = 0; i < mapped.length; i += batchSize) {
-            const batch = mapped.slice(i, i + batchSize);
-            console.log(`📦 Loading batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(mapped.length/batchSize)}`);
-            let batchSuccessCount = 0;
-            
-            await Promise.all(
-              batch.map(async (property, batchIndex) => {
-                const actualIndex = i + batchIndex;
-                try {
-                  const imageUrls = await getAllImagesFromMedia(property.media);
-                  results[actualIndex] = { ...property, images: imageUrls };
-                  if (imageUrls && imageUrls.length > 0) {
-                    batchSuccessCount++;
-                    console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}`);
-                  } else {
-                    console.log(`⚠️ No images for ${property.address || property.suburb} (media: ${property.media?.substring(0, 50)}...)`);
-                  }
-                } catch (error) {
-                  console.error(`❌ Failed to load images for ${property.address}:`, error);
-                  results[actualIndex] = { ...property, images: [] };
-                }
-              })
-            );
-            
-            // Update properties after each batch
-            setProperties([...results]);
-            
-            console.log(`📦 Batch completed: ${batchSuccessCount} images loaded`);
-            
-            // Small delay between batches
-            if (i + batchSize < mapped.length) {
-              await new Promise(resolve => setTimeout(resolve, 200));
-            }
-          }
-          
-          const totalSuccess = results.filter(p => p.images && p.images.length > 0).length;
-          console.log(`✅ Loaded images for ${totalSuccess} out of ${mapped.length} properties`);
-        };
-        
-        loadImages();
+        // Kick off prioritized image loading after initial set
+        setLoadingImages(true);
+        setTimeout(() => setLoadingImages(false), 0);
       } catch (e) {
         setError(e?.message || 'Failed to load properties');
       } finally {
@@ -600,6 +595,70 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
   const startIndex = (currentPage - 1) * propertiesPerPage;
   const endIndex = startIndex + propertiesPerPage;
   const currentProperties = filtered.slice(startIndex, endIndex);
+
+  // Helper: load images for a list of properties (no concurrency limit)
+  const loadImagesForProperties = useCallback(async (list) => {
+    const results = new Map();
+    await Promise.all(
+      list.map(async (property) => {
+        if (!property || loadedPropertyIdsRef.current.has(property.id)) return;
+        try {
+          const imageUrls = await getAllImagesFromMedia(property.media);
+          results.set(property.id, imageUrls);
+        } catch (_) {
+          results.set(property.id, []);
+        }
+      })
+    );
+    return results;
+  }, [getAllImagesFromMedia]);
+
+  // Prioritize loading images for currently visible properties, then background the rest
+  useEffect(() => {
+    if (properties.length === 0) return;
+    const visibleIds = new Set(currentProperties.map(p => p.id));
+
+    // Bump version to cancel any older background loads
+    const myVersion = ++loadVersionRef.current;
+
+    const load = async () => {
+      // Phase 1: strictly load only visible properties first
+      const visibleList = properties.filter(p => visibleIds.has(p.id));
+      const visibleResults = await loadImagesForProperties(visibleList);
+      if (myVersion !== loadVersionRef.current) return; // canceled by newer run
+      if (visibleResults.size > 0) {
+        setProperties(prev => prev.map(p => {
+          if (visibleResults.has(p.id)) {
+            loadedPropertyIdsRef.current.add(p.id);
+            return { ...p, images: visibleResults.get(p.id) };
+          }
+          return p;
+        }));
+      }
+
+      // Phase 2: after visible finished, background remaining (only if still current)
+      const remaining = properties.filter(p => !loadedPropertyIdsRef.current.has(p.id));
+      if (remaining.length > 0) {
+        // Yield to UI then proceed
+        await new Promise(r => setTimeout(r, 0));
+        if (myVersion !== loadVersionRef.current) return; // canceled by newer run
+        const bgResults = await loadImagesForProperties(remaining);
+        if (myVersion !== loadVersionRef.current) return; // canceled
+        if (bgResults.size > 0) {
+          setProperties(prev => prev.map(p => {
+            if (bgResults.has(p.id)) {
+              loadedPropertyIdsRef.current.add(p.id);
+              return { ...p, images: bgResults.get(p.id) };
+            }
+            return p;
+          }));
+        }
+      }
+    };
+
+    load();
+    // Cleanup cancels this run by bumping version on next effect
+  }, [properties, currentProperties, loadImagesForProperties, resumeTick]);
 
   // Pagination functions
   const goToPage = (pageNumber) => {

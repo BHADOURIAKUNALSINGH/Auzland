@@ -633,6 +633,30 @@ const Dashboard: React.FC = () => {
       const rows = parseCsv(csv);
       console.log('📊 Loaded CSV rows:', rows.length);
       console.log('📊 Sample row with description:', rows.find(r => r.description) || 'No description found');
+      // Helper: detect valid JSON array string of strings
+      const isJsonStringArray = (val: string) => {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) && parsed.every((x) => typeof x === 'string');
+        } catch {
+          return false;
+        }
+      };
+
+      // Helper: convert legacy bracketed list [a,b,c] -> JSON array ["a","b","c"]
+      // PRESERVE item contents exactly; do not trim or mutate names
+      const convertLegacyBracketList = (val: string): string | null => {
+        if (typeof val !== 'string') return null;
+        const s = val;
+        if (s.startsWith('[') && s.endsWith(']') && !isJsonStringArray(s)) {
+          const inner = s.slice(1, -1);
+          if (inner === '') return '[]';
+          const items = inner.split(','); // no trimming to preserve names exactly
+          return JSON.stringify(items);
+        }
+        return null;
+      };
+
       const mapped = rows.map((r) => ({
         id: r.id,
         propertyType: r.propertyType || r.property_type || '',
@@ -657,8 +681,35 @@ const Dashboard: React.FC = () => {
       })).filter((p) => p.lot || p.address);
       console.log('📊 Mapped properties with descriptions:', mapped.filter(p => p.description).length);
       console.log('📊 Sample mapped property with description:', mapped.find(p => p.description) || 'No mapped property with description');
-      setProperties(mapped);
+
+      // Normalize legacy media format to JSON arrays without altering item content
+      let changed = false;
+      const normalized = mapped.map((p) => {
+        if (p.media && typeof p.media === 'string') {
+          if (!isJsonStringArray(p.media)) {
+            const converted = convertLegacyBracketList(p.media);
+            if (converted !== null) {
+              changed = true;
+              return { ...p, media: converted };
+            }
+          }
+        }
+        return p;
+      });
+
+      setProperties(normalized);
       setMessage(null);
+
+      // Persist normalization back to S3 once
+      if (changed) {
+        console.log('🔄 Normalized legacy media format -> saving back to S3');
+        try {
+          await autoSaveToS3(normalized);
+          console.log('✅ Normalized media saved');
+        } catch (e) {
+          console.warn('⚠️ Failed to persist normalized media:', e);
+        }
+      }
     } catch (err: any) {
       console.error('Error loading listings from API:', err);
       setMessage({ type: 'error', text: err.message || 'Failed to load properties' });

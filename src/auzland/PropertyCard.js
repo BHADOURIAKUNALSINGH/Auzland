@@ -54,6 +54,8 @@ const PropertyCard = ({ property }) => {
           <img 
             src={images[0]} 
             alt={`${address}, ${suburb}`}
+            loading="lazy"
+            decoding="async"
             onError={handleImageError}
           />
         ) : (
