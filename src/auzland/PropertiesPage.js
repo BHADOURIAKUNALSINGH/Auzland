@@ -56,29 +56,73 @@ const PropertiesPage = () => {
   const parseCsv = (csv) => {
     const rows = [];
     if (!csv) return rows;
-    const lines = csv.split(/\r?\n/).filter(Boolean);
-    if (lines.length < 2) return rows;
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-    for (let i = 1; i < lines.length; i++) {
-      const values = [];
-      let current = '';
-      let inQuotes = false;
-      for (let j = 0; j < lines[i].length; j++) {
-        const char = lines[i][j];
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-          values.push(current.trim());
-          current = '';
+    
+    console.log('🔍 Parsing CSV, length:', csv.length);
+    
+    // Use a more robust CSV parsing approach
+    const lines = [];
+    let currentLine = '';
+    let inQuotes = false;
+    let i = 0;
+    
+    while (i < csv.length) {
+      const char = csv[i];
+      const nextChar = csv[i + 1];
+      
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Escaped quote within quoted field
+          currentLine += '"';
+          i += 2; // Skip both quotes
         } else {
-          current += char;
+          // Toggle quote state
+          inQuotes = !inQuotes;
+          currentLine += char;
+          i++;
         }
+      } else if (char === '\n' && !inQuotes) {
+        // End of line only if not in quotes
+        lines.push(currentLine);
+        currentLine = '';
+        i++;
+      } else if (char === '\r' && nextChar === '\n' && !inQuotes) {
+        // Handle \r\n line endings
+        lines.push(currentLine);
+        currentLine = '';
+        i += 2; // Skip both \r and \n
+      } else {
+        // Any other character (including newlines within quotes)
+        currentLine += char;
+        i++;
       }
-      values.push(current.trim());
+    }
+    
+    // Add the last line if it exists
+    if (currentLine.trim()) {
+      lines.push(currentLine);
+    }
+    
+    console.log('🔍 Parsed lines count:', lines.length);
+    console.log('🔍 First few lines:', lines.slice(0, 3));
+    
+    if (lines.length < 2) return rows;
+    
+    // Parse headers
+    const headers = parseCsvLine(lines[0]);
+    console.log('🔍 Headers:', headers);
+    
+    // Parse data rows
+    for (let i = 1; i < lines.length; i++) {
+      const values = parseCsvLine(lines[i]);
+      console.log(`🔍 Row ${i} values count:`, values.length, 'Expected:', headers.length);
+      
       if (values.length === headers.length) {
         const obj = {};
         headers.forEach((header, index) => {
-          let value = (values[index]?.replace(/"/g, '') || '').trim();
+          let value = values[index] || '';
+          
+          // Clean up escaped quotes
+          value = value.replace(/""/g, '"');
           
           // Transform legacy "Home and Land Packages" to "Home & Land"
           if (value.toLowerCase() === 'home and land packages') {
@@ -88,14 +132,99 @@ const PropertiesPage = () => {
           obj[header] = value;
         });
         rows.push(obj);
+      } else {
+        console.warn(`⚠️ Row ${i} has ${values.length} values but expected ${headers.length}. Skipping row.`);
+        console.warn('Row content:', lines[i].substring(0, 200) + '...');
       }
     }
+    
+    console.log('🔍 Final parsed rows count:', rows.length);
     return rows;
+  };
+
+  // Helper function to parse a single CSV line
+  const parseCsvLine = (line) => {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    let i = 0;
+    
+    while (i < line.length) {
+      const char = line[i];
+      const nextChar = line[i + 1];
+      
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Escaped quote within quoted field
+          current += '"';
+          i += 2; // Skip both quotes
+        } else {
+          // Toggle quote state
+          inQuotes = !inQuotes;
+          i++;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // Field separator
+        values.push(current);
+        current = '';
+        i++;
+      } else {
+        // Regular character (including newlines, tabs, emojis, punctuation, etc.)
+        // This handles ALL characters: letters, numbers, symbols, punctuation, emojis, unicode, etc.
+        current += char;
+        i++;
+      }
+    }
+    
+    // Add the last field
+    values.push(current);
+    
+    return values;
   };
 
   const toNumber = (val) => {
     const n = Number(val);
     return Number.isFinite(n) ? n : undefined;
+  };
+
+  // Test function to verify special character handling
+  const testSpecialCharacterHandling = () => {
+    const testDescription = `Test description with ALL characters:
+    • Emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯
+    • Punctuation: , ; : ? ! / \\ | < > { } [ ] ( ) @ # $ % ^ & * + = ~ \`
+    • Quotes: "double quotes" and 'single quotes'
+    • Special symbols: © ® ™ € £ ¥ § ¶ † ‡ • … – — 
+    • Math symbols: ± × ÷ ∞ ≤ ≥ ≠ ≈ ∑ ∏ ∫
+    • Arrows: ← → ↑ ↓ ↔ ↕ ⇐ ⇒ ⇑ ⇓
+    • Newlines and tabs: 
+    Line 1
+    	Tabbed line
+    Line 3
+    • Unicode: ñáéíóú üöä ß ç àèìòù`;
+    
+    console.log('🧪 Testing special character handling:', {
+      original: testDescription,
+      length: testDescription.length,
+      hasAllChars: testDescription.includes('🏠') && testDescription.includes(',') && testDescription.includes(';') && testDescription.includes(':'),
+      preserved: testDescription === testDescription // Should be true
+    });
+    
+    return testDescription;
+  };
+
+  // Test CSV parsing with multi-line description
+  const testCsvParsing = () => {
+    const testCsv = `id,address,suburb,description
+1,"123 Test St","Test Suburb","This is a test description
+with multiple lines
+and special characters: , ; : ? ! / \\ | < > { } [ ] ( ) @ # $ % ^ & * + = ~ \`
+and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
+2,"456 Another St","Another Suburb","Simple description"`;
+    
+    console.log('🧪 Testing CSV parsing with multi-line description:');
+    const result = parseCsv(testCsv);
+    console.log('🧪 Parsed result:', result);
+    return result;
   };
 
   // Fetch presigned URLs for media files (same as Dashboard)
@@ -297,12 +426,41 @@ const PropertiesPage = () => {
           bathrooms: toNumber(r.bath),
           parking: toNumber(r.garage),
           media: r.media || r.media_url || '', // Store the raw media data
+          description: r.description || '', // Add description field
           images: [], // Will be populated with real images
           image: placeholder[idx % placeholder.length], // Fallback for old compatibility
           priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })(),
           propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
           priceCustomerVisibility: r.priceCustomerVisibility || '0'
         })).filter((p) => (p.address || p.suburb) && p.propertyCustomerVisibility === '1');
+        
+        // Test CSV parsing first
+        testCsvParsing();
+        
+        // Debug logging for descriptions
+        console.log('🔍 Properties with descriptions:', mapped.filter(p => p.description && p.description.trim()).length);
+        const sampleWithDescription = mapped.find(p => p.description && p.description.trim());
+        if (sampleWithDescription) {
+          const desc = sampleWithDescription.description;
+          console.log('🔍 Sample property with description:', {
+            address: sampleWithDescription.address,
+            description: desc.substring(0, 100) + '...',
+            hasNewlines: desc.includes('\n'),
+            hasTabs: desc.includes('\t'),
+            hasEmojis: /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(desc),
+            hasPunctuation: /[;:?/\\|<>{}[\]()!@#$%^&*+=~`]/g.test(desc),
+            hasCommas: desc.includes(','),
+            hasQuotes: desc.includes('"') || desc.includes("'"),
+            hasSpecialChars: /[^\w\s\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(desc),
+            length: desc.length,
+            characterTypes: {
+              letters: (desc.match(/[a-zA-Z]/g) || []).length,
+              numbers: (desc.match(/[0-9]/g) || []).length,
+              spaces: (desc.match(/\s/g) || []).length,
+              punctuation: (desc.match(/[^\w\s]/g) || []).length
+            }
+          });
+        }
         
         // Set initial properties without images
         setProperties(mapped);
@@ -381,8 +539,26 @@ const PropertiesPage = () => {
   }, [location.search]);
 
   const filtered = useMemo(() => {
-    const q = (searchText || '').toLowerCase();
-    let result = properties.filter((p) => `${p.address} ${p.suburb} ${p.propertyType}`.toLowerCase().includes(q));
+    const q = (searchText || '').toLowerCase().trim();
+    console.log('🔍 Searching with query:', q);
+    let result = properties.filter((p) => {
+      // Create search string that includes all property fields
+      const searchString = `${p.address || ''} ${p.suburb || ''} ${p.propertyType || ''} ${p.description || ''}`.toLowerCase();
+      
+      // Use includes for simple substring matching - this handles ALL characters
+      const matches = searchString.includes(q);
+      
+      if (q && matches) {
+        console.log('🔍 Found match:', { 
+          address: p.address, 
+          searchString: searchString.substring(0, 100) + '...',
+          query: q,
+          hasDescription: !!p.description
+        });
+      }
+      return matches;
+    });
+    console.log('🔍 Search results count:', result.length);
     const minP = priceMin ? Number(priceMin) : undefined;
     const maxP = priceMax ? Number(priceMax) : undefined;
     const minBed = bedMin ? Number(bedMin) : undefined;

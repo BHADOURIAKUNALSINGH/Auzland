@@ -130,6 +130,14 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
 
   if (!isOpen || !property) return null;
 
+  // Debug logging for property description
+  console.log('🔍 PropertyModal property:', {
+    address: property.address,
+    hasDescription: !!property.description,
+    descriptionLength: property.description?.length || 0,
+    descriptionPreview: property.description?.substring(0, 50) + '...' || 'No description'
+  });
+
   const currentImage = getCurrentImage();
   const hasImages = (property?.images && property.images.length > 0) || property?.image;
   const hasMultipleImages = property?.images && property.images.length > 1;
@@ -320,6 +328,14 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                   </div>
                 )}
               </div>
+
+              {/* Property Description - Inline */}
+              {property.description && (
+                <div className="property-description-inline">
+                  <h3>Description</h3>
+                  <p>{property.description}</p>
+                </div>
+              )}
 
               <div className="action-buttons">
                 <button className="btn btn-primary" onClick={handleContactAgent}>
