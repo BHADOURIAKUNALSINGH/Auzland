@@ -496,6 +496,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
           lot: r.lot || '',
           availability: r.availability || '',
           status: r.status || 'For Sale',
+          registrationConstructionStatus: r.registrationConstructionStatus || r.registration || r.constructionStatus || '',
           price: r.price || r.price_guide || 'Price on request',
           frontage: toNumber(r.frontage),
           landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
