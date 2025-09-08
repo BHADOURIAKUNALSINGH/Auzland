@@ -245,6 +245,35 @@ const PropertiesPage = () => {
     }
   }, []);
 
+  // Quickly fetch only the first image from media for fast card display
+  const getFirstImageFromMedia = useCallback(async (mediaString) => {
+    try {
+      let mediaKeys = [];
+      let s = mediaString?.toString() || '';
+      if (!s) return null;
+      if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
+      s = s.replace(/""/g, '"');
+      if (s.startsWith('[') && s.endsWith(']')) {
+        const inner = s.slice(1, -1);
+        if (inner.trim()) {
+          mediaKeys = inner.split(',').map(k => k.trim());
+        }
+      } else {
+        mediaKeys = JSON.parse(s);
+      }
+      if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) return null;
+      const firstKey = mediaKeys.find((k) => {
+        const ext = typeof k === 'string' ? k.toLowerCase().split('.').pop() : '';
+        return ['jpg','jpeg','png','webp','gif','bmp','svg'].includes(ext);
+      });
+      if (!firstKey) return null;
+      const url = await fetchPresignedUrl(firstKey);
+      return url || null;
+    } catch (_) {
+      return null;
+    }
+  }, []);
+
   const handlePropertyClick = (property) => {
     setSelectedProperty(property);
     setIsModalOpen(true);
@@ -310,7 +339,7 @@ const PropertiesPage = () => {
         // Load images asynchronously in batches to avoid overwhelming the API
         console.log(`🖼️ Loading images for ${mapped.length} properties...`);
         const loadImages = async () => {
-          const batchSize = 5; // Process 5 images at a time
+          const batchSize = 40; // Process 40 images at a time
           const results = [...mapped]; // Copy the array
           
           for (let i = 0; i < mapped.length; i += batchSize) {
@@ -433,6 +462,32 @@ const PropertiesPage = () => {
     setCurrentPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Fast-first thumbnail load for visible cards
+  useEffect(() => {
+    const loadFirstImages = async () => {
+      const updates = await Promise.all(
+        currentProperties.map(async (p) => {
+          if (!p || (p.images && p.images.length > 0)) return null;
+          const url = await getFirstImageFromMedia(p.media);
+          return url ? { id: p.id, url } : null;
+        })
+      );
+      const valid = updates.filter(Boolean);
+      if (valid.length > 0) {
+        setProperties(prev => prev.map(p => {
+          const u = valid.find(x => x.id === p.id);
+          if (u && (!p.images || p.images.length === 0)) {
+            return { ...p, images: [u.url] };
+          }
+          return p;
+        }));
+      }
+    };
+    if (currentProperties.length > 0) {
+      loadFirstImages();
+    }
+  }, [currentProperties, getFirstImageFromMedia]);
 
   const goToNextPage = () => {
     if (currentPage < totalPages) {
