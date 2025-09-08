@@ -4,6 +4,16 @@ import { NewUser } from '../types';
 import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
 
+// Disable noisy console logs in production (keep warnings/errors)
+if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
+  try {
+    // eslint-disable-next-line no-console
+    console.log = () => {};
+    // eslint-disable-next-line no-console
+    console.debug = () => {};
+  } catch (_) {}
+}
+
 const Dashboard: React.FC = () => {
   const { user, signOut, getAuthHeader } = useAuth();
 
@@ -108,6 +118,7 @@ const Dashboard: React.FC = () => {
     price: '',
     media: '',
     remark: '',
+    description: '',
     propertyCustomerVisibility: '1',
     priceCustomerVisibility: '0'
   });
@@ -497,18 +508,77 @@ const Dashboard: React.FC = () => {
   const parseCsv = (csv: string): Record<string, string>[] => {
     const rows: Record<string, string>[] = [];
     if (!csv) return rows;
-    const lines = csv.replace(/\r\n?/g, '\n').split('\n').filter(Boolean);
+    
+    console.log('🔍 Dashboard parsing CSV, length:', csv.length);
+    
+    // Use robust CSV parsing that handles quoted multi-line fields
+    const lines: string[] = [];
+    let currentLine = '';
+    let inQuotes = false;
+    let i = 0;
+    
+    while (i < csv.length) {
+      const char = csv[i];
+      const nextChar = csv[i + 1];
+      
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Escaped quote within quoted field
+          currentLine += '"';
+          i += 2; // Skip both quotes
+        } else {
+          // Toggle quote state
+          inQuotes = !inQuotes;
+          currentLine += char;
+          i++;
+        }
+      } else if (char === '\n' && !inQuotes) {
+        // End of line only if not in quotes
+        lines.push(currentLine);
+        currentLine = '';
+        i++;
+      } else if (char === '\r' && nextChar === '\n' && !inQuotes) {
+        // Handle \r\n line endings
+        lines.push(currentLine);
+        currentLine = '';
+        i += 2; // Skip both \r and \n
+      } else {
+        // Any other character (including newlines within quotes)
+        currentLine += char;
+        i++;
+      }
+    }
+    
+    // Add the last line if it exists
+    if (currentLine.trim()) {
+      lines.push(currentLine);
+    }
+    
+    console.log('🔍 Dashboard parsed lines count:', lines.length);
+    console.log('🔍 Dashboard first few lines:', lines.slice(0, 3));
+    
     if (lines.length === 0) return rows;
     const headers = splitCsvLine(lines[0]);
+    console.log('🔍 Dashboard headers:', headers);
+    
     for (let i = 1; i < lines.length; i += 1) {
       const values = splitCsvLine(lines[i]);
+      console.log(`🔍 Dashboard row ${i} values count:`, values.length, 'Expected:', headers.length);
+      
       if (values.length === 0) continue;
-      const record: Record<string, string> = {};
-      headers.forEach((h, idx) => {
-        record[h] = values[idx] ?? '';
-      });
-      rows.push(record);
+      if (values.length === headers.length) {
+        const record: Record<string, string> = {};
+        headers.forEach((h, idx) => {
+          record[h] = values[idx] ?? '';
+        });
+        rows.push(record);
+      } else {
+        console.warn(`⚠️ Dashboard row ${i} has ${values.length} values but expected ${headers.length}. Skipping row.`);
+        console.warn('Row content:', lines[i].substring(0, 200) + '...');
+      }
     }
+    
+    console.log('🔍 Dashboard final parsed rows count:', rows.length);
     return rows;
   };
 
@@ -516,22 +586,35 @@ const Dashboard: React.FC = () => {
     const result: string[] = [];
     let current = '';
     let inQuotes = false;
-    for (let i = 0; i < line.length; i += 1) {
+    let i = 0;
+    
+    while (i < line.length) {
       const char = line[i];
+      const nextChar = line[i + 1];
+      
       if (char === '"') {
-        if (inQuotes && line[i + 1] === '"') { // escaped quote
+        if (inQuotes && nextChar === '"') {
+          // Escaped quote within quoted field
           current += '"';
-          i += 1;
+          i += 2; // Skip both quotes
         } else {
+          // Toggle quote state
           inQuotes = !inQuotes;
+          i++;
         }
       } else if (char === ',' && !inQuotes) {
+        // Field separator
         result.push(current);
         current = '';
+        i++;
       } else {
+        // Regular character (including newlines, tabs, emojis, punctuation, etc.)
         current += char;
+        i++;
       }
     }
+    
+    // Add the last field
     result.push(current);
     return result.map((s) => s.trim());
   };
@@ -558,6 +641,32 @@ const Dashboard: React.FC = () => {
       const csv: string = typeof data === 'string' ? data : (data.csv ?? '');
       if (data && data.versionId) setListingsVersionId(data.versionId);
       const rows = parseCsv(csv);
+      console.log('📊 Loaded CSV rows:', rows.length);
+      console.log('📊 Sample row with description:', rows.find(r => r.description) || 'No description found');
+      // Helper: detect valid JSON array string of strings
+      const isJsonStringArray = (val: string) => {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) && parsed.every((x) => typeof x === 'string');
+        } catch {
+          return false;
+        }
+      };
+
+      // Helper: convert legacy bracketed list [a,b,c] -> JSON array ["a","b","c"]
+      // PRESERVE item contents exactly; do not trim or mutate names
+      const convertLegacyBracketList = (val: string): string | null => {
+        if (typeof val !== 'string') return null;
+        const s = val;
+        if (s.startsWith('[') && s.endsWith(']') && !isJsonStringArray(s)) {
+          const inner = s.slice(1, -1);
+          if (inner === '') return '[]';
+          const items = inner.split(','); // no trimming to preserve names exactly
+          return JSON.stringify(items);
+        }
+        return null;
+      };
+
       const mapped = rows.map((r) => ({
         id: r.id,
         propertyType: r.propertyType || r.property_type || '',
@@ -575,12 +684,42 @@ const Dashboard: React.FC = () => {
         price: toNumber(r.price) || toNumber(r.price_guide),
         media: r.media || r.media_url || '',
         remark: r.remark || '',
+        description: r.description || '',
         updatedAt: r.updatedAt || r.updated_at || '',
         propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
         priceCustomerVisibility: r.priceCustomerVisibility || '0',
       })).filter((p) => p.lot || p.address);
-      setProperties(mapped);
+      console.log('📊 Mapped properties with descriptions:', mapped.filter(p => p.description).length);
+      console.log('📊 Sample mapped property with description:', mapped.find(p => p.description) || 'No mapped property with description');
+
+      // Normalize legacy media format to JSON arrays without altering item content
+      let changed = false;
+      const normalized = mapped.map((p) => {
+        if (p.media && typeof p.media === 'string') {
+          if (!isJsonStringArray(p.media)) {
+            const converted = convertLegacyBracketList(p.media);
+            if (converted !== null) {
+              changed = true;
+              return { ...p, media: converted };
+            }
+          }
+        }
+        return p;
+      });
+
+      setProperties(normalized);
       setMessage(null);
+
+      // Persist normalization back to S3 once
+      if (changed) {
+        console.log('🔄 Normalized legacy media format -> saving back to S3');
+        try {
+          await autoSaveToS3(normalized);
+          console.log('✅ Normalized media saved');
+        } catch (e) {
+          console.warn('⚠️ Failed to persist normalized media:', e);
+        }
+      }
     } catch (err: any) {
       console.error('Error loading listings from API:', err);
       setMessage({ type: 'error', text: err.message || 'Failed to load properties' });
@@ -606,6 +745,7 @@ const Dashboard: React.FC = () => {
     'price',
     'media',
     'remark',
+    'description',
     'updated_at',
     'propertyCustomerVisibility',
     'priceCustomerVisibility',
@@ -614,7 +754,14 @@ const Dashboard: React.FC = () => {
   const csvEscape = (value: any): string => {
     if (value === null || value === undefined) return '';
     const str = String(value);
-    if (/[",\n]/.test(str)) return '"' + str.replace(/"/g, '""') + '"';
+    
+    // Check if the string contains any characters that require CSV escaping
+    // This includes: quotes, commas, newlines, carriage returns, tabs, and other control characters
+    // We escape ANY string that contains quotes, commas, or newlines to be safe
+    if (/[",\n\r\t]/.test(str)) {
+      // Escape quotes by doubling them and wrap in quotes
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
     return str;
   };
 
@@ -639,10 +786,17 @@ const Dashboard: React.FC = () => {
         p.price ?? '',
         p.media ?? '',
         p.remark ?? '',
+        p.description ?? '',
         p.updatedAt ?? '',
         p.propertyCustomerVisibility ?? '1',
         p.priceCustomerVisibility ?? '0',
       ].map(csvEscape);
+      
+      // Debug logging for description field
+      if (p.description && p.description.length > 0) {
+        console.log(`📝 CSV Row for ${p.address}: description = "${p.description}"`);
+      }
+      
       lines.push(row.join(','));
     }
     return lines.join('\n') + '\n';
@@ -656,6 +810,8 @@ const Dashboard: React.FC = () => {
 
   // Property editing handlers
   const handleEditProperty = (property: any) => {
+    console.log('🔍 Editing property:', property);
+    console.log('📝 Property description:', property.description);
     setEditingProperty(property);
     setPropertyForm({
       propertyType: property.propertyType || property.typeOfProperty || '',
@@ -673,6 +829,7 @@ const Dashboard: React.FC = () => {
       price: property.price || property.priceGuide || '',
       media: property.media || '',
       remark: property.remark || '',
+      description: property.description || '',
       propertyCustomerVisibility: property.propertyCustomerVisibility || '1',
       priceCustomerVisibility: property.priceCustomerVisibility || '0'
     });
@@ -710,6 +867,7 @@ const Dashboard: React.FC = () => {
       price: '',
       media: '',
       remark: '',
+      description: '',
       propertyCustomerVisibility: '1',
       priceCustomerVisibility: '0'
     });
@@ -717,7 +875,12 @@ const Dashboard: React.FC = () => {
   };
 
   const handlePropertyFormChange = (field: string, value: string) => {
-    setPropertyForm((prev: any) => ({ ...prev, [field]: value }));
+    console.log(`📝 Form change: ${field} = "${value}"`);
+    setPropertyForm((prev: any) => {
+      const updated = { ...prev, [field]: value };
+      console.log('📝 Updated form state:', updated);
+      return updated;
+    });
   };
 
   const handlePropertyFormSubmit = async (e: React.FormEvent) => {
@@ -754,6 +917,9 @@ const Dashboard: React.FC = () => {
         media: '',
         updatedAt: new Date().toISOString().split('T')[0]
       };
+      
+      console.log('💾 Saving property data:', propertyData);
+      console.log('📝 Description being saved:', propertyData.description);
 
       if (editingProperty) {
         // Update existing property - preserve existing media and add new media
@@ -831,6 +997,7 @@ const Dashboard: React.FC = () => {
         price: '',
         media: '',
         remark: '',
+        description: '',
         propertyCustomerVisibility: '1',
         priceCustomerVisibility: '0'
       });
@@ -2409,6 +2576,7 @@ const Dashboard: React.FC = () => {
           price: (row.price || row.price_guide || row.Price || row['Price Guide'] || row['PRICE'] || row['price'] || '').replace(/^\$/, '').replace(/[,\s]/g, ''),
           media: row.media || row.media_url || row.Media || row.MEDIA || '',
           remark: row.remark || row.Remark || row.REMARK || '',
+          description: row.description || row.Description || row.DESCRIPTION || '',
           updatedAt: new Date().toISOString().split('T')[0],
           propertyCustomerVisibility: row.propertyCustomerVisibility || row['Property Customer Visibility'] || row['property customer visibility'] || '1',
           priceCustomerVisibility: row.priceCustomerVisibility || row['Price Customer Visibility'] || row['price customer visibility'] || '0'
@@ -3107,6 +3275,17 @@ const Dashboard: React.FC = () => {
                   value={propertyForm.remark}
                   onChange={(e) => handlePropertyFormChange('remark', e.target.value)}
                   placeholder="Additional remarks"
+                ></textarea>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">Description</label>
+                <textarea
+                  id="description"
+                  value={propertyForm.description}
+                  onChange={(e) => handlePropertyFormChange('description', e.target.value)}
+                  placeholder="Property description for the public listing"
+                  rows={4}
                 ></textarea>
               </div>
 

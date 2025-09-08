@@ -434,6 +434,29 @@
   white-space: nowrap;
 }
 
+/* Special styling for availability and status fields */
+.feature-item-horizontal.availability-status {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: 1px solid #b91c1c;
+  font-weight: 700;
+}
+
+.feature-item-horizontal.availability-status svg {
+  stroke: white;
+}
+
+.feature-item-horizontal.property-status {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: 1px solid #b91c1c;
+  font-weight: 700;
+}
+
+.feature-item-horizontal.property-status svg {
+  stroke: white;
+}
+
 .area-feature {
   display: flex;
   align-items: center;
@@ -784,6 +807,46 @@
   
   .modal-close-btn {
     border: 2px solid #000;
+  }
+}
+
+/* Property Description Styles - Inline */
+.property-description-inline {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+
+.property-description-inline h3 {
+  margin: 0 0 0.75rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+.property-description-inline p {
+  margin: 0;
+  color: #555;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  white-space: pre-wrap; /* Preserve whitespace, wrap text, handle all whitespace characters */
+  word-wrap: break-word; /* Break long words if needed */
+  overflow-wrap: break-word; /* Modern property for word wrapping */
+}
+
+/* Responsive Design for Description */
+@media (max-width: 768px) {
+  .property-description-inline {
+    margin: 1rem 0;
+  }
+
+  .property-description-inline h3 {
+    font-size: 1rem;
+  }
+
+  .property-description-inline p {
+    font-size: 0.9rem;
   }
 }
 
