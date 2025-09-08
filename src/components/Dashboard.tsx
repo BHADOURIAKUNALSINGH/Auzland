@@ -4,6 +4,16 @@ import { NewUser } from '../types';
 import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
 
+// Disable noisy console logs in production (keep warnings/errors)
+if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
+  try {
+    // eslint-disable-next-line no-console
+    console.log = () => {};
+    // eslint-disable-next-line no-console
+    console.debug = () => {};
+  } catch (_) {}
+}
+
 const Dashboard: React.FC = () => {
   const { user, signOut, getAuthHeader } = useAuth();
 

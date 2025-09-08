@@ -5,6 +5,16 @@ import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 
+// Disable noisy console logs in production (keep warnings/errors)
+if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
+  try {
+    // eslint-disable-next-line no-console
+    console.log = () => {};
+    // eslint-disable-next-line no-console
+    console.debug = () => {};
+  } catch (_) {}
+}
+
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
 const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
 

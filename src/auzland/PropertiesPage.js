@@ -4,8 +4,19 @@ import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './PropertiesPage.css';
 
+// Disable noisy console logs in production (keep warnings/errors)
+if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
+  try {
+    // eslint-disable-next-line no-console
+    console.log = () => {};
+    // eslint-disable-next-line no-console
+    console.debug = () => {};
+  } catch (_) {}
+}
+
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
 const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
+const USE_SIMPLE_BATCH_IMAGE_LOADING = true; // revert to simple batched loading
 
 const PropertiesPage = () => {
   const location = useLocation();
@@ -394,6 +405,35 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     }
   }, []);
 
+  // Quickly fetch only the first image from media for fast card display
+  const getFirstImageFromMedia = useCallback(async (mediaString) => {
+    try {
+      let mediaKeys = [];
+      let s = mediaString?.toString() || '';
+      if (!s) return null;
+      if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
+      s = s.replace(/""/g, '"');
+      if (s.startsWith('[') && s.endsWith(']')) {
+        const inner = s.slice(1, -1);
+        if (inner.trim()) {
+          mediaKeys = inner.split(',').map(k => k.trim());
+        }
+      } else {
+        mediaKeys = JSON.parse(s);
+      }
+      if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) return null;
+      const firstKey = mediaKeys.find((k) => {
+        const ext = typeof k === 'string' ? k.toLowerCase().split('.').pop() : '';
+        return ['jpg','jpeg','png','webp','gif','bmp','svg'].includes(ext);
+      });
+      if (!firstKey) return null;
+      const url = await fetchPresignedUrl(firstKey);
+      return url || null;
+    } catch (_) {
+      return null;
+    }
+  }, []);
+
   const handlePropertyClick = async (property) => {
     // Pause any background loads
     loadVersionRef.current++;
@@ -472,40 +512,35 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
           priceCustomerVisibility: r.priceCustomerVisibility || '0'
         })).filter((p) => (p.address || p.suburb) && p.propertyCustomerVisibility === '1');
         
-        // Test CSV parsing first
-        testCsvParsing();
-        
-        // Debug logging for descriptions
-        console.log('🔍 Properties with descriptions:', mapped.filter(p => p.description && p.description.trim()).length);
-        const sampleWithDescription = mapped.find(p => p.description && p.description.trim());
-        if (sampleWithDescription) {
-          const desc = sampleWithDescription.description;
-          console.log('🔍 Sample property with description:', {
-            address: sampleWithDescription.address,
-            description: desc.substring(0, 100) + '...',
-            hasNewlines: desc.includes('\n'),
-            hasTabs: desc.includes('\t'),
-            hasEmojis: /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(desc),
-            hasPunctuation: /[;:?/\\|<>{}[\]()!@#$%^&*+=~`]/g.test(desc),
-            hasCommas: desc.includes(','),
-            hasQuotes: desc.includes('"') || desc.includes("'"),
-            hasSpecialChars: /[^\w\s\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(desc),
-            length: desc.length,
-            characterTypes: {
-              letters: (desc.match(/[a-zA-Z]/g) || []).length,
-              numbers: (desc.match(/[0-9]/g) || []).length,
-              spaces: (desc.match(/\s/g) || []).length,
-              punctuation: (desc.match(/[^\w\s]/g) || []).length
-            }
-          });
-        }
-        
         // Set initial properties without images
         setProperties(mapped);
-        
-        // Kick off prioritized image loading after initial set
-        setLoadingImages(true);
-        setTimeout(() => setLoadingImages(false), 0);
+
+        // Simple batched image loading for ALL properties (batch size 50)
+        if (USE_SIMPLE_BATCH_IMAGE_LOADING) {
+          const loadImages = async () => {
+            const batchSize = 50;
+            const results = [...mapped];
+            for (let i = 0; i < mapped.length; i += batchSize) {
+              const batch = mapped.slice(i, i + batchSize);
+              await Promise.all(
+                batch.map(async (property, batchIndex) => {
+                  const actualIndex = i + batchIndex;
+                  try {
+                    const imageUrls = await getAllImagesFromMedia(property.media);
+                    results[actualIndex] = { ...property, images: imageUrls };
+                  } catch (_) {
+                    results[actualIndex] = { ...property, images: [] };
+                  }
+                })
+              );
+              setProperties([...results]);
+              if (i + batchSize < mapped.length) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+              }
+            }
+          };
+          loadImages();
+        }
       } catch (e) {
         setError(e?.message || 'Failed to load properties');
       } finally {
@@ -615,6 +650,10 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
 
   // Prioritize loading images for currently visible properties, then background the rest
   useEffect(() => {
+    if (USE_SIMPLE_BATCH_IMAGE_LOADING) {
+      // Using simple batched loader; skip prioritized loader
+      return;
+    }
     if (properties.length === 0) return;
     const visibleIds = new Set(currentProperties.map(p => p.id));
 
@@ -622,8 +661,23 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     const myVersion = ++loadVersionRef.current;
 
     const load = async () => {
-      // Phase 1: strictly load only visible properties first
+      // Phase 1a: set first image on visible cards immediately error?
       const visibleList = properties.filter(p => visibleIds.has(p.id));
+      const firstImages = await Promise.all(
+        visibleList.map(async (p) => ({ id: p.id, url: await getFirstImageFromMedia(p.media) }))
+      );
+      if (myVersion !== loadVersionRef.current) return;
+      if (firstImages.some(fi => fi.url)) {
+        setProperties(prev => prev.map(p => {
+          const fi = firstImages.find(x => x.id === p.id);
+          if (fi && fi.url && (!p.images || p.images.length === 0)) {
+            return { ...p, images: [fi.url] };
+          }
+          return p;
+        }));
+      }
+
+      // Phase 1b: then load full image lists for visible properties
       const visibleResults = await loadImagesForProperties(visibleList);
       if (myVersion !== loadVersionRef.current) return; // canceled by newer run
       if (visibleResults.size > 0) {
