@@ -8,30 +8,25 @@
 }
 
 .special-banner {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  color: #1e293b;
+  background: linear-gradient(135deg, var(--secondary-color) 0%, #374151 100%);
+  color: white;
   padding: 2rem;
   border-radius: 1rem;
   margin-bottom: 3rem;
   text-align: center;
-  border: 2px solid #dc2626;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .banner-content h3 {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #dc2626;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: var(--accent-color);
 }
 
 .banner-content p {
   font-size: 1.125rem;
   margin-bottom: 1.5rem;
-  color: #475569;
-  font-weight: 500;
+  opacity: 0.9;
 }
 
 /* Vertical Properties Container */
@@ -412,7 +407,21 @@
     padding: 0 1rem;
   }
   
+  .special-banner {
+    padding: 1.5rem;
+    margin: 0 1rem 2rem 1rem;
+    border-radius: 0.75rem;
+  }
   
+  .banner-content h3 {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  
+  .banner-content p {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
   
   .section-title {
     font-size: 1.75rem;
@@ -498,7 +507,19 @@
     padding: 0 0.5rem;
   }
   
+  .special-banner {
+    padding: 1rem;
+    margin: 0 0.5rem 1.5rem 0.5rem;
+    border-radius: 0.5rem;
+  }
   
+  .banner-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .banner-content p {
+    font-size: 0.9rem;
+  }
   
   .section-title {
     font-size: 1.5rem;
@@ -554,6 +575,13 @@
     font-size: 1.3rem;
   }
   
+  .banner-content h3 {
+    font-size: 1rem;
+  }
+  
+  .banner-content p {
+    font-size: 0.85rem;
+  }
   
   .service-card {
     padding: 1rem;

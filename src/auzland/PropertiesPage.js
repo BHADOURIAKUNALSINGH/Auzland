@@ -24,8 +24,6 @@ const PropertiesPage = () => {
   const [suburb, setSuburb] = useState('');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [propertiesPerPage] = useState(6); // Show 6 properties per page
 
   const parseCsv = (csv) => {
     const rows = [];
@@ -186,19 +184,15 @@ const PropertiesPage = () => {
         }
         
         // Approach 2: Try to extract file paths with regex
-        // Robust regex that handles ANY special characters in filenames
-        // Uses a more permissive approach: match "media/" followed by anything until a valid image extension
-        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+        const mediaPathRegex = /media\/[^"'\s,\]]+\.(jpg|jpeg|png|gif|webp|bmp|svg)/gi;
         const matches = mediaString.match(mediaPathRegex);
         
         if (matches && matches.length > 0) {
           console.log('🔄 Found paths with regex:', matches);
           const imagePromises = matches.map(async (imagePath) => {
             try {
-              // Clean up any trailing spaces or characters
-              const cleanImagePath = imagePath.trim();
-              console.log('✅ Using image from regex:', cleanImagePath);
-              const presignedUrl = await fetchPresignedUrl(cleanImagePath);
+              console.log('✅ Using image from regex:', imagePath);
+              const presignedUrl = await fetchPresignedUrl(imagePath);
               return presignedUrl;
             } catch (error) {
               console.error(`❌ Failed to get presigned URL for ${imagePath}:`, error);
@@ -230,7 +224,6 @@ const PropertiesPage = () => {
   };
 
 
-
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
@@ -260,23 +253,17 @@ const PropertiesPage = () => {
           address: r.address || '',
           suburb: r.suburb || '',
           propertyType: r.propertyType || r.property_type || '',
-          lot: r.lot || '',
-          availability: r.availability || '',
-          status: r.status || 'For Sale',
-          price: r.price || r.price_guide || 'Price on request',
-          frontage: toNumber(r.frontage),
-          landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
-          buildSize: toNumber(r.buildSize) || toNumber(r.build_size),
           bedrooms: toNumber(r.bed),
           bathrooms: toNumber(r.bath),
           parking: toNumber(r.garage),
+          landSize: toNumber(r.landSize) || toNumber(r.land_area_sqm),
           media: r.media || r.media_url || '', // Store the raw media data
           images: [], // Will be populated with real images
           image: placeholder[idx % placeholder.length], // Fallback for old compatibility
-          priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })(),
-          propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
-          priceCustomerVisibility: r.priceCustomerVisibility || '0'
-        })).filter((p) => (p.address || p.suburb) && p.propertyCustomerVisibility === '1');
+          price: '',
+          status: r.status || 'For Sale',
+          priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })()
+        })).filter((p) => p.address || p.suburb);
         
         // Set initial properties without images
         setProperties(mapped);
@@ -371,37 +358,6 @@ const PropertiesPage = () => {
     });
     return result;
   }, [properties, searchText, priceMin, priceMax, bedMin, bathMin, garageMin, typeFilter, suburb]);
-
-  // Pagination logic
-  const totalPages = Math.ceil(filtered.length / propertiesPerPage);
-  const startIndex = (currentPage - 1) * propertiesPerPage;
-  const endIndex = startIndex + propertiesPerPage;
-  const currentProperties = filtered.slice(startIndex, endIndex);
-
-  // Pagination functions
-  const goToPage = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  // Reset to page 1 when filtered results change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filtered.length]);
 
   return (
     <div className="properties-page">
@@ -500,79 +456,18 @@ const PropertiesPage = () => {
           {isLoading && <p>Loading properties...</p>}
           {error && !isLoading && <p style={{ color: 'red' }}>{error}</p>}
 
-          {!isLoading && !error && filtered.length > 0 && (
+          {!isLoading && !error && (
             <>
-              <div className="results-info">
-                <p>Showing {startIndex + 1} - {Math.min(endIndex, filtered.length)} of {filtered.length} properties</p>
-              </div>
-              
-              <div className="properties-vertical-container">
-                {currentProperties.map((property) => (
-                  <div key={property.id} className="vertical-property-card" onClick={() => handlePropertyClick(property)}>
-                    <PropertyCard property={property} />
+          <div className="results-info">
+                <p>Showing {filtered.length} properties</p>
+          </div>
+          <div className="properties-grid">
+                {filtered.map((p) => (
+                  <div key={p.id} onClick={() => handlePropertyClick(p)} style={{ cursor: 'pointer' }}>
+                    <PropertyCard property={p} />
                   </div>
-                ))}
-              </div>
-
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="pagination-container">
-                  <div className="pagination">
-                    <button 
-                      className="pagination-btn prev-btn" 
-                      onClick={goToPreviousPage}
-                      disabled={currentPage === 1}
-                    >
-                      ← Previous
-                    </button>
-                    
-                    <div className="page-numbers">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
-                          <button
-                            key={pageNum}
-                            className={`page-number ${currentPage === pageNum ? 'active' : ''}`}
-                            onClick={() => goToPage(pageNum)}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      })}
-                      
-                      {totalPages > 5 && currentPage < totalPages - 2 && (
-                        <>
-                          <span className="ellipsis">...</span>
-                          <button
-                            className="page-number"
-                            onClick={() => goToPage(totalPages)}
-                          >
-                            {totalPages}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                    
-                    <button 
-                      className="pagination-btn next-btn" 
-                      onClick={goToNextPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next →
-                    </button>
-                  </div>
-                </div>
-              )}
+            ))}
+          </div>
             </>
           )}
 

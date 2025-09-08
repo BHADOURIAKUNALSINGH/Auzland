@@ -316,9 +316,8 @@ const HomePage = () => {
         console.log('🏠 CSV data length:', csv.length);
         const rows = parseCsv(csv);
         
-        // Filter for visible properties and randomly select 6 from the dataset
-        const visibleRows = rows.filter(r => (r.propertyCustomerVisibility || '1') === '1');
-        const shuffledRows = [...visibleRows].sort(() => Math.random() - 0.5);
+        // Randomly select 6 properties from the dataset
+        const shuffledRows = [...rows].sort(() => Math.random() - 0.5);
         const mapped = shuffledRows.slice(0, 6).map((r, idx) => {
           const property = {
             id: r.id || `property-${idx}`,
@@ -337,9 +336,7 @@ const HomePage = () => {
               const raw = (r.price || '').toString(); 
               const n = Number(raw.replace(/[^0-9]/g, '')); 
               return Number.isFinite(n) ? n : 0; 
-            })(),
-            propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
-            priceCustomerVisibility: r.priceCustomerVisibility || '0'
+            })()
           };
           console.log(`🏠 Mapped property ${idx}:`, property);
           return property;
@@ -429,9 +426,9 @@ const HomePage = () => {
           {/* Special Banner */}
           <div className="special-banner">
             <div className="banner-content">
-              <h3>EXCLUSIVE INVESTMENT OPPORTUNITY</h3>
-              <p>Prime Development Site With DA Approval - Perfect for Modern Residential Development</p>
-              <button className="btn btn-primary">View Details</button>
+              <h3>CALLING ALL INVESTORS</h3>
+              <p>Caravan Park With DA Approved For Conversion Into Modern Village</p>
+              <button className="btn btn-primary">Learn More</button>
             </div>
           </div>
           
