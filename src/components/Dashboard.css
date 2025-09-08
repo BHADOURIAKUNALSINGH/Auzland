@@ -2918,7 +2918,7 @@ aside.filters-sidebar,
   width: 95vw;
   height: auto;
   max-width: 95vw;
-  max-height: calc(100vh - 120px); /* Dynamic height based on viewport minus header space */
+  max-height: calc(100vh - 80px); /* More space for the modal */
   display: flex;
   flex-direction: column;
   background: #0f1720;
@@ -3077,10 +3077,10 @@ aside.filters-sidebar,
   background: #0f1720;
   width: 100%;
   min-height: 0; /* Allow content to shrink */
-  overflow: hidden;
+  overflow: auto; /* Allow scrolling if needed instead of hiding */
   /* Dynamic height that adapts to available space */
   height: auto;
-  max-height: calc(100vh - 280px); /* Account for header + footer + padding dynamically */
+  max-height: calc(100vh - 200px); /* Increased available space by reducing padding */
 }
 
 .media-navigation {
@@ -3148,7 +3148,7 @@ aside.filters-sidebar,
   min-height: 0;
   /* Dynamic height that adapts to available column space */
   height: 100%;
-  max-height: calc(100vh - 320px); /* Account for header + footer + padding dynamically */
+  max-height: calc(100vh - 240px); /* Increased available space */
 }
 
 .media-content {
@@ -3268,7 +3268,7 @@ aside.filters-sidebar,
     width: 98vw;
     height: auto;
     max-width: 98vw;
-    max-height: calc(100vh - 80px); /* Dynamic height for mobile */
+    max-height: calc(100vh - 40px); /* More space for mobile viewer */
   }
   
   .media-navigation {
@@ -3288,16 +3288,16 @@ aside.filters-sidebar,
   }
   
   .media-viewer-content {
-    max-height: calc(100vh - 240px); /* Adjusted for mobile */
+    max-height: calc(100vh - 160px); /* More space on mobile */
   }
   
   .media-item-display {
-    max-height: calc(100vh - 280px); /* More space for mobile footer */
+    max-height: calc(100vh - 200px); /* More space for mobile */
   }
   
   .media-image,
   .media-video {
-    max-height: calc(100vh - 280px);
+    max-height: calc(100vh - 200px); /* More space for images on mobile */
   }
 
   .media-viewer-footer {

@@ -7,6 +7,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Only show real property images - no stock/fallback images
   const getCurrentImage = () => {
@@ -27,6 +28,9 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
       setImageError(true);
     }
   };
+
+  const openFullscreen = () => setIsFullscreen(true);
+  const closeFullscreen = () => setIsFullscreen(false);
 
   const nextImage = useCallback(() => {
     const images = property?.images || (property?.image ? [property.image] : []);
@@ -51,6 +55,20 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
     setImageError(false);
     setImageLoading(true);
   }, [property]);
+
+  // Lock background scroll when modal is open (especially on mobile)
+  useEffect(() => {
+    if (isOpen) {
+      const prevOverflow = document.body.style.overflow;
+      const prevTouch = document.body.style.touchAction;
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        document.body.style.touchAction = prevTouch;
+      };
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -96,7 +114,29 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
     navigate('/contact'); // Navigate to contact page
   };
 
+  // Price formatter (AUD) similar to card component
+  const formatPrice = (priceStr) => {
+    if (!priceStr || priceStr === 'Price on request') return priceStr;
+    const numbers = priceStr.toString().replace(/[^0-9]/g, '');
+    const numPrice = parseInt(numbers);
+    if (Number.isNaN(numPrice)) return priceStr;
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numPrice);
+  };
+
   if (!isOpen || !property) return null;
+
+  // Debug logging for property description
+  console.log('🔍 PropertyModal property:', {
+    address: property.address,
+    hasDescription: !!property.description,
+    descriptionLength: property.description?.length || 0,
+    descriptionPreview: property.description?.substring(0, 50) + '...' || 'No description'
+  });
 
   const currentImage = getCurrentImage();
   const hasImages = (property?.images && property.images.length > 0) || property?.image;
@@ -152,6 +192,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                   onError={handleImageError}
                   className="modal-property-image"
                   style={{ display: imageLoading ? 'none' : 'block' }}
+                  onClick={openFullscreen}
                 />
               )}
               
@@ -171,12 +212,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                 </>
               )}
               
-              {/* Image counter */}
-              {hasMultipleImages && !imageLoading && (
-                <div className="slideshow-counter">
-                  {currentImageIndex + 1} / {displayImages.length}
-                </div>
-              )}
+              {/* Image counter removed per design */}
               
               
             </div>
@@ -188,56 +224,128 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                 <h2 className="property-address">{property.address}</h2>
                 <p className="property-suburb">{property.suburb}</p>
                 <div className="property-type">
-                  <span className="type-badge">{property.propertyType === 'Home and Land Packages' ? 'Home & Land' : property.propertyType}</span>
+                  <span className="type-badge">{property.propertyType === 'Home and Land Packages' ? 'HOME & LAND' : property.propertyType?.toUpperCase()}</span>
                 </div>
+                {property.priceCustomerVisibility === '1' && property.price && (
+                  <div className="property-price">{formatPrice(property.price)}</div>
+                )}
               </div>
 
-              <div className="property-features">
-                {property.bedrooms === 0 && property.bathrooms === 0 && property.parking === 0 && property.landSize ? (
-                  <div className="area-feature">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 7V5C3 3.89543 3.89543 3 5 3H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M7 21H5C3.89543 21 3 20.1046 3 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M21 17V19C21 20.1046 20.1046 21 19 21H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M17 3H19C20.1046 3 21 3.89543 21 5V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              {/* Property Features - Show all available info horizontally */}
+              <div className="property-features-horizontal">
+                {/* Lot Number */}
+                {property.lot && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 3H21V21H3V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 9H15V15H9V9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span className="feature-text">{property.landSize} sqm</span>
+                    <span>Lot {property.lot}</span>
                   </div>
-                ) : (
-                  <div className="features-grid">
-                    <div className="feature-item">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 7H17V15H7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M4 15H20V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M4 15V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M20 15V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="feature-text">{property.bedrooms} Bedrooms</span>
-                    </div>
-                    
-                    <div className="feature-item">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 6L9 3C9 2.44772 9.44772 2 10 2H14C14.5523 2 15 2.44772 15 3V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M6 6H18C19.1046 6 20 6.89543 20 8V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V8C4 6.89543 4.89543 6 6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 12H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 12V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="feature-text">{property.bathrooms} Bathrooms</span>
-                    </div>
-                    
-                    <div className="feature-item">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 17H4C3.44772 17 3 16.5523 3 16V10C3 8.89543 3.89543 8 5 8H19C20.1046 8 21 8.89543 21 10V16C21 16.5523 20.5523 17 20 17H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <circle cx="7" cy="17" r="2" stroke="currentColor" strokeWidth="2"/>
-                        <circle cx="17" cy="17" r="2" stroke="currentColor" strokeWidth="2"/>
-                        <path d="M5 8L6 6H18L19 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="feature-text">{property.parking} Parking</span>
-                    </div>
+                )}
+
+                {/* Availability Status */}
+                {property.availability && (
+                  <div className="feature-item-horizontal availability-status">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>{property.availability}</span>
+                  </div>
+                )}
+
+                {/* Property Status */}
+                {property.status && (
+                  <div className="feature-item-horizontal property-status">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    <span>{property.status}</span>
+                  </div>
+                )}
+
+                {/* Registration / Construction Status */}
+                {property.registrationConstructionStatus && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    <span>{property.registrationConstructionStatus}</span>
+                  </div>
+                )}
+
+                {typeof property.frontage === 'number' && property.frontage > 0 && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 12h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M7 9v6M17 9v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    <span>{property.frontage} m frontage</span>
+                  </div>
+                )}
+                {property.landSize && (
+                  <div className="feature-item-horizontal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 3H21V21H3V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 9H15V15H9V9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>{property.landSize} sqm</span>
+                  </div>
+                )}
+                {typeof property.buildSize === 'number' && property.buildSize > 0 && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4 10l8-6 8 6v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M10 20v-6h4v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>{property.buildSize} sqm build</span>
+                  </div>
+                )}
+                
+                {property.bedrooms > 0 && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="14" width="18" height="6" rx="1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="3" y="10" width="8" height="3" rx="1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>{property.bedrooms} Bedrooms</span>
+                  </div>
+                )}
+                
+                {property.bathrooms > 0 && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="12" width="18" height="5" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 12V9a2 2 0 0 1 2-2h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 17h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>{property.bathrooms} Bathrooms</span>
+                  </div>
+                )}
+                
+                {property.parking > 0 && (
+                  <div className="feature-item-horizontal">
+                    <svg className="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 13l3-4h8l3 3h4v5H3v-4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <circle cx="7" cy="17" r="2" stroke="currentColor" strokeWidth="2"/>
+                      <circle cx="17" cy="17" r="2" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    <span>{property.parking} Parking</span>
                   </div>
                 )}
               </div>
+
+              {/* Property Description - Inline */}
+              {property.description && (
+                <div className="property-description-inline">
+                  <h3>Description</h3>
+                  <p>{property.description}</p>
+                </div>
+              )}
 
               <div className="action-buttons">
                 <button className="btn btn-primary" onClick={handleContactAgent}>
@@ -254,7 +362,7 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                     <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Schedule Viewing
+                  Schedule Inspection
                 </button>
               </div>
             </div>
@@ -304,6 +412,36 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
           </div>
         </div>
       </div>
+
+      {isFullscreen && (
+        <div className="property-modal-overlay" onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}>
+          <div className="property-modal" style={{ background: 'transparent', boxShadow: 'none' }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={currentImage} alt={property.address} style={{ width: '100%', height: 'auto', maxHeight: '90vh', objectFit: 'contain', background: 'transparent', borderRadius: 0 }} />
+              {hasMultipleImages && (
+                <>
+                  <button className="slideshow-nav-btn prev-btn" onClick={prevImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button className="slideshow-nav-btn next-btn" onClick={nextImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {/* Counter removed in fullscreen as well */}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,22 +7,39 @@ const Hero = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     propertyType: '',
-    lot: '',
-    address: '',
     suburb: '',
-    availability: '',
-    status: '',
-    price: '',
-    landSize: '',
-    buildSize: ''
+    priceMin: '',
+    priceMax: '',
+    landMin: '',
+    landMax: '',
+    frontageMin: '',
+    frontageMax: '',
+    buildMin: '',
+    buildMax: '',
+    bedMin: '',
+    bathMin: '',
+    garageMin: ''
   });
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
     const q = searchQuery.trim();
-    const qs = q ? `?q=${encodeURIComponent(q)}` : '';
-    navigate(`/buy${qs}`);
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (filters.propertyType) params.set('type', filters.propertyType);
+    if (filters.suburb) params.set('suburb', filters.suburb);
+    if (filters.priceMin) params.set('priceMin', filters.priceMin);
+    if (filters.priceMax) params.set('priceMax', filters.priceMax);
+    if (filters.frontageMin) params.set('frontageMin', filters.frontageMin);
+    if (filters.frontageMax) params.set('frontageMax', filters.frontageMax);
+    if (filters.buildMin) params.set('buildMin', filters.buildMin);
+    if (filters.buildMax) params.set('buildMax', filters.buildMax);
+    if (filters.bedMin) params.set('bedMin', filters.bedMin);
+    if (filters.bathMin) params.set('bathMin', filters.bathMin);
+    if (filters.garageMin) params.set('garageMin', filters.garageMin);
+    const qs = params.toString();
+    navigate(`/buy${qs ? `?${qs}` : ''}`);
   };
 
   const handleFilterChange = (field, value) => {
@@ -82,11 +99,7 @@ const Hero = () => {
                 <div className="filters-grid">
                   <div className="filter-group">
                     <label>PROPERTY TYPE</label>
-                    <select
-                      value={filters.propertyType}
-                      onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-                      className="filter-select"
-                    >
+                    <select value={filters.propertyType} onChange={(e) => handleFilterChange('propertyType', e.target.value)} className="filter-select">
                       <option value="">All Types</option>
                       <option value="Land only">Land only</option>
                       <option value="Single story">Single story</option>
@@ -97,115 +110,138 @@ const Hero = () => {
                       <option value="Home & Land">Home & Land</option>
                     </select>
                   </div>
-                  
-                  <div className="filter-group">
-                    <label>LOT</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 1, 2, 3"
-                      value={filters.lot}
-                      onChange={(e) => handleFilterChange('lot', e.target.value)}
-                      className="filter-input"
-                    />
-                  </div>
-                  
-                  <div className="filter-group">
-                    <label>ADDRESS</label>
-                    <input
-                      type="text"
-                      placeholder="Enter address"
-                      value={filters.address}
-                      onChange={(e) => handleFilterChange('address', e.target.value)}
-                      className="filter-input"
-                    />
-                  </div>
-                  
+
                   <div className="filter-group">
                     <label>SUBURB</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Austral, Leppington"
-                      value={filters.suburb}
-                      onChange={(e) => handleFilterChange('suburb', e.target.value)}
-                      className="filter-input"
-                    />
+                    <input type="text" placeholder="e.g. Austral, Leppington" value={filters.suburb} onChange={(e) => handleFilterChange('suburb', e.target.value)} className="filter-input" />
                   </div>
-                  
+
                   <div className="filter-group">
-                    <label>AVAILABILITY</label>
-                    <select
-                      value={filters.availability}
-                      onChange={(e) => handleFilterChange('availability', e.target.value)}
-                      className="filter-select"
-                    >
-                      <option value="">All Availability</option>
-                      <option value="Available">Available</option>
-                      <option value="Under Offer">Under Offer</option>
-                      <option value="Sold">Sold</option>
+                    <label>MIN PRICE</label>
+                    <select value={filters.priceMin} onChange={(e) => handleFilterChange('priceMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="300000">$300k</option>
+                      <option value="600000">$600k</option>
+                      <option value="800000">$800k</option>
+                      <option value="1000000">$1M</option>
+                      <option value="1500000">$1.5M</option>
+                      <option value="2000000">$2M</option>
                     </select>
                   </div>
-                  
                   <div className="filter-group">
-                    <label>STATUS</label>
-                    <select
-                      value={filters.status}
-                      onChange={(e) => handleFilterChange('status', e.target.value)}
-                      className="filter-select"
-                    >
-                      <option value="">All Status</option>
-                      <option value="Active">Active</option>
-                      <option value="Pending">Pending</option>
-                      <option value="Sold">Sold</option>
-                      <option value="Withdrawn">Withdrawn</option>
+                    <label>MAX PRICE</label>
+                    <select value={filters.priceMax} onChange={(e) => handleFilterChange('priceMax', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="600000">$600k</option>
+                      <option value="800000">$800k</option>
+                      <option value="1000000">$1M</option>
+                      <option value="1500000">$1.5M</option>
+                      <option value="2000000">$2M</option>
+                      <option value="3000000">$3M</option>
+                      <option value="5000000">$5M</option>
                     </select>
                   </div>
-                  
+
                   <div className="filter-group">
-                    <label>PRICE</label>
-                    <select
-                      value={filters.price}
-                      onChange={(e) => handleFilterChange('price', e.target.value)}
-                      className="filter-select"
-                    >
-                      <option value="">Any Price</option>
-                      <option value="0-500000">Under $500,000</option>
-                      <option value="500000-750000">$500,000 - $750,000</option>
-                      <option value="750000-1000000">$750,000 - $1,000,000</option>
-                      <option value="1000000-1500000">$1,000,000 - $1,500,000</option>
-                      <option value="1500000-2000000">$1,500,000 - $2,000,000</option>
-                      <option value="2000000+">$2,000,000+</option>
+                    <label>MIN LAND (sqm)</label>
+                    <select value={filters.landMin} onChange={(e) => handleFilterChange('landMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="150">150</option>
+                      <option value="300">300</option>
+                      <option value="450">450</option>
+                      <option value="600">600</option>
+                      <option value="800">800</option>
+                      <option value="1000">1000</option>
                     </select>
                   </div>
-                  
                   <div className="filter-group">
-                    <label>LAND SIZE</label>
-                    <select
-                      value={filters.landSize}
-                      onChange={(e) => handleFilterChange('landSize', e.target.value)}
-                      className="filter-select"
-                    >
-                      <option value="">Any Size</option>
-                      <option value="0-300">Under 300m²</option>
-                      <option value="300-500">300m² - 500m²</option>
-                      <option value="500-700">500m² - 700m²</option>
-                      <option value="700-1000">700m² - 1000m²</option>
-                      <option value="1000+">1000m²+</option>
+                    <label>MAX LAND (sqm)</label>
+                    <select value={filters.landMax} onChange={(e) => handleFilterChange('landMax', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="300">300</option>
+                      <option value="450">450</option>
+                      <option value="600">600</option>
+                      <option value="800">800</option>
+                      <option value="1000">1000</option>
+                      <option value="1500">1500</option>
                     </select>
                   </div>
-                  
+
                   <div className="filter-group">
-                    <label>BUILD SIZE</label>
-                    <select
-                      value={filters.buildSize}
-                      onChange={(e) => handleFilterChange('buildSize', e.target.value)}
-                      className="filter-select"
-                    >
-                      <option value="">Any Size</option>
-                      <option value="0-150">Under 150m²</option>
-                      <option value="150-200">150m² - 200m²</option>
-                      <option value="200-250">200m² - 250m²</option>
-                      <option value="250-300">250m² - 300m²</option>
-                      <option value="300+">300m²+</option>
+                    <label>MIN FRONTAGE (m)</label>
+                    <select value={filters.frontageMin} onChange={(e) => handleFilterChange('frontageMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="12.5">12.5</option>
+                      <option value="15">15</option>
+                      <option value="18">18</option>
+                      <option value="20">20</option>
+                    </select>
+                  </div>
+                  <div className="filter-group">
+                    <label>MAX FRONTAGE (m)</label>
+                    <select value={filters.frontageMax} onChange={(e) => handleFilterChange('frontageMax', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="10">10</option>
+                      <option value="12.5">12.5</option>
+                      <option value="15">15</option>
+                      <option value="18">18</option>
+                      <option value="20">20</option>
+                      <option value="25">25</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>MIN BUILD (sqm)</label>
+                    <select value={filters.buildMin} onChange={(e) => handleFilterChange('buildMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="100">100</option>
+                      <option value="150">150</option>
+                      <option value="200">200</option>
+                      <option value="250">250</option>
+                    </select>
+                  </div>
+                  <div className="filter-group">
+                    <label>MAX BUILD (sqm)</label>
+                    <select value={filters.buildMax} onChange={(e) => handleFilterChange('buildMax', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="150">150</option>
+                      <option value="200">200</option>
+                      <option value="250">250</option>
+                      <option value="300">300</option>
+                      <option value="400">400</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>MIN BED</label>
+                    <select value={filters.bedMin} onChange={(e) => handleFilterChange('bedMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
+                      <option value="4">4+</option>
+                      <option value="5">5+</option>
+                    </select>
+                  </div>
+                  <div className="filter-group">
+                    <label>MIN BATH</label>
+                    <select value={filters.bathMin} onChange={(e) => handleFilterChange('bathMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
+                      <option value="4">4+</option>
+                    </select>
+                  </div>
+                  <div className="filter-group">
+                    <label>MIN GARAGE</label>
+                    <select value={filters.garageMin} onChange={(e) => handleFilterChange('garageMin', e.target.value)} className="filter-select">
+                      <option value="">Any</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
                     </select>
                   </div>
                 </div>
@@ -213,11 +249,7 @@ const Hero = () => {
             )}
           </form>
           
-          <div className="hero-cta">
-            <a className="btn btn-primary btn-large" href="/contact">
-              Request Appraisal Now
-            </a>
-          </div>
+          
           
           <div className="hero-stats">
             <div className="stat-item">

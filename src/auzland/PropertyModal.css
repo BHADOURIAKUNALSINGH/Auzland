@@ -13,6 +13,7 @@
   z-index: 1000;
   padding: 1rem;
   animation: fadeIn 0.3s ease-out;
+  overscroll-behavior: contain;
 }
 
 .property-modal {
@@ -284,6 +285,12 @@
   padding: 2rem;
   overflow-y: auto;
   max-height: 90vh;
+  align-items: stretch;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-right > * {
+  width: 100%;
 }
 
 /* Custom Scrollbar for modal-right */
@@ -308,10 +315,33 @@
 
 .property-details {
   flex: 1;
+  text-align: left;
+  width: 100%;
+  align-self: stretch;
+  margin: 0;
+}
+
+.property-details > * {
+  width: 100%;
+  margin-left: 0;
+  align-self: stretch;
+}
+
+.property-header,
+.property-features-horizontal,
+.action-buttons {
+  align-self: stretch;
+}
+
+.property-details * {
+  text-align: left;
 }
 
 .property-header {
   margin-bottom: 2rem;
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .property-header h2 {
@@ -320,32 +350,111 @@
   color: var(--text-primary);
   margin-bottom: 0.5rem;
   line-height: 1.2;
+  text-align: left;
 }
 
 .property-header p {
   font-size: 1.125rem;
   color: var(--text-secondary);
   margin-bottom: 1rem;
+  text-align: left;
+}
+
+.property-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-top: 0.5rem;
 }
 
 .property-type {
   display: inline-block;
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .type-badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: var(--background-light);
-  color: var(--text-secondary);
-  border-radius: 0.5rem;
+  background: #dc2626;
+  color: #ffffff;
+  border-radius: 0.75rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  border: none;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .property-features {
   margin-bottom: 2rem;
+}
+
+/* Horizontal Property Features */
+.property-features-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.feature-item-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--background-light);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid #e5e7eb;
+}
+
+.feature-item-horizontal svg,
+.feature-icon {
+  width: 16px;
+  height: 16px;
+  stroke: var(--primary-color);
+  fill: none;
+  flex-shrink: 0;
+}
+
+.feature-item-horizontal span {
+  white-space: nowrap;
+}
+
+/* Special styling for availability and status fields */
+.feature-item-horizontal.availability-status {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: 1px solid #b91c1c;
+  font-weight: 700;
+}
+
+.feature-item-horizontal.availability-status svg {
+  stroke: white;
+}
+
+.feature-item-horizontal.property-status {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: 1px solid #b91c1c;
+  font-weight: 700;
+}
+
+.feature-item-horizontal.property-status svg {
+  stroke: white;
 }
 
 .area-feature {
@@ -417,6 +526,10 @@
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  justify-content: flex-start;
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .action-buttons .btn {
@@ -462,6 +575,9 @@
 .map-section {
   border-top: 1px solid var(--border-color);
   padding-top: 2rem;
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .map-section h3 {
@@ -469,6 +585,7 @@
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 1rem;
+  text-align: left;
 }
 
 .map-container {
@@ -482,6 +599,8 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .btn-outline {
@@ -570,11 +689,25 @@
   }
   
   .modal-left {
-    height: 250px;
+    height: 360px;
   }
   
   .modal-right {
     padding: 1rem;
+  }
+  
+  /* Ensure the image renders proportionally on small screens */
+  .property-image-section {
+    height: auto;
+    min-height: unset;
+  }
+
+  .modal-property-image {
+    width: 100%;
+    height: auto;
+    max-height: 65vh;
+    object-fit: contain;
+    background: #0000;
   }
   
   .property-header h2 {
@@ -618,7 +751,7 @@
   }
   
   .modal-left {
-    height: 200px;
+    height: 300px;
   }
   
   .modal-right {
@@ -674,6 +807,46 @@
   
   .modal-close-btn {
     border: 2px solid #000;
+  }
+}
+
+/* Property Description Styles - Inline */
+.property-description-inline {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+
+.property-description-inline h3 {
+  margin: 0 0 0.75rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+.property-description-inline p {
+  margin: 0;
+  color: #555;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  white-space: pre-wrap; /* Preserve whitespace, wrap text, handle all whitespace characters */
+  word-wrap: break-word; /* Break long words if needed */
+  overflow-wrap: break-word; /* Modern property for word wrapping */
+}
+
+/* Responsive Design for Description */
+@media (max-width: 768px) {
+  .property-description-inline {
+    margin: 1rem 0;
+  }
+
+  .property-description-inline h3 {
+    font-size: 1rem;
+  }
+
+  .property-description-inline p {
+    font-size: 0.9rem;
   }
 }
 

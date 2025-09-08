@@ -152,15 +152,12 @@
 
 /* Filters Dropdown */
 .filters-dropdown {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: #ffffff;
   border-radius: 20px;
   padding: 32px;
   margin-top: 20px;
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.1),
-    0 8px 16px rgba(220, 38, 38, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid #e5e7eb;
   animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   max-width: 700px;
   margin-left: auto;
@@ -170,17 +167,7 @@
   color-scheme: light; /* prevent OS dark mode black controls */
 }
 
-.filters-dropdown::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #dc2626, #ef4444, #f97316, #dc2626);
-  background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
-}
+.filters-dropdown::before { display: none; }
 
 .filters-dropdown .filters-grid {
   display: grid !important;
@@ -200,7 +187,7 @@
 .filter-group label {
   font-size: 13px;
   font-weight: 800;
-  color: #dc2626;
+  color: #111827;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 4px;
@@ -227,15 +214,13 @@
 .filter-input,
 .filter-select {
   padding: 16px 20px;
-  border: 2px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   font-size: 15px;
-  color: #dc2626;
+  color: var(--text-primary);
   background: #ffffff;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+  box-shadow: none;
   position: relative;
   overflow: hidden;
   color-scheme: light; /* ensure light themed form controls */
@@ -246,6 +231,15 @@
 .hero .filters-dropdown .filter-select {
   background-color: #ffffff !important;
   color: #111827 !important;
+  border-color: #e5e7eb !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Keep borders grey on hover; use theme red only on focus */
+.hero .filters-dropdown .filter-input:hover,
+.hero .filters-dropdown .filter-select:hover {
+  border-color: #e5e7eb !important;
 }
 
 /* Autofill fixes (Chrome/Safari) */
@@ -275,15 +269,11 @@
 .filter-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: #dc2626;
-  box-shadow: 
-    0 0 0 4px rgba(220, 38, 38, 0.1),
-    0 4px 12px rgba(220, 38, 38, 0.15);
-  transform: translateY(-1px);
+  border-color: var(--primary-color);
 }
 
 .filter-input::placeholder {
-  color: #f87171;
+  color: #9ca3af;
   font-weight: 400;
 }
 
@@ -291,11 +281,11 @@
   cursor: pointer;
   font-weight: 500;
   background: #ffffff;
-  color: #dc2626;
+  color: var(--text-primary);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23dc2626' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 12px center;
   background-repeat: no-repeat;
   background-size: 16px;
@@ -306,7 +296,7 @@
   font-size: 15px;
   padding: 12px 16px;
   background: #ffffff !important;
-  color: #dc2626;
+  color: var(--text-primary);
   border: none;
   transition: all 0.2s ease;
 }
@@ -322,10 +312,8 @@
 }
 
 .filter-select option:hover {
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  color: #dc2626;
-  font-weight: 600;
-  transform: translateX(4px);
+  background: var(--background-light);
+  color: var(--text-primary);
 }
 
 .filter-select option:checked,
@@ -367,10 +355,8 @@
 
 /* Style the select element when it has a selected value */
 .filter-select:not([value=""]) {
-  color: #dc2626;
-  font-weight: 600;
-  border-color: #dc2626;
-  background: #ffffff;
+  color: var(--text-primary);
+  border-color: var(--primary-color);
 }
 
 @keyframes slideDown {

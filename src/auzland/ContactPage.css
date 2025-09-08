@@ -69,6 +69,19 @@
   color: white;
 }
 
+/* Ensure SVG icons render white strokes on the red circle */
+.contact-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.contact-icon svg path,
+.contact-icon svg circle,
+.contact-icon svg polyline,
+.contact-icon svg line {
+  stroke: #ffffff !important;
+}
+
 .contact-item h3 {
   font-size: 1.125rem;
   font-weight: 600;
@@ -313,6 +326,12 @@
   
   .contact-item {
     justify-content: center;
+    align-items: center;
+  }
+  
+  .contact-item h3,
+  .contact-item p {
+    text-align: center;
   }
   
   .contact-form {
