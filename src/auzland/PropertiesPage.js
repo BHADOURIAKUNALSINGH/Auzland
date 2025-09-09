@@ -243,33 +243,17 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     return result;
   };
 
-  // Fetch presigned URLs for media files (same as Dashboard)
-  const fetchPresignedUrl = async (mediaKey) => {
-    try {
-      // Return from cache if available
-      if (presignCacheRef.current.has(mediaKey)) {
-        return presignCacheRef.current.get(mediaKey);
-      }
-      console.log('🔍 Fetching presigned URL for key:', mediaKey);
-      const response = await fetch(`${MEDIA_API_URL}?key=${encodeURIComponent(mediaKey)}`);
-      console.log('🔍 Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch presigned URL: ${response.statusText}`);
-      }
-      const data = await response.json();
-      console.log('🔍 Response data:', data);
-      
-      if (!data.ok || !data.presignedUrl) {
-        throw new Error('Invalid response from media service');
-      }
-      console.log('🔍 Returning presigned URL:', data.presignedUrl);
-      presignCacheRef.current.set(mediaKey, data.presignedUrl);
-      return data.presignedUrl;
-    } catch (error) {
-      console.error('❌ Error fetching presigned URL:', error);
-      throw new Error(`Failed to get media access: ${error.message}`);
+  // Generate CloudFront URLs instantly (no Lambda calls!)
+  const getCloudFrontUrl = (mediaKey) => {
+    // Return from cache if available
+    if (presignCacheRef.current.has(mediaKey)) {
+      return presignCacheRef.current.get(mediaKey);
     }
+    console.log('🚀 Generating CloudFront URL for key:', mediaKey);
+    const cloudfrontUrl = `https://dx9e0rbpjsaqb.cloudfront.net/${mediaKey}`;
+    console.log('🚀 CloudFront URL:', cloudfrontUrl);
+    presignCacheRef.current.set(mediaKey, cloudfrontUrl);
+    return cloudfrontUrl;
   };
 
   // Extract all images from media array with CSV formatting fixes
@@ -331,24 +315,16 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         return [];
       }
       
-      // Get presigned URLs for all images
-      console.log('🔍 Fetching presigned URLs for all images...');
-      const imagePromises = imageKeys.map(async (imageKey) => {
-        try {
-          const presignedUrl = await fetchPresignedUrl(imageKey);
-          console.log(`🔍 Got presigned URL for ${imageKey}:`, presignedUrl);
-          return presignedUrl;
-        } catch (error) {
-          console.error(`❌ Failed to get presigned URL for ${imageKey}:`, error);
-          return null;
-        }
+      // Get CloudFront URLs instantly (no API calls!)
+      console.log('🚀 Generating CloudFront URLs for all images...');
+      const cloudFrontUrls = imageKeys.map((imageKey) => {
+        const cloudFrontUrl = getCloudFrontUrl(imageKey);
+        console.log(`🚀 Got CloudFront URL for ${imageKey}:`, cloudFrontUrl);
+        return cloudFrontUrl;
       });
       
-      const presignedUrls = await Promise.all(imagePromises);
-      const validUrls = presignedUrls.filter(url => url !== null);
-      console.log('🔍 Got valid presigned URLs:', validUrls);
-      
-      return validUrls;
+      console.log('🚀 Generated CloudFront URLs:', cloudFrontUrls);
+      return cloudFrontUrls;
     } catch (error) {
       console.error('❌ Error processing media:', error);
       console.error('❌ Original string:', mediaString);
@@ -366,8 +342,8 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
           
           if (allowedImageFormats.includes(extension)) {
             console.log('✅ Single image file found:', cleanPath);
-            const presignedUrl = await fetchPresignedUrl(cleanPath);
-            return [presignedUrl];
+            const cloudFrontUrl = getCloudFrontUrl(cleanPath);
+            return [cloudFrontUrl];
           }
         }
         
@@ -379,22 +355,15 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         
         if (matches && matches.length > 0) {
           console.log('🔄 Found paths with regex:', matches);
-          const imagePromises = matches.map(async (imagePath) => {
-            try {
-              // Clean up any trailing spaces or characters
-              const cleanImagePath = imagePath.trim();
-              console.log('✅ Using image from regex:', cleanImagePath);
-              const presignedUrl = await fetchPresignedUrl(cleanImagePath);
-              return presignedUrl;
-            } catch (error) {
-              console.error(`❌ Failed to get presigned URL for ${imagePath}:`, error);
-              return null;
-            }
+          const cloudFrontUrls = matches.map((imagePath) => {
+            // Clean up any trailing spaces or characters
+            const cleanImagePath = imagePath.trim();
+            console.log('✅ Using image from regex:', cleanImagePath);
+            const cloudFrontUrl = getCloudFrontUrl(cleanImagePath);
+            return cloudFrontUrl;
           });
           
-          const presignedUrls = await Promise.all(imagePromises);
-          const validUrls = presignedUrls.filter(url => url !== null);
-          return validUrls;
+          return cloudFrontUrls;
         }
         
       } catch (altError) {
@@ -427,7 +396,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         return ['jpg','jpeg','png','webp','gif','bmp','svg'].includes(ext);
       });
       if (!firstKey) return null;
-      const url = await fetchPresignedUrl(firstKey);
+      const url = getCloudFrontUrl(firstKey);
       return url || null;
     } catch (_) {
       return null;
