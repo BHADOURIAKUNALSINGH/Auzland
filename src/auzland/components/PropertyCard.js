@@ -1,6 +1,5 @@
 import React from 'react';
 import './PropertyCard.css';
-import { getImageUrl } from '../utils/imageUtils';
 
 const PropertyCard = ({ property }) => {
   const {
@@ -19,7 +18,7 @@ const PropertyCard = ({ property }) => {
   return (
     <div className="property-card card">
       <div className="property-image">
-        <img src={getImageUrl(image, { width: 400, quality: 80 })} alt={address} />
+        <img src={image} alt={address} />
         <div className="property-status">
           <span className={`status-badge ${status.toLowerCase()}`}>
             {status}

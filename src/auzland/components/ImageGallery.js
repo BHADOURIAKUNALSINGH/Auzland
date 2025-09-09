@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './ImageGallery.css';
-import { getImageUrl } from '../utils/imageUtils';
 
 const ImageGallery = ({ images, alt = "Property image" }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,7 +57,7 @@ const ImageGallery = ({ images, alt = "Property image" }) => {
       <div className="gallery-container">
         <div className="main-image-container">
           <img
-            src={getImageUrl(validImages[currentIndex], { width: 800, quality: 85 })}
+src={validImages[currentIndex]}
             alt={`${alt} ${currentIndex + 1}`}
             className="main-image"
             onError={() => handleImageError(currentIndex)}
@@ -98,7 +97,7 @@ const ImageGallery = ({ images, alt = "Property image" }) => {
                 onClick={() => goToImage(index)}
               >
                 <img
-                  src={getImageUrl(image, { width: 150, quality: 75 })}
+src={image}
                   alt={`${alt} thumbnail ${index + 1}`}
                   onError={() => handleImageError(index)}
                 />
