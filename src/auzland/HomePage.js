@@ -5,6 +5,16 @@ import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 
+// Disable noisy console logs in production (keep warnings/errors)
+if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
+  try {
+    // eslint-disable-next-line no-console
+    console.log = () => {};
+    // eslint-disable-next-line no-console
+    console.debug = () => {};
+  } catch (_) {}
+}
+
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
 const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
 
@@ -123,11 +133,11 @@ const HomePage = () => {
     console.log('🔍 Processing media string:', mediaString);
     
     try {
-      // Fix CSV double-quote escaping issues: "" -> "
+      let mediaKeys = [];
       let cleanedString = mediaString.toString();
       console.log('🔍 Original string:', cleanedString);
       
-      // Remove outer quotes if present
+      // Remove outer quotes if present (from CSV escaping)
       if (cleanedString.startsWith('"') && cleanedString.endsWith('"')) {
         cleanedString = cleanedString.slice(1, -1);
         console.log('🔍 After removing outer quotes:', cleanedString);
@@ -137,9 +147,19 @@ const HomePage = () => {
       cleanedString = cleanedString.replace(/""/g, '"');
       console.log('🔍 After fixing quotes:', cleanedString);
       
-      // Parse the cleaned JSON
-      const mediaKeys = JSON.parse(cleanedString);
-      console.log('🔍 Parsed media keys:', mediaKeys);
+      // Check if it's a simple array format: [item1,item2,item3]
+      if (cleanedString.startsWith('[') && cleanedString.endsWith(']')) {
+        // Remove brackets and split by comma
+        const content = cleanedString.slice(1, -1);
+        if (content.trim()) {
+          mediaKeys = content.split(',').map(key => key.trim());
+        }
+        console.log('🔍 Parsed as simple array format:', mediaKeys);
+      } else {
+        // Try to parse as JSON (for backward compatibility)
+        mediaKeys = JSON.parse(cleanedString);
+        console.log('🔍 Parsed as JSON format:', mediaKeys);
+      }
       
       if (!Array.isArray(mediaKeys) || mediaKeys.length === 0) {
         return [];
@@ -316,8 +336,9 @@ const HomePage = () => {
         console.log('🏠 CSV data length:', csv.length);
         const rows = parseCsv(csv);
         
-        // Randomly select 6 properties from the dataset
-        const shuffledRows = [...rows].sort(() => Math.random() - 0.5);
+        // Filter for visible properties and randomly select 6 from the dataset
+        const visibleRows = rows.filter(r => (r.propertyCustomerVisibility || '1') === '1');
+        const shuffledRows = [...visibleRows].sort(() => Math.random() - 0.5);
         const mapped = shuffledRows.slice(0, 6).map((r, idx) => {
           const property = {
             id: r.id || `property-${idx}`,
@@ -336,7 +357,9 @@ const HomePage = () => {
               const raw = (r.price || '').toString(); 
               const n = Number(raw.replace(/[^0-9]/g, '')); 
               return Number.isFinite(n) ? n : 0; 
-            })()
+            })(),
+            propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
+            priceCustomerVisibility: r.priceCustomerVisibility || '0'
           };
           console.log(`🏠 Mapped property ${idx}:`, property);
           return property;
@@ -423,14 +446,7 @@ const HomePage = () => {
         <div className="container">
           <h2 className="section-title">Properties We Think You'll Love</h2>
           
-          {/* Special Banner */}
-          <div className="special-banner">
-            <div className="banner-content">
-              <h3>CALLING ALL INVESTORS</h3>
-              <p>Caravan Park With DA Approved For Conversion Into Modern Village</p>
-              <button className="btn btn-primary">Learn More</button>
-            </div>
-          </div>
+
           
           {isLoading && featuredProperties.length === 0 ? (
             // Show loading placeholders
@@ -525,13 +541,16 @@ const HomePage = () => {
             </div>
           )}
           
-          <div className="view-all-container">
+          <div className="view-all-container" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             <button 
               className="btn btn-secondary btn-large"
               onClick={() => navigate('/buy')}
             >
               View All Properties
             </button>
+            <a className="btn btn-primary btn-large" href="/contact">
+              Request Appraisal Now
+            </a>
           </div>
         </div>
       </section>

@@ -57,7 +57,7 @@ const ImageGallery = ({ images, alt = "Property image" }) => {
       <div className="gallery-container">
         <div className="main-image-container">
           <img
-src={validImages[currentIndex]}
+            src={validImages[currentIndex]}
             alt={`${alt} ${currentIndex + 1}`}
             className="main-image"
             onError={() => handleImageError(currentIndex)}
@@ -97,7 +97,7 @@ src={validImages[currentIndex]}
                 onClick={() => goToImage(index)}
               >
                 <img
-src={image}
+                  src={image}
                   alt={`${alt} thumbnail ${index + 1}`}
                   onError={() => handleImageError(index)}
                 />
