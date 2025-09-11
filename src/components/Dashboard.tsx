@@ -1486,22 +1486,11 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Fetch presigned URLs for media files
-  const fetchPresignedUrl = async (mediaKey: string): Promise<string> => {
-    try {
-      const response = await fetch(`https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media?key=${encodeURIComponent(mediaKey)}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch presigned URL: ${response.statusText}`);
-      }
-      const data = await response.json();
-      if (!data.ok || !data.presignedUrl) {
-        throw new Error('Invalid response from media service');
-      }
-      return data.presignedUrl;
-    } catch (error: any) {
-      console.error('Error fetching presigned URL:', error);
-      throw new Error(`Failed to get media access: ${error.message}`);
-    }
+  // Build direct CloudFront URL for media key
+  const buildCloudFrontUrl = (mediaKey: string): string => {
+    const base = 'https://dx9e0rbpjsaqb.cloudfront.net/';
+    const key = mediaKey.startsWith('/') ? mediaKey.slice(1) : mediaKey;
+    return `${base}${key}`;
   };
 
   // Media viewer functions
@@ -1512,19 +1501,12 @@ const Dashboard: React.FC = () => {
       const mediaKeys = JSON.parse(property.media);
       if (mediaKeys.length === 0) return;
       
-      // Fetch presigned URLs for all media keys
-      const presignedUrls: {[key: string]: string} = {};
+      // Build CloudFront URLs for all media keys
+      const cdnUrls: {[key: string]: string} = {};
       for (const key of mediaKeys) {
-        try {
-          const presignedUrl = await fetchPresignedUrl(key);
-          presignedUrls[key] = presignedUrl;
-        } catch (error: any) {
-          console.error(`Failed to get presigned URL for ${key}:`, error);
-          // Continue with other media files
-        }
+        cdnUrls[key] = buildCloudFrontUrl(key);
       }
-      
-      setMediaPresignedUrls(presignedUrls);
+      setMediaPresignedUrls(cdnUrls);
       setViewingMedia(mediaKeys);
       setCurrentMediaIndex(0);
       setShowMediaViewer(true);
@@ -1536,15 +1518,15 @@ const Dashboard: React.FC = () => {
 
   // Function to open media in new window
   const openMediaInNewWindow = (mediaKey: string) => {
-    const presignedUrl = mediaPresignedUrls[mediaKey];
-    if (!presignedUrl) {
+    const url = mediaPresignedUrls[mediaKey] || buildCloudFrontUrl(mediaKey);
+    if (!url) {
       alert('Media not available. Please try viewing it again.');
       return;
     }
     
     // Simply open the presigned URL in a new window/tab
     // This will use the browser's default viewer for each file type
-    window.open(presignedUrl, '_blank');
+    window.open(url, '_blank');
   };
 
   const nextMedia = () => {
@@ -1601,7 +1583,7 @@ const Dashboard: React.FC = () => {
     if (!viewingMedia[currentMediaIndex]) return;
     
     const mediaKey = viewingMedia[currentMediaIndex];
-    const presignedUrl = mediaPresignedUrls[mediaKey];
+    const presignedUrl = mediaPresignedUrls[mediaKey] || buildCloudFrontUrl(mediaKey);
     
     if (!presignedUrl) {
       alert('Media not available for download. Please try viewing it again.');
