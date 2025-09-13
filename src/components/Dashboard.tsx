@@ -4,6 +4,17 @@ import { NewUser } from '../types';
 import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
 
+// Declare custom element for ElevenLabs Convai widget
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'elevenlabs-convai': {
+        'agent-id': string;
+      };
+    }
+  }
+}
+
 // Disable noisy console logs in production (keep warnings/errors)
 if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
   try {
@@ -170,6 +181,19 @@ const Dashboard: React.FC = () => {
   // Load listings from S3-backed API for both view and edit users
   useEffect(() => {
     loadPropertiesFromApi();
+    
+    // Load ElevenLabs Convai widget script for dashboard only
+    const loadElevenLabsScript = () => {
+      if (!document.querySelector('script[src*="elevenlabs"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+        script.async = true;
+        script.type = 'text/javascript';
+        document.head.appendChild(script);
+      }
+    };
+    
+    loadElevenLabsScript();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -3649,6 +3673,9 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* ElevenLabs Convai voice widget - Dashboard only */}
+      <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
     </div>
   );
 };
