@@ -1,0 +1,5 @@
+  cloudfront-fix                        [m 5f45b75 SUPERFAST: CloudFront images for Sydney - 20s to <200ms load times
+  feature/property-modal                [m d8ceefa [[34morigin/feature/property-modal[m] chore: remove stray 'tatus' file
+  feature/view-all-properties-navigation[m 1270ac3 fix: resolve merge conflicts and remove aiService dependencies
+  main                                  [m 993b74e [[34morigin/main[m: behind 3] Merge CloudFront optimization - images now superfast for Sydney
+* [32mworking-version                       [m cab1053 Add ElevenLabs Convai voicebot widget to bottom-right corner

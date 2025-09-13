@@ -9,6 +9,14 @@
   flex-direction: column;
 }
 
+/* ElevenLabs Convai widget styling - Dashboard only */
+elevenlabs-convai {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483000;
+}
+
 /* Global Custom Scrollbar Styles */
 .dashboard-container::-webkit-scrollbar {
   width: 12px !important;
