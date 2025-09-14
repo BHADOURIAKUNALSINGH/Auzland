@@ -336,10 +336,21 @@ const HomePage = () => {
         console.log('🏠 CSV data length:', csv.length);
         const rows = parseCsv(csv);
         
-        // Filter for visible properties and randomly select 6 from the dataset
+        // Filter for visible properties first
         const visibleRows = rows.filter(r => (r.propertyCustomerVisibility || '1') === '1');
-        const shuffledRows = [...visibleRows].sort(() => Math.random() - 0.5);
-        const mapped = shuffledRows.slice(0, 6).map((r, idx) => {
+        
+        // First filter for Grassbird and Sharp Street properties
+        const grassbirdAndSharpRows = visibleRows.filter(r => {
+          const address = (r.address || '').toLowerCase();
+          return address.includes('grassbird') || address.includes('sharp street');
+        });
+        
+        console.log(`🏠 Found ${grassbirdAndSharpRows.length} Grassbird/Sharp Street properties out of ${visibleRows.length} visible properties`);
+        
+        // Use Grassbird/Sharp properties if available, otherwise fallback to random selection
+        const selectedRows = grassbirdAndSharpRows.length > 0 ? grassbirdAndSharpRows : visibleRows.slice(0, 6);
+        
+        const mapped = selectedRows.map((r, idx) => {
           const property = {
             id: r.id || `property-${idx}`,
             address: r.address || r.suburb || `Property ${idx + 1}`,
@@ -370,42 +381,46 @@ const HomePage = () => {
         console.log('🏠 All properties addresses:', mapped.map(p => p.address));
         console.log('🏠 Raw CSV rows (first 3):', rows.slice(0, 3));
         
-        // Set initial properties without images
-        setFeaturedProperties(mapped);
-        console.log('🏠 Properties set in state:', mapped.length);
-        setIsLoading(false); // Set loading to false so we can see properties immediately
+        // Don't set properties initially - wait for images to load
+        // setFeaturedProperties(mapped);
+        console.log('🏠 Starting image loading for Grassbird and Sharp Street properties:', mapped.length);
+        // Keep loading true until we have properties with images
         
-        // Only load images for properties that have media data
+        // Load images for the selected properties (already filtered for Grassbird/Sharp Street)
         const loadImages = async () => {
-          const results = [...mapped];
+          console.log(`🏠 Processing ${mapped.length} selected properties for image loading`);
+          console.log('🏠 Selected properties:', mapped.map(p => p.address));
+          
+          // Filter for properties that have media data
           const propertiesWithMedia = mapped.filter(p => p.media && p.media.trim());
           
-          console.log(`🏠 ${propertiesWithMedia.length} out of ${mapped.length} properties have media data`);
-          console.log(`🏠 ${mapped.length - propertiesWithMedia.length} properties will show hourglass`);
+          console.log(`🏠 ${propertiesWithMedia.length} out of ${mapped.length} selected properties have media data`);
           console.log('🏠 Properties with media:', propertiesWithMedia.map(p => ({ address: p.address, media: p.media })));
+          
+          const propertiesWithImages = [];
           
           for (let i = 0; i < propertiesWithMedia.length; i++) {
             const property = propertiesWithMedia[i];
-            const originalIndex = mapped.findIndex(p => p.id === property.id);
             
             try {
               console.log(`🖼️ Loading images for ${property.address || property.suburb}...`);
               console.log(`🖼️ Raw media data:`, property.media);
               const imageUrls = await getAllImagesFromMedia(property.media);
-              results[originalIndex] = { ...property, images: imageUrls };
               
               if (imageUrls && imageUrls.length > 0) {
                 console.log(`✅ Loaded ${imageUrls.length} images for ${property.address || property.suburb}:`, imageUrls);
+                propertiesWithImages.push({ ...property, images: imageUrls });
+                
+                // Update state after each property to show progressive loading
+                setFeaturedProperties([...propertiesWithImages]);
+                console.log(`🎯 Updated featuredProperties with ${propertiesWithImages.length} properties`);
               } else {
-                console.log(`⚠️ No images for ${property.address || property.suburb}`);
+                console.log(`⚠️ No images for ${property.address || property.suburb} - skipping from display`);
               }
-              
-              // Update state after each property to show progressive loading
-              setFeaturedProperties([...results]);
               
             } catch (error) {
               console.error(`❌ Failed to load images for ${property.address}:`, error);
-              results[originalIndex] = { ...property, images: [] };
+              console.log(`⚠️ Skipping ${property.address} due to image loading failure`);
             }
             
             // Small delay between requests
@@ -414,9 +429,14 @@ const HomePage = () => {
             }
           }
           
-          const totalWithImages = results.filter(p => p.images && p.images.length > 0).length;
+          const totalWithImages = propertiesWithImages.length;
           const totalWithoutMedia = mapped.length - propertiesWithMedia.length;
-          console.log(`✅ Featured properties loaded: ${totalWithImages} have images, ${totalWithoutMedia} show hourglass`);
+          console.log(`✅ Featured properties loaded: ${totalWithImages} properties have images and will be displayed`);
+          console.log(`ℹ️ ${totalWithoutMedia} properties had no media data and were filtered out`);
+          console.log(`ℹ️ ${propertiesWithMedia.length - totalWithImages} properties had media but no valid images and were filtered out`);
+          
+          // Set loading to false after processing all properties
+          setIsLoading(false);
         };
         
         loadImages();

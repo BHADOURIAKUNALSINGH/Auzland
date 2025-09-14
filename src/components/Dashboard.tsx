@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { NewUser } from '../types';
-import ChatbotSidebar from './ChatbotSidebar';
+// import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
 
-// Declare custom element for ElevenLabs Convai widget
+// Declare custom elements for TypeScript
 declare global {
   namespace JSX {
     interface IntrinsicElements {
       'elevenlabs-convai': {
         'agent-id': string;
+        children?: React.ReactNode;
       };
     }
   }
@@ -42,6 +43,23 @@ const Dashboard: React.FC = () => {
   const hasEditAccess = user?.groups?.some(group =>
     group.toLowerCase() === 'edit-access'
   );
+
+  // Load ElevenLabs Convai widget
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+    script.async = true;
+    script.type = 'text/javascript';
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup script on component unmount
+      const existingScript = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
+  }, []);
 
 
 
@@ -78,7 +96,7 @@ const Dashboard: React.FC = () => {
   };
 
   // Chatbot sidebar state
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  // const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -135,7 +153,7 @@ const Dashboard: React.FC = () => {
   });
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<'properties' | 'admin'>('properties');
+  const [activeTab, setActiveTab] = useState<'properties' | 'admin' | 'call-agent'>('properties');
 
   // Media upload states
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -181,19 +199,6 @@ const Dashboard: React.FC = () => {
   // Load listings from S3-backed API for both view and edit users
   useEffect(() => {
     loadPropertiesFromApi();
-    
-    // Load ElevenLabs Convai widget script for dashboard only
-    const loadElevenLabsScript = () => {
-      if (!document.querySelector('script[src*="elevenlabs"]')) {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-        script.async = true;
-        script.type = 'text/javascript';
-        document.head.appendChild(script);
-      }
-    };
-    
-    loadElevenLabsScript();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -254,29 +259,29 @@ const Dashboard: React.FC = () => {
         event.preventDefault();
         setIsSidebarOpen(!isSidebarOpen);
       }
-      if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
-        event.preventDefault();
-        setIsChatbotOpen(!isChatbotOpen);
-      }
+      // if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+      //   event.preventDefault();
+      //   setIsChatbotOpen(!isChatbotOpen);
+      // }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isSidebarOpen, isChatbotOpen]);
+  }, [isSidebarOpen]); // removed isChatbotOpen dependency
 
   // Dynamic content area width adjustment based on chatbot sidebar state
-  useEffect(() => {
-    const contentArea = document.querySelector('.content-area') as HTMLElement;
-    if (contentArea) {
-      if (isChatbotOpen) {
-        contentArea.style.width = 'calc(100% - 380px)';
-        contentArea.style.marginRight = '0';
-      } else {
-        contentArea.style.width = '100%';
-        contentArea.style.marginRight = '0';
-      }
-    }
-  }, [isChatbotOpen]);
+  // useEffect(() => {
+  //   const contentArea = document.querySelector('.content-area') as HTMLElement;
+  //   if (contentArea) {
+  //     if (isChatbotOpen) {
+  //       contentArea.style.width = 'calc(100% - 380px)';
+  //       contentArea.style.marginRight = '0';
+  //     } else {
+  //       contentArea.style.width = '100%';
+  //       contentArea.style.marginRight = '0';
+  //     }
+  //   }
+  // }, [isChatbotOpen]);
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
@@ -2228,6 +2233,42 @@ const Dashboard: React.FC = () => {
     </main>
   );
 
+  const renderCallAgent = () => (
+    <main className="call-agent-main">
+      <div className="call-agent-header">
+        <h2>AI Call Agent</h2>
+        <p>Connect with our intelligent AI assistant for property inquiries and support.</p>
+      </div>
+
+      <div className="call-agent-content">
+        <div className="call-agent-widget">
+          <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
+        </div>
+        
+        <div className="call-agent-info">
+          <div>
+            <h3>About Our AI Agent</h3>
+            <ul>
+              <li>🔍 Property search and recommendations</li>
+              <li>📊 Market insights and pricing information</li>
+              <li>📅 Schedule property viewings</li>
+              <li>❓ Answer questions about our services</li>
+              <li>🤝 Provide personalized assistance</li>
+            </ul>
+          </div>
+          
+          <div className="call-agent-tips">
+            <h4>💡 Tips for Best Results:</h4>
+            <p>• Speak clearly and naturally</p>
+            <p>• Ask specific questions about properties</p>
+            <p>• Mention your budget and preferences</p>
+            <p>• Request to schedule viewings when interested</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+
   const handleCsvFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -2685,7 +2726,7 @@ const Dashboard: React.FC = () => {
         </aside>
         
         {/* Chatbot Sidebar */}
-        <ChatbotSidebar 
+        {/* <ChatbotSidebar 
           isOpen={isChatbotOpen} 
           onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
           currentFilters={filters}
@@ -2731,7 +2772,7 @@ const Dashboard: React.FC = () => {
               registrationConstructionStatus: ''
             });
           }}
-        />
+        /> */}
         
         <div className="content-area">
           {/* Combined Navigation Bar - Merged welcome and properties nav */}
@@ -2746,6 +2787,12 @@ const Dashboard: React.FC = () => {
                   onClick={() => setActiveTab('properties')}
                 >
                   Properties
+                </button>
+                <button 
+                  className={`nav-tab ${activeTab === 'call-agent' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('call-agent')}
+                >
+                  Call Agent
                 </button>
                 {hasEditAccess && (
                   <button 
@@ -2783,7 +2830,7 @@ const Dashboard: React.FC = () => {
           </div>
           
           {/* Chatbot Toggle Button */}
-          <div className="chatbot-toggle-container">
+          {/* <div className="chatbot-toggle-container">
             <button 
               className="chatbot-toggle-btn"
               onClick={() => setIsChatbotOpen(!isChatbotOpen)}
@@ -2792,11 +2839,13 @@ const Dashboard: React.FC = () => {
             >
               🤖
             </button>
-          </div>
+          </div> */}
 
           {/* Tab Content */}
           {activeTab === 'properties' ? (
             renderPropertiesTable()
+          ) : activeTab === 'call-agent' ? (
+            renderCallAgent()
           ) : (
             renderAdminTools()
           )}
@@ -3673,9 +3722,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
-      
-      {/* ElevenLabs Convai voice widget - Dashboard only */}
-      <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
     </div>
   );
 };
