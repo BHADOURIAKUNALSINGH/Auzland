@@ -1,0 +1,441 @@
+/* Property Carousel Styles */
+.property-carousel {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+}
+
+.property-carousel * {
+  box-sizing: border-box;
+}
+
+/* Fix text selection colors */
+.property-carousel ::selection {
+  background-color: rgba(5, 150, 105, 0.3);
+  color: #1f2937;
+}
+
+.property-carousel ::-moz-selection {
+  background-color: rgba(5, 150, 105, 0.3);
+  color: #1f2937;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  z-index: 1;
+}
+
+.carousel-slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+  transform: translateX(0) !important;
+  z-index: 3;
+}
+
+.carousel-slide.prev {
+  transform: translateX(-100%) !important;
+  z-index: 2;
+}
+
+.slide-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2rem;
+}
+
+.slide-text {
+  text-align: center;
+  max-width: 700px;
+  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.15); /* Subtle transparency */
+  backdrop-filter: blur(40px) saturate(180%); /* Apple-style frosted glass */
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Soft border */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1), /* Main shadow */
+    0 2px 8px rgba(0, 0, 0, 0.05), /* Secondary shadow */
+    inset 0 1px 0 rgba(255, 255, 255, 0.3); /* Inset highlight for glass effect */
+  animation: slideInUp 1.2s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient( /* Subtle internal gradient for depth */
+    135deg, 
+    rgba(255, 255, 255, 0.25) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
+.slide-text::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px; /* Top highlight line */
+  background: linear-gradient(
+    90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    transparent 100%
+  );
+}
+
+.slide-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  line-height: 1.1;
+  color: #1f2937;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 3;
+}
+
+.slide-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  color: #059669;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 3;
+}
+
+.slide-description {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 0 0 2.5rem 0;
+  line-height: 1.6;
+  color: #4b5563;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 3;
+}
+
+.slide-cta {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 15px rgba(5, 150, 105, 0.3),
+    0 2px 4px rgba(5, 150, 105, 0.2);
+  position: relative;
+  z-index: 3;
+  user-select: none;
+}
+
+.slide-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(5, 150, 105, 0.4),
+    0 4px 8px rgba(5, 150, 105, 0.3);
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+}
+
+.slide-cta:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 8px rgba(5, 150, 105, 0.3),
+    0 1px 2px rgba(5, 150, 105, 0.2);
+}
+
+/* Navigation Arrows */
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  color: #3b82f6;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.carousel-nav:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #2563eb;
+}
+
+.carousel-nav:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-prev {
+  left: 2rem;
+}
+
+.carousel-next {
+  right: 2rem;
+}
+
+/* Dots Indicator */
+.carousel-dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 10;
+}
+
+.carousel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+.carousel-dot.active {
+  background: #3b82f6;
+  transform: scale(1.3);
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.3),
+    0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Specific text elements to ensure their original color is maintained */
+.slide-title::selection {
+  background-color: rgba(5, 150, 105, 0.3);
+  color: #1f2937;
+}
+
+.slide-subtitle::selection {
+  background-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+.slide-description::selection {
+  background-color: rgba(5, 150, 105, 0.3);
+  color: #4b5563;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .property-carousel {
+    height: 500px;
+  }
+  
+  .slide-text {
+    max-width: 90%;
+    padding: 2rem 1.5rem;
+  }
+  
+  .slide-title {
+    font-size: 2.5rem;
+  }
+  
+  .slide-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .slide-description {
+    font-size: 1.1rem;
+  }
+  
+  .carousel-nav {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .carousel-prev {
+    left: 1rem;
+  }
+  
+  .carousel-next {
+    right: 1rem;
+  }
+  
+  .carousel-dots {
+    bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .property-carousel {
+    height: 400px;
+  }
+  
+  .slide-text {
+    padding: 1.5rem 1rem;
+  }
+  
+  .slide-title {
+    font-size: 2rem;
+  }
+  
+  .slide-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .slide-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .slide-cta {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+  
+  .carousel-nav {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .carousel-prev {
+    left: 0.75rem;
+  }
+  
+  .carousel-next {
+    right: 0.75rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .slide-text {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #000;
+  }
+  
+  .slide-title {
+    color: #000;
+  }
+  
+  .slide-subtitle {
+    color: #059669;
+  }
+  
+  .slide-description {
+    color: #333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .carousel-slide {
+    transition: none;
+  }
+  
+  .slide-text {
+    animation: none;
+  }
+  
+  .carousel-nav {
+    transition: none;
+  }
+  
+  .carousel-dot {
+    transition: none;
+  }
+  
+  .slide-cta {
+    transition: none;
+  }
+}

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
+import PropertyCarousel from './components/PropertyCarousel';
+import FamilyExperience from './components/FamilyExperience';
 import './HomePage.css';
 
 // Disable noisy console logs in production (keep warnings/errors)
@@ -460,6 +462,12 @@ const HomePage = () => {
   return (
     <div className="home-page">
       <Hero />
+      
+      {/* Property Carousel Section */}
+      <PropertyCarousel />
+      
+      {/* Family Experience Section */}
+      <FamilyExperience />
       
       {/* Featured Properties Section */}
       <section className="section featured-properties">

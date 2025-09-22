@@ -1,20 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { NewUser } from '../types';
-// import ChatbotSidebar from './ChatbotSidebar';
+import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
-
-// Declare custom elements for TypeScript
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'elevenlabs-convai': {
-        'agent-id': string;
-        children?: React.ReactNode;
-      };
-    }
-  }
-}
 
 // Disable noisy console logs in production (keep warnings/errors)
 if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
@@ -43,23 +31,6 @@ const Dashboard: React.FC = () => {
   const hasEditAccess = user?.groups?.some(group =>
     group.toLowerCase() === 'edit-access'
   );
-
-  // Load ElevenLabs Convai widget
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-    script.async = true;
-    script.type = 'text/javascript';
-    document.head.appendChild(script);
-
-    return () => {
-      // Cleanup script on component unmount
-      const existingScript = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
-      if (existingScript) {
-        document.head.removeChild(existingScript);
-      }
-    };
-  }, []);
 
 
 
@@ -96,7 +67,7 @@ const Dashboard: React.FC = () => {
   };
 
   // Chatbot sidebar state
-  // const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -153,7 +124,7 @@ const Dashboard: React.FC = () => {
   });
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<'properties' | 'admin' | 'call-agent'>('properties');
+  const [activeTab, setActiveTab] = useState<'properties' | 'admin'>('properties');
 
   // Media upload states
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -259,29 +230,29 @@ const Dashboard: React.FC = () => {
         event.preventDefault();
         setIsSidebarOpen(!isSidebarOpen);
       }
-      // if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
-      //   event.preventDefault();
-      //   setIsChatbotOpen(!isChatbotOpen);
-      // }
+      if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+        event.preventDefault();
+        setIsChatbotOpen(!isChatbotOpen);
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isSidebarOpen]); // removed isChatbotOpen dependency
+  }, [isSidebarOpen, isChatbotOpen]);
 
   // Dynamic content area width adjustment based on chatbot sidebar state
-  // useEffect(() => {
-  //   const contentArea = document.querySelector('.content-area') as HTMLElement;
-  //   if (contentArea) {
-  //     if (isChatbotOpen) {
-  //       contentArea.style.width = 'calc(100% - 380px)';
-  //       contentArea.style.marginRight = '0';
-  //     } else {
-  //       contentArea.style.width = '100%';
-  //       contentArea.style.marginRight = '0';
-  //     }
-  //   }
-  // }, [isChatbotOpen]);
+  useEffect(() => {
+    const contentArea = document.querySelector('.content-area') as HTMLElement;
+    if (contentArea) {
+      if (isChatbotOpen) {
+        contentArea.style.width = 'calc(100% - 380px)';
+        contentArea.style.marginRight = '0';
+      } else {
+        contentArea.style.width = '100%';
+        contentArea.style.marginRight = '0';
+      }
+    }
+  }, [isChatbotOpen]);
 
   // Filter and sort properties based on current filters and sort settings
   const applyFilters = () => {
@@ -1698,11 +1669,11 @@ const Dashboard: React.FC = () => {
         <td>
           <div className="media-controls">
             <button 
-              className="view-media-btn"
+              className="view-btn"
               onClick={() => openMediaViewer(property)}
               title="View all media"
             >
-              ⛶ View Media ({mediaKeys.length})
+              View ({mediaKeys.length})
             </button>
           </div>
 
@@ -1828,260 +1799,256 @@ const Dashboard: React.FC = () => {
   };
 
   const renderFiltersSidebar = () => (
-    <aside className="filters-sidebar">
-      <div className="filters-section">
-        {/* Quick Search */}
-        <div className="filter-group quick-search-group">
-          <label>Quick Search</label>
-          <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
-            <input
-              type="text"
-              placeholder="Search by property type, address, suburb, lot, or any property details..."
-              value={filters.quickSearch}
-              onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
-              className="universal-search-input"
-            />
-            <div className="search-tooltip">
-              💡 Search across property type, address, suburb, lot number, and more
-            </div>
-          </div>
-        </div>
+    <div className="sidebar-section">
+      <h3 className="sidebar-title">Filters</h3>
+      
+      {/* Quick Search */}
+      <div className="filter-group">
+        <label className="filter-label">Quick Search</label>
+        <input
+          type="text"
+          placeholder="Search by property type, address, suburb, lot, or any property details..."
+          value={filters.quickSearch}
+          onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
+          className="quick-search"
+        />
+      </div>
 
-        {/* Property Details */}
-        <div className="filter-category">
-          <h4>Filter By Property Details</h4>
-          <div className="filter-group">
-            <label>Property Type</label>
-            <select 
-              value={filters.propertyType} 
-              onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-            >
-              <option value="">All Types</option>
-              <option value="Land only">Land only</option>
-              <option value="Single story">Single story</option>
-              <option value="Double story">Double story</option>
-              <option value="Dual occupancy">Dual occupancy</option>
-              <option value="Apartment">Apartment</option>
-              <option value="Townhouse">Townhouse</option>
-              <option value="Home & Land">Home & Land</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Suburb</label>
-            <input
-              type="text"
-              placeholder="Enter suburb name..."
-              value={filters.suburb}
-              onChange={(e) => handleFilterChange('suburb', e.target.value)}
-              className="filter-input"
-            />
-          </div>
-          <div className="filter-group">
-            <label>Availability</label>
-            <select 
-              value={filters.availability} 
-              onChange={(e) => handleFilterChange('availability', e.target.value)}
-            >
-              <option value="">All Availability</option>
-              <option value="Available">Available</option>
-              <option value="Under Offer">Under Offer</option>
-              <option value="Sold">Sold</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Status</label>
-            <select 
-              value={filters.registrationConstructionStatus} 
-              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
-            >
-              <option value="">All Statuses</option>
-              <option value="Registered">Registered</option>
-              <option value="Unregistered">Unregistered</option>
-              <option value="Under Construction">Under Construction</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Price Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Frontage (m)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.frontageMin}
-                onChange={(e) => handleFilterChange('frontageMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.frontageMax}
-                onChange={(e) => handleFilterChange('frontageMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Land Size (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.landSizeMin}
-                onChange={(e) => handleFilterChange('landSizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.landSizeMax}
-                onChange={(e) => handleFilterChange('landSizeMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Build Size (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.buildSizeMin}
-                onChange={(e) => handleFilterChange('buildSizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.buildSizeMax}
-                onChange={(e) => handleFilterChange('buildSizeMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Bed</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.bedMin}
-                onChange={(e) => handleFilterChange('bedMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.bedMax}
-                onChange={(e) => handleFilterChange('bedMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Bath</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.bathMin}
-                onChange={(e) => handleFilterChange('bathMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.bathMax}
-                onChange={(e) => handleFilterChange('bathMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Garage</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.garageMin}
-                onChange={(e) => handleFilterChange('garageMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.garageMax}
-                onChange={(e) => handleFilterChange('garageMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          
-          {/* Clear All Filters Button - At Bottom */}
-          <div className="filter-group">
-            <button 
-              className="clear-filters-btn" 
-              onClick={clearAllFilters}
-              title={`Clear all ${getActiveFiltersCount()} active filters`}
-            >
-              🗑️ Clear All Filters
-              {getActiveFiltersCount() > 0 && (
-                <span className="filter-count-badge">
-                  ({getActiveFiltersCount()})
-                </span>
-              )}
-            </button>
-          </div>
+      {/* Property Details */}
+      <div className="filter-group">
+        <label className="filter-label">Property Type</label>
+        <select 
+          value={filters.propertyType} 
+          onChange={(e) => handleFilterChange('propertyType', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">All Types</option>
+          <option value="Land only">Land only</option>
+          <option value="Single story">Single story</option>
+          <option value="Double story">Double story</option>
+          <option value="Dual occupancy">Dual occupancy</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Townhouse">Townhouse</option>
+          <option value="Home & Land">Home & Land</option>
+        </select>
+      </div>
+      
+      <div className="filter-group">
+        <label className="filter-label">Suburb</label>
+        <input
+          type="text"
+          placeholder="Enter suburb name..."
+          value={filters.suburb}
+          onChange={(e) => handleFilterChange('suburb', e.target.value)}
+          className="filter-input"
+        />
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Availability</label>
+        <select 
+          value={filters.availability} 
+          onChange={(e) => handleFilterChange('availability', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">All Availability</option>
+          <option value="Available">Available</option>
+          <option value="Under Offer">Under Offer</option>
+          <option value="Sold">Sold</option>
+        </select>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Status</label>
+        <select 
+          value={filters.registrationConstructionStatus} 
+          onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">All Statuses</option>
+          <option value="Registered">Registered</option>
+          <option value="Unregistered">Unregistered</option>
+          <option value="Under Construction">Under Construction</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Price Range</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.priceMin}
+            onChange={(e) => handleFilterChange('priceMin', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.priceMax}
+            onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
         </div>
       </div>
-    </aside>
+      <div className="filter-group">
+        <label className="filter-label">Frontage (m)</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.frontageMin}
+            onChange={(e) => handleFilterChange('frontageMin', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.frontageMax}
+            onChange={(e) => handleFilterChange('frontageMax', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Land Size (sqm)</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.landSizeMin}
+            onChange={(e) => handleFilterChange('landSizeMin', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.landSizeMax}
+            onChange={(e) => handleFilterChange('landSizeMax', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Build Size (sqm)</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.buildSizeMin}
+            onChange={(e) => handleFilterChange('buildSizeMin', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.buildSizeMax}
+            onChange={(e) => handleFilterChange('buildSizeMax', e.target.value)}
+            className="range-input"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Bed</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.bedMin}
+            onChange={(e) => handleFilterChange('bedMin', e.target.value)}
+            className="range-input"
+            min="0"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.bedMax}
+            onChange={(e) => handleFilterChange('bedMax', e.target.value)}
+            className="range-input"
+            min="0"
+          />
+        </div>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Bath</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.bathMin}
+            onChange={(e) => handleFilterChange('bathMin', e.target.value)}
+            className="range-input"
+            min="0"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.bathMax}
+            onChange={(e) => handleFilterChange('bathMax', e.target.value)}
+            className="range-input"
+            min="0"
+          />
+        </div>
+      </div>
+      <div className="filter-group">
+        <label className="filter-label">Garage</label>
+        <div className="range-inputs">
+          <input
+            type="number"
+            placeholder="Min"
+            value={filters.garageMin}
+            onChange={(e) => handleFilterChange('garageMin', e.target.value)}
+            className="range-input"
+            min="0"
+          />
+          <span className="range-separator">to</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={filters.garageMax}
+            onChange={(e) => handleFilterChange('garageMax', e.target.value)}
+            className="range-input"
+            min="0"
+          />
+        </div>
+      </div>
+          
+      {/* Clear All Filters Button - At Bottom */}
+      <div className="filter-group">
+        <button 
+          className="btn btn-import" 
+          onClick={clearAllFilters}
+          title={`Clear all ${getActiveFiltersCount()} active filters`}
+        >
+          🗑️ Clear All Filters
+          {getActiveFiltersCount() > 0 && (
+            <span className="filter-count-badge">
+              ({getActiveFiltersCount()})
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
   );
 
   const renderPropertiesTable = () => (
@@ -2145,69 +2112,69 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Properties Table */}
-      <div className="properties-table-wrapper">
-        <table className={`properties-table ${!hasEditAccess ? 'view-only' : ''}`}>
-          <thead>
-            <tr>
-              <th>PROPERTY TYPE</th>
-              <th>LOT</th>
-              <th>ADDRESS</th>
-              <th>SUBURB</th>
-              <th>AVAILABILITY</th>
-              <th>STATUS</th>
-              <th>PRICE</th>
-              <th>FRONTAGE</th>
-              <th>LAND SIZE</th>
-              <th>BUILD SIZE</th>
-              <th>BED</th>
-              <th>BATH</th>
-              <th>GARAGE</th>
-              <th>MEDIA</th>
-              <th>REMARK</th>
-              {hasEditAccess && <th>ACTIONS</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProperties.length === 0 ? (
-              <tr className="no-data">
-                <td colSpan={hasEditAccess ? 16 : 15}>
-                  <div className="empty-state">
-                    <p>No properties found</p>
-                    <p className="empty-subtitle">Properties will appear here once data is loaded from the API</p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              filteredProperties.map((property, index) => (
-                <tr key={index}>
-                  <td>{property.propertyType === 'Home and Land Packages' ? 'Home & Land' : (property.propertyType || '-')}</td>
-                  <td>{property.lot}</td>
-                  <td>{property.address}</td>
-                  <td>{property.suburb || '-'}</td>
-                  <td>{property.availability || '-'}</td>
-                  <td>{property.registrationConstructionStatus || '-'}</td>
-                  <td>${property.price?.toLocaleString() || '-'}</td>
-                  <td>{property.frontage || '-'}</td>
-                  <td>{property.landSize || '-'}</td>
-                  <td>{property.buildSize || '-'}</td>
-                  <td>{property.bed || '-'}</td>
-                  <td>{property.bath || '-'}</td>
-                  <td>{property.garage || '-'}</td>
-                  {renderMediaColumn(property)}
-                  <td>{property.remark || '-'}</td>
-                  {hasEditAccess && (
-                    <td>
-                      <div className="action-buttons">
-                        <button className="edit-btn" title="Edit" onClick={() => handleEditProperty(property)}>Edit</button>
-                        <button className="delete-btn" title="Delete" onClick={() => handleDeleteProperty(property.id)}>Delete</button>
+          {/* Properties Table */}
+          <div className="properties-table-wrapper">
+            <table className={`properties-table ${!hasEditAccess ? 'view-only' : ''}`}>
+              <thead>
+                <tr>
+                  <th>PROPERTY TYPE</th>
+                  <th>LOT</th>
+                  <th>ADDRESS</th>
+                  <th>SUBURB</th>
+                  <th>AVAILABILITY</th>
+                  <th>STATUS</th>
+                  <th>PRICE</th>
+                  <th>FRONTAGE</th>
+                  <th>LAND SIZE</th>
+                  <th>BUILD SIZE</th>
+                  <th>BED</th>
+                  <th>BATH</th>
+                  <th>GARAGE</th>
+                  <th>MEDIA</th>
+                  <th>REMARK</th>
+                  {hasEditAccess && <th>ACTIONS</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProperties.length === 0 ? (
+                  <tr className="no-data">
+                    <td colSpan={hasEditAccess ? 16 : 15}>
+                      <div className="empty-state">
+                        <p>No properties found</p>
+                        <p className="empty-subtitle">Properties will appear here once data is loaded from the API</p>
                       </div>
                     </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
+                  </tr>
+                ) : (
+                  filteredProperties.map((property, index) => (
+                    <tr key={index}>
+                      <td>{property.propertyType === 'Home and Land Packages' ? 'Home & Land' : (property.propertyType || '-')}</td>
+                      <td>{property.lot}</td>
+                      <td>{property.address}</td>
+                      <td>{property.suburb || '-'}</td>
+                      <td>{property.availability || '-'}</td>
+                      <td>{property.registrationConstructionStatus || '-'}</td>
+                      <td>${property.price?.toLocaleString() || '-'}</td>
+                      <td>{property.frontage || '-'}</td>
+                      <td>{property.landSize || '-'}</td>
+                      <td>{property.buildSize || '-'}</td>
+                      <td>{property.bed || '-'}</td>
+                      <td>{property.bath || '-'}</td>
+                      <td>{property.garage || '-'}</td>
+                      {renderMediaColumn(property)}
+                      <td>{property.remark || '-'}</td>
+                      {hasEditAccess && (
+                        <td>
+                          <div className="action-buttons">
+                            <button className="edit-btn" title="Edit" onClick={() => handleEditProperty(property)}>Edit</button>
+                            <button className="delete-btn" title="Delete" onClick={() => handleDeleteProperty(property.id)}>Delete</button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))
+                )}
+              </tbody>
         </table>
       </div>
     </main>
@@ -2229,42 +2196,6 @@ const Dashboard: React.FC = () => {
         >
           Add New User
         </button>
-      </div>
-    </main>
-  );
-
-  const renderCallAgent = () => (
-    <main className="call-agent-main">
-      <div className="call-agent-header">
-        <h2>AI Call Agent</h2>
-        <p>Connect with our intelligent AI assistant for property inquiries and support.</p>
-      </div>
-
-      <div className="call-agent-content">
-        <div className="call-agent-widget">
-          <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
-        </div>
-        
-        <div className="call-agent-info">
-          <div>
-            <h3>About Our AI Agent</h3>
-            <ul>
-              <li>🔍 Property search and recommendations</li>
-              <li>📊 Market insights and pricing information</li>
-              <li>📅 Schedule property viewings</li>
-              <li>❓ Answer questions about our services</li>
-              <li>🤝 Provide personalized assistance</li>
-            </ul>
-          </div>
-          
-          <div className="call-agent-tips">
-            <h4>💡 Tips for Best Results:</h4>
-            <p>• Speak clearly and naturally</p>
-            <p>• Ask specific questions about properties</p>
-            <p>• Mention your budget and preferences</p>
-            <p>• Request to schedule viewings when interested</p>
-          </div>
-        </div>
       </div>
     </main>
   );
@@ -2720,132 +2651,25 @@ const Dashboard: React.FC = () => {
           </div>
         )}
         
-        {/* Collapsible Filters Sidebar */}
+        {/* Left Sidebar - Filters */}
         <aside className={`filters-sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
           {renderFiltersSidebar()}
         </aside>
         
-        {/* Chatbot Sidebar */}
-        {/* <ChatbotSidebar 
-          isOpen={isChatbotOpen} 
-          onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
-          currentFilters={filters}
-          propertyCount={(() => {
-            console.log('🏠 Passing to chatbot - filteredProperties.length:', filteredProperties.length);
-            console.log('🏠 Passing to chatbot - properties.length:', properties.length);
-            return filteredProperties.length;
-          })()}
-          onFiltersChange={(newFilters) => {
-            console.log('🔧 ===================== FILTER UPDATE =====================');
-            console.log('🔧 Dashboard receiving new filters from Chatbot:', newFilters);
-            console.log('🔧 Current filters before update:', filters);
-            
-            // Apply multiple filter changes at once
-            setFilters(prev => {
-              const updated = { ...prev, ...newFilters };
-              console.log('🔧 Filters after update:', updated);
-              console.log('🔧 Active filters after update:', Object.fromEntries(Object.entries(updated).filter(([k,v]) => v && v !== '')));
-              console.log('🔧 ========================================================');
-              return updated;
-            });
-          }}
-          onClearFilters={() => {
-            setFilters({
-              quickSearch: '',
-              suburb: '',
-              propertyType: '',
-              availability: '',
-              frontageMin: '',
-              frontageMax: '',
-              landSizeMin: '',
-              landSizeMax: '',
-              buildSizeMin: '',
-              buildSizeMax: '',
-              bedMin: '',
-              bedMax: '',
-              bathMin: '',
-              bathMax: '',
-              garageMin: '',
-              garageMax: '',
-              priceMin: '',
-              priceMax: '',
-              registrationConstructionStatus: ''
-            });
-          }}
-        /> */}
-        
+        {/* Main Content Panel */}
         <div className="content-area">
-          {/* Combined Navigation Bar - Merged welcome and properties nav */}
-          <nav className="combined-nav">
-            <div className="nav-left">
-              <div className="nav-brand">
-                <h2>AuzLandRE Property Management Dashboard</h2>
-              </div>
-              <div className="nav-tabs">
-                <button 
-                  className={`nav-tab ${activeTab === 'properties' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('properties')}
-                >
-                  Properties
-                </button>
-                <button 
-                  className={`nav-tab ${activeTab === 'call-agent' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('call-agent')}
-                >
-                  Call Agent
-                </button>
-                {hasEditAccess && (
-                  <button 
-                    className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('admin')}
-                  >
-                    Admin Tools
-                  </button>
-                )}
-              </div>
-            </div>
-            
-            <div className="nav-right">
-              <div className="user-info">
-                <span className="username">Welcome, {user?.email || user?.username}</span>
-                <span className="user-role">
-                  {hasEditAccess ? 'Administrator' : 'View Access'}
-                </span>
-              </div>
-              <button onClick={signOut} className="signout-button">
-                Sign Out
-              </button>
-            </div>
-          </nav>
-          
-          {/* Sidebar Toggle Buttons */}
+          {/* Sidebar Toggle Button */}
           <div className="sidebar-toggle-container">
             <button 
               className="sidebar-toggle-btn"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              title={`${isSidebarOpen ? 'Hide' : 'Show'} Filters (Ctrl/Cmd + B)`}
+              title={`${isSidebarOpen ? 'Hide Filters' : 'Show Filters'} (Ctrl/Cmd + B)`}
               aria-label="Toggle Filters Sidebar"
-            >
-            </button>
+            />
           </div>
-          
-          {/* Chatbot Toggle Button */}
-          {/* <div className="chatbot-toggle-container">
-            <button 
-              className="chatbot-toggle-btn"
-              onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-              title={`${isChatbotOpen ? 'Hide' : 'Show'} RAUZ Chatbot (Ctrl/Cmd + R)`}
-              aria-label="Toggle RAUZ Chatbot"
-            >
-              🤖
-            </button>
-          </div> */}
-
           {/* Tab Content */}
           {activeTab === 'properties' ? (
             renderPropertiesTable()
-          ) : activeTab === 'call-agent' ? (
-            renderCallAgent()
           ) : (
             renderAdminTools()
           )}
