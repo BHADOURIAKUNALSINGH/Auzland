@@ -2770,7 +2770,7 @@ const Dashboard: React.FC = () => {
           <nav className="combined-nav">
             <div className="nav-left">
               <div className="nav-brand">
-                <h2>AuzLandRE Property Management Dashboard</h2>
+                <h2>AuzlandRE</h2>
               </div>
               <div className="nav-tabs">
                 <button 
