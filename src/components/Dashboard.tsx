@@ -117,7 +117,6 @@ const Dashboard: React.FC = () => {
   const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState('lot');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [sortClickCount, setSortClickCount] = useState(0);
   const [listingsVersionId, setListingsVersionId] = useState<string | undefined>(undefined);
 
   const [showPropertyForm, setShowPropertyForm] = useState(false);
@@ -164,6 +163,23 @@ const Dashboard: React.FC = () => {
 
   // Sidebar state - filters closed by default
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    propertyType: false,
+    suburb: false,
+    availability: false,
+    status: false,
+    price: false,
+    frontage: false,
+    landSize: false,
+    buildSize: false,
+    bed: false,
+    bath: false,
+    garage: false,
+  });
+
+  const toggleSection = (key: string) => {
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
 
   // Media viewer states
@@ -1823,266 +1839,195 @@ const Dashboard: React.FC = () => {
       <div className="filters-section">
         {/* Quick Search */}
         <div className="filter-group quick-search-group">
-          <label>Quick Search</label>
           <div className="search-input-container" title="You can search using property type, address, suburb, lot number, or any property details">
             <input
               type="text"
-              placeholder="Search by property type, address, suburb, lot, or any property details..."
+              placeholder="Quick search..."
               value={filters.quickSearch}
               onChange={(e) => handleFilterChange('quickSearch', e.target.value)}
               className="universal-search-input"
             />
-            <div className="search-tooltip">
-              💡 Search across property type, address, suburb, lot number, and more
-            </div>
           </div>
         </div>
 
-        {/* Property Details */}
-        <div className="filter-category">
-          <h4>Filter By Property Details</h4>
-          <div className="filter-group">
-            <label>Property Type</label>
-            <select 
-              value={filters.propertyType} 
-              onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-            >
-              <option value="">All Types</option>
-              <option value="Land only">Land only</option>
-              <option value="Single story">Single story</option>
-              <option value="Double story">Double story</option>
-              <option value="Dual occupancy">Dual occupancy</option>
-              <option value="Apartment">Apartment</option>
-              <option value="Townhouse">Townhouse</option>
-              <option value="Home & Land">Home & Land</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Suburb</label>
-            <input
-              type="text"
-              placeholder="Enter suburb name..."
-              value={filters.suburb}
-              onChange={(e) => handleFilterChange('suburb', e.target.value)}
-              className="filter-input"
-            />
-          </div>
-          <div className="filter-group">
-            <label>Availability</label>
-            <select 
-              value={filters.availability} 
-              onChange={(e) => handleFilterChange('availability', e.target.value)}
-            >
-              <option value="">All Availability</option>
-              <option value="Available">Available</option>
-              <option value="Under Offer">Under Offer</option>
-              <option value="Sold">Sold</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Status</label>
-            <select 
-              value={filters.registrationConstructionStatus} 
-              onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)}
-            >
-              <option value="">All Statuses</option>
-              <option value="Registered">Registered</option>
-              <option value="Unregistered">Unregistered</option>
-              <option value="Under Construction">Under Construction</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Price Range</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Frontage (m)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.frontageMin}
-                onChange={(e) => handleFilterChange('frontageMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.frontageMax}
-                onChange={(e) => handleFilterChange('frontageMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Land Size (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.landSizeMin}
-                onChange={(e) => handleFilterChange('landSizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.landSizeMax}
-                onChange={(e) => handleFilterChange('landSizeMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Build Size (sqm)</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.buildSizeMin}
-                onChange={(e) => handleFilterChange('buildSizeMin', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.buildSizeMax}
-                onChange={(e) => handleFilterChange('buildSizeMax', e.target.value)}
-                className="range-input"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Bed</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.bedMin}
-                onChange={(e) => handleFilterChange('bedMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.bedMax}
-                onChange={(e) => handleFilterChange('bedMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Bath</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.bathMin}
-                onChange={(e) => handleFilterChange('bathMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.bathMax}
-                onChange={(e) => handleFilterChange('bathMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="filter-group">
-            <label>Garage</label>
-            <div className="range-inputs">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.garageMin}
-                onChange={(e) => handleFilterChange('garageMin', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.garageMax}
-                onChange={(e) => handleFilterChange('garageMax', e.target.value)}
-                className="range-input"
-                min="0"
-              />
-            </div>
-          </div>
-          
-          {/* Clear All Filters Button - At Bottom */}
-          <div className="filter-group">
-            <button 
-              className="clear-filters-btn" 
-              onClick={clearAllFilters}
-              title={`Clear all ${getActiveFiltersCount()} active filters`}
-            >
-              🗑️ Clear All Filters
-              {getActiveFiltersCount() > 0 && (
-                <span className="filter-count-badge">
-                  ({getActiveFiltersCount()})
-                </span>
-              )}
+        {/* Collapsible Filter Groups */}
+        <ul className="filter-list">
+          <li className={`filter-item ${openSections.propertyType ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('propertyType')}>
+              <span>PROPERTY TYPE</span>
+              <span className="filter-arrow">▾</span>
             </button>
-          </div>
-        </div>
+            <div className={`filter-content ${openSections.propertyType ? '' : 'hidden'}`}>
+              <select value={filters.propertyType} onChange={(e) => handleFilterChange('propertyType', e.target.value)} className="filter-select">
+                <option value="">All Types</option>
+                <option value="Land only">Land only</option>
+                <option value="Single story">Single story</option>
+                <option value="Double story">Double story</option>
+                <option value="Dual occupancy">Dual occupancy</option>
+                <option value="Apartment">Apartment</option>
+                <option value="Townhouse">Townhouse</option>
+                <option value="Home & Land">Home & Land</option>
+              </select>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.suburb ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('suburb')}>
+              <span>SUBURB</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.suburb ? '' : 'hidden'}`}>
+              <input type="text" placeholder="Enter suburb..." value={filters.suburb} onChange={(e) => handleFilterChange('suburb', e.target.value)} className="filter-input" />
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.availability ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('availability')}>
+              <span>AVAILABILITY</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.availability ? '' : 'hidden'}`}>
+              <select value={filters.availability} onChange={(e) => handleFilterChange('availability', e.target.value)} className="filter-select">
+                <option value="">All</option>
+                <option value="Available">Available</option>
+                <option value="Under Offer">Under Offer</option>
+                <option value="Sold">Sold</option>
+              </select>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.status ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('status')}>
+              <span>STATUS</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.status ? '' : 'hidden'}`}>
+              <select value={filters.registrationConstructionStatus} onChange={(e) => handleFilterChange('registrationConstructionStatus', e.target.value)} className="filter-select">
+                <option value="">All</option>
+                <option value="Registered">Registered</option>
+                <option value="Unregistered">Unregistered</option>
+                <option value="Under Construction">Under Construction</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.price ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('price')}>
+              <span>PRICE</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.price ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.priceMin} onChange={(e) => handleFilterChange('priceMin', e.target.value)} className="range-input" min="0" step="0.01" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.priceMax} onChange={(e) => handleFilterChange('priceMax', e.target.value)} className="range-input" min="0" step="0.01" />
+              </div>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.frontage ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('frontage')}>
+              <span>FRONTAGE (m)</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.frontage ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.frontageMin} onChange={(e) => handleFilterChange('frontageMin', e.target.value)} className="range-input" min="0" step="0.01" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.frontageMax} onChange={(e) => handleFilterChange('frontageMax', e.target.value)} className="range-input" min="0" step="0.01" />
+              </div>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.landSize ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('landSize')}>
+              <span>LAND SIZE (sqm)</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.landSize ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.landSizeMin} onChange={(e) => handleFilterChange('landSizeMin', e.target.value)} className="range-input" min="0" step="0.01" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.landSizeMax} onChange={(e) => handleFilterChange('landSizeMax', e.target.value)} className="range-input" min="0" step="0.01" />
+              </div>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.buildSize ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('buildSize')}>
+              <span>BUILD SIZE (sqm)</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.buildSize ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.buildSizeMin} onChange={(e) => handleFilterChange('buildSizeMin', e.target.value)} className="range-input" min="0" step="0.01" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.buildSizeMax} onChange={(e) => handleFilterChange('buildSizeMax', e.target.value)} className="range-input" min="0" step="0.01" />
+              </div>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.bed ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('bed')}>
+              <span>BEDROOMS</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.bed ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.bedMin} onChange={(e) => handleFilterChange('bedMin', e.target.value)} className="range-input" min="0" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.bedMax} onChange={(e) => handleFilterChange('bedMax', e.target.value)} className="range-input" min="0" />
+              </div>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.bath ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('bath')}>
+              <span>BATHROOMS</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.bath ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.bathMin} onChange={(e) => handleFilterChange('bathMin', e.target.value)} className="range-input" min="0" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.bathMax} onChange={(e) => handleFilterChange('bathMax', e.target.value)} className="range-input" min="0" />
+              </div>
+            </div>
+          </li>
+
+          <li className={`filter-item ${openSections.garage ? 'open' : ''}`}>
+            <button className="filter-header" onClick={() => toggleSection('garage')}>
+              <span>GARAGE</span>
+              <span className="filter-arrow">▾</span>
+            </button>
+            <div className={`filter-content ${openSections.garage ? '' : 'hidden'}`}>
+              <div className="range-inputs">
+                <input type="number" placeholder="Min" value={filters.garageMin} onChange={(e) => handleFilterChange('garageMin', e.target.value)} className="range-input" min="0" />
+                <span className="range-separator">to</span>
+                <input type="number" placeholder="Max" value={filters.garageMax} onChange={(e) => handleFilterChange('garageMax', e.target.value)} className="range-input" min="0" />
+              </div>
+            </div>
+          </li>
+
+          <li className="filter-item">
+            <div className="filter-content" style={{ paddingTop: '0.5rem' }}>
+              <button className="clear-filters-btn" onClick={clearAllFilters}>Clear All Filters</button>
+            </div>
+          </li>
+        </ul>
       </div>
     </aside>
   );
 
   const renderPropertiesTable = () => (
     <main className="properties-main">
-      {/* Results and Sort */}
+      {/* Results and Controls */}
       <div className="results-header">
-        <div className="results-info">
+        <div className="results-left">
           <span className="results-count">{filteredProperties.length} results</span>
-          <div className="sort-controls">
-            <span>Sort by</span>
+          <div className="sort-controls" style={{ marginLeft: '0.75rem' }}>
+            <span className="sort-label">Sort by</span>
             <select 
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value)}
@@ -2102,22 +2047,23 @@ const Dashboard: React.FC = () => {
               <option value="price">Price</option>
               <option value="registrationConstructionStatus">Status</option>
             </select>
-            <button 
-              className={`sort-order-btn ${sortOrder === 'asc' ? 'active-asc' : 'active-desc'}`}
-              onClick={() => {
-                const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            <select 
+              className="sort-order-select"
+              value={sortOrder}
+              onChange={(e) => {
+                const newOrder = e.target.value;
                 console.log('Sort order changing from', sortOrder, 'to', newOrder);
                 setSortOrder(newOrder);
-                setSortClickCount(prev => prev + 1);
               }}
-              title={`Currently sorting ${sortOrder === 'asc' ? 'ascending' : 'descending'}. Click to change. (Clicks: ${sortClickCount})`}
+              title="Select sort order"
             >
-              {sortOrder === 'asc' ? '↑ ASC' : '↓ DESC'} ({sortClickCount})
-            </button>
+              <option value="asc">Low to High</option>
+              <option value="desc">High to Low</option>
+            </select>
           </div>
         </div>
-        
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+        <div className="results-right">
           {/* Clear Filters - Available to all users */}
           {getActiveFiltersCount() > 0 && (
             <button className="clear-filters-header-btn" onClick={clearAllFilters}>

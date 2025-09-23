@@ -1,3 +1,10 @@
+/* Dynamic layout variables */
+:root {
+  --sidebar-width: 280px;
+  --nav-height: 56px;
+  --results-offset: 24px; /* distance from bottom of nav to results header center */
+}
+
 /* Dashboard Container */
 .dashboard-container {
   height: 100vh;
@@ -376,15 +383,11 @@ elevenlabs-convai {
   max-width: 200px; /* Limit maximum width */
 }
 
-/* Responsive navigation brand - show AuzlandRE when space is limited */
+/* Responsive navigation brand - keep original text visible */
 @media (max-width: 1400px) {
-  .nav-brand h2::before {
-    content: "AuzlandRE";
-  }
-  
   .nav-brand h2 {
     font-size: 0.8rem; /* Smaller for compact view */
-    max-width: 120px; /* Reduce max width */
+    max-width: none; /* Allow full text to show */
   }
   
   .nav-tab {
@@ -753,6 +756,42 @@ aside.filters-sidebar,
 
 /* Search Input Styling */
 .filters-sidebar .search-input {
+/* Filters: dark themed selects to match dashboard */
+.filters-sidebar .filter-select,
+.filters-sidebar select.filter-select,
+.filters-sidebar .filter-content select,
+.filters-sidebar .filter-item select {
+  width: 100%;
+  background: #0f1720 !important;
+  color: #e5e7eb !important;
+  border: 1px solid #334155 !important;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none !important;
+  transition: all .2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.filters-sidebar .filter-select:hover,
+.filters-sidebar .filter-select:focus,
+.filters-sidebar .filter-content select:hover,
+.filters-sidebar .filter-content select:focus,
+.filters-sidebar .filter-item select:hover,
+.filters-sidebar .filter-item select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
+}
+
+.filters-sidebar .filter-select option,
+.filters-sidebar .filter-content select option,
+.filters-sidebar .filter-item select option {
+  background: #0b1220;
+  color: #e5e7eb;
+}
   width: 100%;
   padding: 0.75rem 1rem;
   background: #334155;
@@ -803,7 +842,7 @@ aside.filters-sidebar,
 .sidebar-toggle-container {
   position: fixed;
   left: 0;
-  top: 120px; /* Position below the navigation header */
+  top: calc(var(--nav-height) + var(--results-offset));
   z-index: 1000;
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -814,7 +853,7 @@ aside.filters-sidebar,
 /* Adjust toggle button position based on sidebar state */
 .filters-sidebar.open ~ .content-area .sidebar-toggle-container,
 .filters-sidebar.open + .content-area .sidebar-toggle-container {
-  left: 320px; /* Position button at the edge of open sidebar */
+  left: var(--sidebar-width);
 }
 
 .filters-sidebar.closed ~ .content-area .sidebar-toggle-container,
@@ -824,7 +863,7 @@ aside.filters-sidebar,
 
 /* Ensure button moves with sidebar */
 .dashboard-main:has(.filters-sidebar.open) .sidebar-toggle-container {
-  left: 320px;
+  left: var(--sidebar-width);
 }
 
 .dashboard-main:has(.filters-sidebar.closed) .sidebar-toggle-container {
@@ -1005,25 +1044,24 @@ aside.filters-sidebar,
 
 /* Responsive behavior for smaller screens */
 @media (max-width: 1200px) {
+  :root { --sidebar-width: 300px; }
   .filters-sidebar,
   .filters-sidebar.open {
-    width: 300px !important;
-    min-width: 300px !important;
-    max-width: 300px !important;
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
   }
   
   .filters-sidebar.closed + .content-area .sidebar-toggle-container {
     left: 0;
   }
   
-  .filters-sidebar.open + .content-area .sidebar-toggle-container {
-    left: 300px;
-  }
+  .filters-sidebar.open + .content-area .sidebar-toggle-container { left: var(--sidebar-width); }
   
   /* Responsive content area width for tablet */
   .filters-sidebar.open ~ .content-area,
   .filters-sidebar.open + .content-area {
-    width: calc(100% - 300px) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
   }
   
   .dashboard-main:has(.filters-sidebar.open) .content-area {
@@ -1060,25 +1098,24 @@ aside.filters-sidebar,
 }
 
 @media (max-width: 768px) {
+  :root { --sidebar-width: 280px; }
   .filters-sidebar,
   .filters-sidebar.open {
-    width: 280px !important;
-    min-width: 280px !important;
-    max-width: 280px !important;
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
   }
   
   .filters-sidebar.closed + .content-area .sidebar-toggle-container {
     left: 0;
   }
   
-  .filters-sidebar.open + .content-area .sidebar-toggle-container {
-    left: 280px;
-  }
+  .filters-sidebar.open + .content-area .sidebar-toggle-container { left: var(--sidebar-width); }
   
   /* Responsive content area width for mobile */
   .filters-sidebar.open ~ .content-area,
   .filters-sidebar.open + .content-area {
-    width: calc(100% - 280px) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
   }
   
   .dashboard-main:has(.filters-sidebar.open) .content-area {
@@ -1116,25 +1153,24 @@ aside.filters-sidebar,
 
 /* Extra small screens */
 @media (max-width: 480px) {
+  :root { --sidebar-width: 240px; }
   .filters-sidebar,
   .filters-sidebar.open {
-    width: 240px !important;
-    min-width: 240px !important;
-    max-width: 240px !important;
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
   }
   
   .filters-sidebar.closed + .content-area .sidebar-toggle-container {
     left: 0;
   }
   
-  .filters-sidebar.open + .content-area .sidebar-toggle-container {
-    left: 240px;
-  }
+  .filters-sidebar.open + .content-area .sidebar-toggle-container { left: var(--sidebar-width); }
   
   /* Responsive content area width for extra small screens */
   .filters-sidebar.open ~ .content-area,
   .filters-sidebar.open + .content-area {
-    width: calc(100% - 240px) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
   }
   
   .dashboard-main:has(.filters-sidebar.open) .content-area {
@@ -1856,17 +1892,17 @@ aside.filters-sidebar,
   backdrop-filter: none; /* Remove backdrop filter */
   -webkit-backdrop-filter: none; /* Remove backdrop filter */
   border: none; /* Remove all borders */
-  padding: 0.125rem 0.75rem; /* Ultra compact padding like buttons */
+  padding: 0.5rem 0.75rem; /* Compact padding */
   margin-top: 0.5rem; /* Reduced top margin */
-  margin-bottom: -0.25rem; /* Negative margin to bring table closer */
-  display: flex;
-  justify-content: space-between;
+  margin-bottom: 0.25rem; /* Small bottom margin */
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 1rem;
   align-items: center;
   flex-shrink: 0;
   position: relative; /* Ensure proper positioning */
   z-index: 10; /* Ensure it's above other elements */
-  min-height: 20px; /* Even more compact height */
-  max-height: 20px; /* Even more compact height */
+  min-height: 2.5rem; /* Proper height for grid layout */
   box-shadow: none; /* Remove all shadows */
 }
 
@@ -1929,18 +1965,74 @@ aside.filters-sidebar,
   color: #0f1720; /* Dark text on light background */
 }
 
-.export-button {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: #ffffff;
-  border: none;
-  padding: 0.375rem 0.75rem; /* Much smaller padding */
-  border-radius: 6px; /* Smaller border radius */
-  font-size: 0.75rem; /* Smaller font size */
-  font-weight: 700;
+/* Sort order select styling - higher specificity to override conflicting styles */
+.results-center .sort-order-select,
+.sort-controls .sort-order-select,
+.sort-order-select {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.95) 100%) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  color: #f1f5f9 !important;
+  padding: 0.375rem 0.75rem !important; /* Match export button */
+  border-radius: 6px !important; /* Match export button */
+  font-size: 0.75rem !important; /* Match export button */
+  font-weight: 600 !important;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: 0.5rem; /* Smaller margin */
-  min-height: 28px; /* Much smaller height */
+  min-width: 160px !important; /* Match sort-select width */
+  min-height: 28px !important; /* Match export button */
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-left: 0.375rem !important; /* Match export button spacing */
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.results-center .sort-order-select:hover,
+.sort-controls .sort-order-select:hover,
+.sort-order-select:hover {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95) 0%, rgba(71, 85, 105, 0.95) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-1px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.results-center .sort-order-select:focus,
+.sort-controls .sort-order-select:focus,
+.sort-order-select:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.results-center .sort-order-select option,
+.sort-controls .sort-order-select option,
+.sort-order-select option {
+  background: #1e293b !important;
+  color: #e5e7eb !important;
+}
+
+/* Export button styling - higher specificity to override admin-tools-content styles */
+.results-right .export-button,
+.export-button {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 0.375rem 0.75rem !important; /* Match import button padding */
+  border-radius: 6px !important; /* Match import button border radius */
+  font-size: 0.75rem !important; /* Match import button font size */
+  font-weight: 700 !important;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 0.375rem !important; /* Match import button margin */
+  min-height: 28px !important; /* Match import button height */
   box-shadow: 
     0 4px 8px rgba(5, 150, 105, 0.2),
     0 2px 4px rgba(0, 0, 0, 0.1),
@@ -1951,8 +2043,9 @@ aside.filters-sidebar,
   overflow: hidden;
 }
 
+.results-right .export-button:hover,
 .export-button:hover {
-  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
   transform: translateY(-2px) scale(1.02);
   box-shadow: 
     0 12px 24px rgba(5, 150, 105, 0.4),
@@ -2775,6 +2868,18 @@ aside.filters-sidebar,
 .form-group select[id="propertyType"]:invalid {
   color: #94a3b8;
   font-style: italic;
+}
+
+/* ---- Compact table rows (always on) ---- */
+.properties-main .properties-table td,
+.properties-main .properties-table th {
+  height: auto !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  padding: 4px 6px !important;
+  font-size: 0.8rem !important;
+  line-height: 1.2 !important;
+  vertical-align: middle !important;
 }
 
 /* Enhanced styling for all other dropdowns (Availability, Registration Status, etc.) */
@@ -4792,7 +4897,7 @@ div.properties-main div.properties-table-wrapper table.properties-table thead tr
 
 .results-count {
   color: #e5e7eb;
-  font-weight: 600;
+  font-weight: 800; /* Bold result number */
   font-size: 0.8rem; /* Compact font size */
   line-height: 1.1; /* Tight line height */
 }
@@ -4869,4 +4974,46 @@ div.properties-main div.properties-table-wrapper table.properties-table thead tr
   font-weight: 500;
   color: #E5E7EB;
   user-select: none;
+}
+
+/* New Results Header Layout */
+.results-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.results-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.results-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.sort-label {
+  color: #9ca3af;
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+/* Ensure brand name is always fully visible, even on small screens */
+.nav-left {
+  overflow: visible !important;
+}
+
+.nav-brand {
+  flex-shrink: 0 !important;
+}
+
+.nav-brand h2 {
+  max-width: none !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: initial !important;
 }
