@@ -2,7 +2,7 @@
 :root {
   --sidebar-width: 280px;
   --nav-height: 56px;
-  --results-offset: 24px; /* distance from bottom of nav to results header center */
+  --results-offset: -6px; /* move arrow up closer to results count */
 }
 
 /* Dashboard Container */
@@ -842,7 +842,7 @@ aside.filters-sidebar,
 .sidebar-toggle-container {
   position: fixed;
   left: 0;
-  top: calc(var(--nav-height) + var(--results-offset));
+  top: calc(var(--nav-height) + var(--results-offset)); /* follows results count */
   z-index: 1000;
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
