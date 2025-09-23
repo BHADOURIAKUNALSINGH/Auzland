@@ -28,8 +28,8 @@
 }
 
 .logo-text h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   margin: 0;
   line-height: 1;
 }
@@ -56,11 +56,12 @@
 .nav-link {
   text-decoration: none;
   color: white;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
+  font-weight: 700;
+  padding: 0.6rem 1.1rem;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
   position: relative;
+  font-size: 1.05rem;
 }
 
 .nav-link:hover {
@@ -194,6 +195,7 @@
   
   .logo-text h1 {
     font-size: 1.5rem;
+    font-weight: 800;
   }
   
   .logo-text p {

@@ -10,13 +10,52 @@
 
 .properties-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-bottom: 3rem;
 }
 
-.view-all-container {
-  text-align: center;
+.action-buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.action-buttons-container .btn {
+  min-width: 200px;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.action-buttons-container .btn-primary {
+  background-color: #dc2626;
+  color: white;
+}
+
+.action-buttons-container .btn-primary:hover {
+  background-color: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.action-buttons-container .btn-secondary {
+  background-color: #f8fafc;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.action-buttons-container .btn-secondary:hover {
+  background-color: #f1f5f9;
+  border-color: #dc2626;
+  color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Services Section */
@@ -98,10 +137,28 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .properties-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+  
+  .action-buttons-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .action-buttons-container .btn {
+    width: 100%;
+    max-width: 300px;
   }
   
   .services-grid {

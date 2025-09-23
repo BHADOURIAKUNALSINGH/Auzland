@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import PropertyCard from './PropertyCard';
@@ -17,6 +17,7 @@ if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'p
 
 const LISTINGS_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/listings';
 const MEDIA_API_URL = 'https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media';
+const CLOUDFRONT_BASE_URL = 'https://dx9e0rbpjsaqb.cloudfront.net/';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -26,6 +27,52 @@ const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [visibleSections, setVisibleSections] = useState(new Set());
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [pageLoaded, setPageLoaded] = useState(false);
+  
+  // Refs for scroll animations
+  const sectionRefs = useRef({});
+  const observerRef = useRef(null);
+
+  // Page load animation trigger
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPageLoaded(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Scroll animation observer
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections(prev => new Set([...prev, entry.target.id]));
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  // Helper function to set section ref
+  const setSectionRef = (id) => (el) => {
+    if (el) {
+      sectionRefs.current[id] = el;
+      if (observerRef.current) {
+        observerRef.current.observe(el);
+      }
+    }
+  };
 
   // Modal handlers
   const handlePropertyClick = (property) => {
@@ -37,6 +84,28 @@ const HomePage = () => {
     setIsModalOpen(false);
     setSelectedProperty(null);
   };
+
+  // Slideshow navigation
+  const goToSlide = (slideIndex) => {
+    setCurrentSlide(slideIndex);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % 3);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + 3) % 3);
+  };
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Pagination logic
   const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
@@ -106,6 +175,12 @@ const HomePage = () => {
   const toNumber = (val) => {
     const n = Number(val);
     return Number.isFinite(n) ? n : undefined;
+  };
+
+  // Build CloudFront URL for media key
+  const buildCloudFrontUrl = (mediaKey) => {
+    const key = mediaKey.startsWith('/') ? mediaKey.slice(1) : mediaKey;
+    return `${CLOUDFRONT_BASE_URL}${key}`;
   };
 
   // Fetch presigned URLs for media files
@@ -339,18 +414,109 @@ const HomePage = () => {
         // Filter for visible properties first
         const visibleRows = rows.filter(r => (r.propertyCustomerVisibility || '1') === '1');
         
-        // First filter for Grassbird and Sharp Street properties
-        const grassbirdAndSharpRows = visibleRows.filter(r => {
+        // Filter for specific properties from the images
+        const specificProperties = visibleRows.filter(r => {
           const address = (r.address || '').toLowerCase();
-          return address.includes('grassbird') || address.includes('sharp street');
+          return address.includes('29b frampton drive') || 
+                 address.includes('35 hewitt road') || 
+                 address.includes('37 hewitt road') 
         });
         
-        console.log(`🏠 Found ${grassbirdAndSharpRows.length} Grassbird/Sharp Street properties out of ${visibleRows.length} visible properties`);
+        console.log(`🏠 Found ${specificProperties.length} specific properties out of ${visibleRows.length} visible properties`);
         
-        // Use Grassbird/Sharp properties if available, otherwise fallback to random selection
-        const selectedRows = grassbirdAndSharpRows.length > 0 ? grassbirdAndSharpRows : visibleRows.slice(0, 6);
+        // Use specific properties if available, otherwise fallback to random selection
+        let selectedRows = specificProperties.length > 0 ? specificProperties.slice(0, 3) : visibleRows.slice(0, 3);
         
+        // If no properties found, use fallback data
+        if (selectedRows.length === 0) {
+          console.log('🏠 No properties found, using fallback data');
+          selectedRows = [
+            { 
+              id: 'fallback-1', 
+              address: '29b Frampton Drive', 
+              suburb: 'Gilead', 
+              propertyType: 'Townhouse',
+              bed: 3,
+              bath: 2,
+              garage: 2,
+              landSize: 570,
+              price: '$1,049,000',
+              availability: 'For Sale',
+              media: '[]'
+            },
+            { 
+              id: 'fallback-2', 
+              address: '35 Hewitt Road', 
+              suburb: 'Lochinvar', 
+              propertyType: 'Single Story',
+              bed: 4,
+              bath: 2,
+              garage: 2,
+              landSize: 596,
+              price: '$850,000',
+              availability: 'For Sale',
+              media: '[]'
+            },
+            { 
+              id: 'fallback-3', 
+              address: '37 Hewitt Road', 
+              suburb: 'Lochinvar', 
+              propertyType: 'Single Story',
+              bed: 4,
+              bath: 2,
+              garage: 2,
+              landSize: 596,
+              price: '$875,000',
+              availability: 'For Sale',
+              media: '[]'
+            }
+          ];
+        }
+        
+        // Fallback images for the specific properties
+        const fallbackImages = [
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=800&fit=crop&q=80', // Townhouse
+          'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop&q=80', // Single story
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop&q=80'  // Single story
+        ];
+
         const mapped = selectedRows.map((r, idx) => {
+          // Try to get image from media field
+          let imageUrl = '';
+          console.log(`🏠 Property ${idx} media field:`, r.media);
+          if (r.media) {
+            try {
+              const mediaArray = JSON.parse(r.media);
+              if (Array.isArray(mediaArray) && mediaArray.length > 0) {
+                // Filter for image files only
+                const imageFiles = mediaArray.filter(file => {
+                  const extension = file.toLowerCase().split('.').pop();
+                  return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].includes(extension);
+                });
+                
+                if (imageFiles.length > 0) {
+                  imageUrl = buildCloudFrontUrl(imageFiles[0]);
+                  console.log(`🏠 Using S3 image for property ${idx}:`, imageUrl);
+                }
+              }
+            } catch (e) {
+              console.log('Failed to parse media:', r.media);
+              // Try alternative parsing for malformed JSON
+              const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+              const matches = r.media.match(mediaPathRegex);
+              if (matches && matches.length > 0) {
+                imageUrl = buildCloudFrontUrl(matches[0]);
+                console.log(`🏠 Using regex-parsed S3 image for property ${idx}:`, imageUrl);
+              }
+            }
+          }
+          
+          // Use fallback image if no S3 media found
+          if (!imageUrl) {
+            imageUrl = fallbackImages[idx] || fallbackImages[0];
+            console.log(`🏠 Using fallback image for property ${idx}:`, imageUrl);
+          }
+
           const property = {
             id: r.id || `property-${idx}`,
             address: r.address || r.suburb || `Property ${idx + 1}`,
@@ -362,7 +528,8 @@ const HomePage = () => {
             landSize: toNumber(r.landSize) || 0,
             media: r.media || '',
             images: [], // Will be populated with real images (or stay empty for hourglass)
-            price: '',
+            image: imageUrl, // Add the image property for slideshow
+            price: r.price || '$0',
             status: r.availability || 'For Sale',
             priceNumber: (() => { 
               const raw = (r.price || '').toString(); 
@@ -462,9 +629,20 @@ const HomePage = () => {
       <Hero />
       
       {/* Featured Properties Section */}
-      <section className="section featured-properties">
+      <section 
+        id="featured-properties" 
+        ref={setSectionRef('featured-properties')}
+        className={`section featured-properties ${pageLoaded ? 'animate-in' : ''}`}
+      >
         <div className="container">
-          <h2 className="section-title">Properties We Think You'll Love</h2>
+          <div className="section-header">
+            <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
+              We've Got The Right Properties For You
+            </h2>
+            <p className={`section-subtitle ${pageLoaded ? 'animate-subtitle' : ''}`}>
+              Your Gateway to South West Sydney Living.
+            </p>
+          </div>
           
 
           
@@ -487,73 +665,80 @@ const HomePage = () => {
             </div>
           ) : featuredProperties.length > 0 ? (
             <>
-              <div className="properties-vertical-container">
-                {currentProperties.map((property) => (
-                  <div key={property.id} className="vertical-property-card" onClick={() => handlePropertyClick(property)}>
-                    <PropertyCard property={property} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="pagination-container">
-                  <div className="pagination">
-                    <button 
-                      className="pagination-btn prev-btn" 
-                      onClick={goToPreviousPage}
-                      disabled={currentPage === 1}
+              <div className="properties-slideshow">
+                <div className="slideshow-container">
+                  {featuredProperties.slice(0, 3).map((property, index) => (
+                    <div 
+                      key={property.id} 
+                      className={`slideshow-slide ${index === currentSlide ? 'active' : ''}`}
+                      style={{ 
+                        backgroundImage: `url(${property.image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                      }}
                     >
-                      ← Previous
-                    </button>
-                    
-                    <div className="page-numbers">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
+                      <div className="slide-overlay">
+                        <div className="slide-content">
+                          <div className="property-badge">HOT SELLING</div>
+                          <h1 className="slide-address">{property.address}</h1>
+                          <p className="slide-suburb">{property.suburb}</p>
+                          <div className="slide-details">
+                            <span className="slide-size">{property.landSize || 'N/A'} sqm</span>
+                            <span className="slide-type">{property.propertyType}</span>
+                            <span className="slide-status">{property.status}</span>
+                          </div>
+                          <div className="slide-description">
+                            <p>
+                              This exceptional {property.propertyType.toLowerCase()} in {property.suburb} is generating incredible interest in today's market. 
+                              With {property.bedrooms} bedrooms and {property.bathrooms} bathrooms, this stunning property offers the perfect blend of 
+                              modern living and timeless appeal. The {property.landSize || 'generous'} square meter block provides ample space for 
+                              families to grow and entertain.
+                            </p>
+                            <p>
+                              Don't miss your chance to secure this highly sought-after property. Contact us today to schedule an exclusive viewing 
+                              and discover why this home is the talk of {property.suburb}.
+                            </p>
+                          </div>
+                          <div className="slide-actions">
                           <button
-                            key={pageNum}
-                            className={`page-number ${currentPage === pageNum ? 'active' : ''}`}
-                            onClick={() => goToPage(pageNum)}
+                              className="btn btn-primary btn-large"
+                              onClick={() => handlePropertyClick(property)}
                           >
-                            {pageNum}
+                              View Details
                           </button>
-                        );
-                      })}
-                      
-                      {totalPages > 5 && currentPage < totalPages - 2 && (
-                        <>
-                          <span className="ellipsis">...</span>
                           <button
-                            className="page-number"
-                            onClick={() => goToPage(totalPages)}
+                              className="btn btn-secondary btn-large"
+                              onClick={() => navigate('/contact')}
                           >
-                            {totalPages}
+                              Schedule Viewing
                           </button>
-                        </>
-                      )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                     </div>
                     
+                {/* Navigation Dots */}
+                <div className="slideshow-dots">
+                  {featuredProperties.slice(0, 3).map((_, index) => (
                     <button 
-                      className="pagination-btn next-btn" 
-                      onClick={goToNextPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next →
-                    </button>
-                  </div>
+                      key={index}
+                      className={`dot ${index === currentSlide ? 'active' : ''}`}
+                      onClick={() => goToSlide(index)}
+                    />
+                  ))}
                 </div>
-              )}
+                
+                {/* Navigation Arrows */}
+                <button className="slideshow-arrow prev" onClick={prevSlide}>
+                  ←
+                </button>
+                <button className="slideshow-arrow next" onClick={nextSlide}>
+                  →
+                </button>
+              </div>
             </>
           ) : (
             <div className="no-properties-message">
@@ -576,10 +761,16 @@ const HomePage = () => {
       </section>
       
       {/* Services Section */}
-      <section className="section services-section">
+      <section 
+        id="services-section" 
+        ref={setSectionRef('services-section')}
+        className={`section services-section ${pageLoaded ? 'animate-in' : ''}`}
+      >
         <div className="container">
-          <h2 className="section-title">Explore All Things Property</h2>
-          <div className="services-grid">
+          <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
+            Explore All Things Property
+          </h2>
+          <div className={`services-grid ${pageLoaded ? 'animate-grid' : ''}`}>
             <div className="service-card card">
               <div className="service-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -621,10 +812,16 @@ const HomePage = () => {
       </section>
       
       {/* Latest News Section */}
-      <section className="section news-section">
+      <section 
+        id="news-section" 
+        ref={setSectionRef('news-section')}
+        className={`section news-section ${pageLoaded ? 'animate-in' : ''}`}
+      >
         <div className="container">
-          <h2 className="section-title">Latest Property News</h2>
-          <div className="news-grid">
+          <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
+            Latest Property News
+          </h2>
+          <div className={`news-grid ${pageLoaded ? 'animate-grid' : ''}`}>
             <div className="news-card card">
               <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=250&fit=crop" alt="Property News" />
               <div className="news-content">

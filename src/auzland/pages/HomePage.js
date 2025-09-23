@@ -91,13 +91,14 @@ const HomePage = () => {
           
           
           <div className="properties-grid">
-            {featuredProperties.map(property => (
+            {featuredProperties.slice(0, 3).map(property => (
               <PropertyCard key={property.id} property={property} />
             ))}
           </div>
           
-          <div className="view-all-container">
-            <button className="btn btn-secondary btn-large">View All Properties</button>
+          <div className="action-buttons-container">
+            <button className="btn btn-primary btn-large" onClick={() => window.location.href = '/properties'}>View All Properties</button>
+            <button className="btn btn-secondary btn-large" onClick={() => window.location.href = '/contact'}>Request Appraisal Now</button>
           </div>
         </div>
       </section>
