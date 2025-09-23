@@ -2903,6 +2903,132 @@ aside.filters-sidebar,
   padding: 8px 12px;
 }
 
+/* Compact form layout - top align and tighter rows */
+.modal-form {
+  gap: 0.75rem; /* tighter spacing between groups */
+}
+
+.form-row {
+  align-items: start; /* top-align fields in each row */
+  gap: 0.75rem; /* reduce horizontal gap */
+}
+
+.form-group {
+  gap: 0.25rem; /* tighter spacing between label and control */
+}
+
+.form-group label {
+  margin-bottom: 0.125rem; /* minimal bottom margin */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.5rem; /* reduce internal padding */
+  min-height: 32px; /* compact control height */
+}
+
+.form-group textarea {
+  min-height: 64px; /* still enough height but compact */
+}
+
+/* FINAL OVERRIDES: Make properties table compact and top-aligned */
+.properties-main .properties-table tr {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+.properties-main .properties-table th,
+.properties-main .properties-table td {
+  vertical-align: top !important; /* top align all cells like action column */
+  padding-top: 2px !important;
+  padding-bottom: 2px !important; /* trim bottom space */
+  line-height: 1 !important; /* tighten content */
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+/* Ensure responsive overrides keep compact layout */
+@media (max-width: 1200px) {
+  .properties-main .properties-table th,
+  .properties-main .properties-table td,
+  .properties-main .properties-table tr {
+    vertical-align: top !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    line-height: 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .properties-main .properties-table th,
+  .properties-main .properties-table td,
+  .properties-main .properties-table tr {
+    vertical-align: top !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    line-height: 1 !important;
+  }
+}
+
+/* ===== Compact table overrides (always-on) ===== */
+.properties-table.compact-table {
+  border-collapse: collapse !important; /* kill extra gaps between rows */
+  border-spacing: 0 !important;
+  font-size: 0.85rem;                   /* slightly smaller text */
+  line-height: 1.2 !important;          /* tighten line height */
+}
+
+/* Row height must be on tr as well, not just cells */
+.properties-table.compact-table tr {
+  height: auto !important;
+  min-height: 28px !important;          /* ~spreadsheet density */
+}
+
+/* Tighten cell padding and block any old 50px heights */
+.properties-table.compact-table th,
+.properties-table.compact-table td {
+  padding: 4px 6px !important;          /* default was likely 12–16px */
+  height: auto !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  vertical-align: middle !important;
+  white-space: nowrap;                  /* keep one line to avoid tall rows */
+}
+
+/* Optional: header a hair taller for readability */
+.properties-table.compact-table thead th {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+/* Remove card-like gaps so rows butt up cleanly */
+.properties-table.compact-table tr,
+.properties-table.compact-table td {
+  box-shadow: none !important;
+  border-top-width: 1px;
+}
+
+/* Temporary nuclear override to force compact density and top alignment */
+table.properties-table.compact-table,
+table.properties-table.compact-table * {
+  height: auto !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1.2 !important;
+  vertical-align: top !important;
+}
+
 .form-group select:not([id="propertyType"]) option:hover {
   background: #3b82f6;
   color: #ffffff;

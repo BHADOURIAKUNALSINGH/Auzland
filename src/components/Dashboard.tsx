@@ -2084,7 +2084,7 @@ const Dashboard: React.FC = () => {
 
       {/* Properties Table */}
       <div className="properties-table-wrapper">
-        <table className={`properties-table ${!hasEditAccess ? 'view-only' : ''}`}>
+        <table className={`properties-table compact-table ${!hasEditAccess ? 'view-only' : ''}`}>
           <thead>
             <tr>
               <th>PROPERTY TYPE</th>
