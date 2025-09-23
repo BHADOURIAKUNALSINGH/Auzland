@@ -2122,8 +2122,34 @@ const Dashboard: React.FC = () => {
                   <td>{property.lot}</td>
                   <td>{property.address}</td>
                   <td>{property.suburb || '-'}</td>
-                  <td>{property.availability || '-'}</td>
-                  <td>{property.registrationConstructionStatus || '-'}</td>
+                  <td>
+                    {(() => {
+                      const value = property.availability || '';
+                      const v = value.toLowerCase();
+                      const cls = v.includes('available')
+                        ? 'pill pill-green'
+                        : v.includes('under offer') || v.includes('offer')
+                        ? 'pill pill-yellow'
+                        : v.includes('sold')
+                        ? 'pill pill-red'
+                        : 'pill pill-gray';
+                      return value ? <span className={cls}>{value}</span> : '-';
+                    })()}
+                  </td>
+                  <td>
+                    {(() => {
+                      const value = property.registrationConstructionStatus || '';
+                      const v = value.toLowerCase();
+                      const cls = v === 'registered' || v === 'completed' || v.includes('complete')
+                        ? 'pill pill-green'
+                        : v.includes('under construction') || v.includes('construction') || v.includes('building')
+                        ? 'pill pill-yellow'
+                        : v === 'unregistered' || v.includes('unreg')
+                        ? 'pill pill-red'
+                        : 'pill pill-gray';
+                      return value ? <span className={cls}>{value}</span> : '-';
+                    })()}
+                  </td>
                   <td>${property.price?.toLocaleString() || '-'}</td>
                   <td>{property.frontage || '-'}</td>
                   <td>{property.landSize || '-'}</td>
@@ -2174,14 +2200,13 @@ const Dashboard: React.FC = () => {
     <main className="call-agent-main">
       <div className="call-agent-header">
         <h2>AI Call Agent</h2>
+        <div className="call-agent-widget">
+          <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
+        </div>
         <p>Connect with our intelligent AI assistant for property inquiries and support.</p>
       </div>
 
       <div className="call-agent-content">
-        <div className="call-agent-widget">
-          <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
-        </div>
-        
         <div className="call-agent-info">
           <div>
             <h3>About Our AI Agent</h3>

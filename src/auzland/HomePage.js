@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
+import SellImage from '../media/Landing_humanm/2149383571.webp';
+import BuyImage from '../media/Landing_humanm/Downsizing-in-Your-50s.jpg';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
@@ -887,7 +889,7 @@ const HomePage = () => {
           {/* Sell with AuzLandRE */}
           <div className="sell-buy-row">
             <div className="sell-buy-image">
-              <img src="/media/Landing_humanm/2149383571.webp" alt="Family selling their home" />
+              <img src={SellImage} alt="Family selling their home" />
             </div>
             <div className="sell-buy-content">
               <h2 className="sell-buy-title handwriting-font">| Sell with AuzLandRE</h2>
@@ -913,7 +915,7 @@ const HomePage = () => {
               </button>
             </div>
             <div className="sell-buy-image">
-              <img src="/media/Landing_humanm/Downsizing-in-Your-50s.jpg" alt="Happy couple buying their home" />
+              <img src={BuyImage} alt="Happy couple buying their home" />
             </div>
           </div>
         </div>
