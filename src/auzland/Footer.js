@@ -65,16 +65,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="footer-column">
-            <h3 className="footer-column-title">Tools & Resources</h3>
-            <ul className="footer-links">
-              <li><button onClick={() => handleLinkClick('/contact')}>Find an Office or Person</button></li>
-              <li><button onClick={() => handleLinkClick('/contact')}>Payment Calculator</button></li>
-              <li><button onClick={() => handleLinkClick('/blog')}>Resources</button></li>
-              <li><button onClick={() => handleLinkClick('/contact')}>Directory</button></li>
-              <li><button onClick={() => handleLinkClick('/blog')}>News</button></li>
-            </ul>
-          </div>
         </div>
 
         {/* Subscription Section */}

@@ -31,6 +31,72 @@ const HomePage = () => {
   const [visibleSections, setVisibleSections] = useState(new Set());
   const [scrollProgress, setScrollProgress] = useState(0);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const reviews = [
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Seller of house in Blair Athol, NSW',
+      time: '1 year ago',
+      text:
+        'I recently sold my home with Abhi and was very pleased. His professionalism and skills were outstanding. Highly recommended.'
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Buyer of house in Austral, NSW',
+      time: '1 year 1 month ago',
+      text:
+        'The buying process was smooth. Abhi was very helpful and kept us informed the whole time. He explained everything clearly and guided us.'
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Seller of house in Austral, NSW',
+      time: '1 year 1 month ago',
+      text:
+        'Sold my property through Abhi and had an excellent experience. He was professional, communicative, and secured a great price. Highly satisfied with the outcome.'
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Buyer of house in Blair Athol, NSW',
+      time: '1 year 1 month ago',
+      text:
+        "I recently bought a home through Abhi and had a great experience. He was patient, knowledgeable, and provided clear advice, making everything easy. I'm very happy with the home he found for me."
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Seller of house in Austral, NSW',
+      time: '1 year 1 month ago',
+      text:
+        'It was a great experience working with Abhi. He was professional, knowledgeable, and always available to help. He made the process smooth and easy. Highly recommend!'
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Buyer of house in Austral, NSW',
+      time: '1 year 3 months ago',
+      text:
+        'Abhi was very helpful to us in our purchase. We really appreciated how much he helped us negotiate every step along the way. We found him to be friendly, honest and professional.'
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Buyer of residential land in Leppington, NSW',
+      time: '1 year 4 months ago',
+      text:
+        'Abhi is really amazing. He helped us a lot to seal the deal. He was always quick, patient, and understood our situation well. We liked how he was always honest and clear with us. He made everything seem easy. Thanks a lot, Abhi! We hope to work with you again in the future.'
+    },
+    {
+      rating: 5,
+      label: 'Verified review',
+      title: 'Buyer of residential land in Leppington, NSW',
+      time: '1 year 4 months ago',
+      text:
+        'Abhi was exceptional in helping me purchase land in Leppington, demonstrating deep market knowledge and outstanding professionalism. He provided invaluable insights, was always available for questions, and secured a great deal. Highly recommend Abhi for his dedication and expertise.'
+    }
+  ];
   
   // Refs for scroll animations
   const sectionRefs = useRef({});
@@ -805,47 +871,99 @@ const HomePage = () => {
               </div>
               <h3>Explore Suburb Profiles</h3>
               <p>Check out different suburb profiles and find one that's right for you.</p>
-              <button className="btn btn-primary" onClick={() => navigate('/blog')}>Research Suburbs</button>
+              <button className="btn btn-primary" onClick={() => navigate('/contact')}>Research Suburbs</button>
             </div>
           </div>
         </div>
       </section>
-      
-      {/* Latest News Section */}
+
+      {/* Sell & Buy with AuzLandRE Section */}
       <section 
-        id="news-section" 
-        ref={setSectionRef('news-section')}
-        className={`section news-section ${pageLoaded ? 'animate-in' : ''}`}
+        id="sell-buy-section" 
+        ref={setSectionRef('sell-buy-section')}
+        className={`section sell-buy-section ${pageLoaded ? 'animate-in' : ''}`}
+      >
+        <div className="container">
+          {/* Sell with AuzLandRE */}
+          <div className="sell-buy-row">
+            <div className="sell-buy-image">
+              <img src="/media/Landing_humanm/2149383571.webp" alt="Family selling their home" />
+            </div>
+            <div className="sell-buy-content">
+              <h2 className="sell-buy-title handwriting-font">| Sell with AuzLandRE</h2>
+              <p className="sell-buy-description">
+                Your home is one of your most significant assets. At AuzLandRE we make it possible to sell your home in a simple and stress-free way, supporting you every step of the way.
+              </p>
+              <button className="btn btn-primary btn-large" onClick={() => navigate('/contact')}>
+                Sell with AuzLandRE
+              </button>
+            </div>
+          </div>
+
+          {/* Buy with AuzLandRE */}
+          <div className="sell-buy-row reverse">
+            <div className="sell-buy-content">
+              <h2 className="sell-buy-title handwriting-font">| Buy with AuzLandRE</h2>
+              <p className="sell-buy-subtitle">We make it possible.</p>
+              <p className="sell-buy-description">
+                Whether you're excited to be purchasing your very first home, or upsizing for greater comfort and convenience, AuzLandRE will help you select the best property for you and your family.
+              </p>
+              <button className="btn btn-primary btn-large" onClick={() => navigate('/buy')}>
+                Buy with AuzLandRE
+              </button>
+            </div>
+            <div className="sell-buy-image">
+              <img src="/media/Landing_humanm/Downsizing-in-Your-50s.jpg" alt="Happy couple buying their home" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Client Satisfaction Section */}
+      <section 
+        id="client-satisfaction" 
+        ref={setSectionRef('client-satisfaction')}
+        className={`section client-satisfaction ${pageLoaded ? 'animate-in' : ''}`}
       >
         <div className="container">
           <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
-            Latest Property News
+            What Our Clients Say
           </h2>
-          <div className={`news-grid ${pageLoaded ? 'animate-grid' : ''}`}>
-            <div className="news-card card">
-              <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=250&fit=crop" alt="Property News" />
-              <div className="news-content">
-                <h3>Market Update: Sydney Property Trends 2024</h3>
-                <p>Discover the latest trends and insights in Sydney's property market...</p>
-                <button className="btn btn-secondary">Read More</button>
+          <p className={`section-subtitle ${pageLoaded ? 'animate-subtitle' : ''}`}>
+            Real stories from families who found their dream homes with AuzLandRE
+          </p>
+          
+          {/* Removed static cards - using continuous two-lane marquee below */}
+
+          {/* Continuous Marquee Reviews */}
+          <div className="reviews-marquee">
+            <div className="marquee lane-top">
+              <div className="marquee-track">
+                {[...reviews, ...reviews].map((r, i) => (
+                  <div className="marquee-card" key={`top-${i}`}>
+                    <div className="marquee-header">
+                      <span className="stars">★★★★★</span>
+                      <span className="verify">{r.label}</span>
+                    </div>
+                    <div className="marquee-title">{r.title}</div>
+                    <p className="marquee-text">{r.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
-            
-            <div className="news-card card">
-              <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=250&fit=crop" alt="Property News" />
-              <div className="news-content">
-                <h3>Investment Opportunities in Regional NSW</h3>
-                <p>Explore the growing investment potential in regional New South Wales...</p>
-                <button className="btn btn-secondary">Read More</button>
-              </div>
-            </div>
-            
-            <div className="news-card card">
-              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=250&fit=crop" alt="Property News" />
-              <div className="news-content">
-                <h3>First Home Buyer Guide 2024</h3>
-                <p>Everything you need to know about buying your first home in Australia...</p>
-                <button className="btn btn-secondary">Read More</button>
+
+            <div className="marquee lane-bottom">
+              <div className="marquee-track">
+                {[...reviews.slice().reverse(), ...reviews].map((r, i) => (
+                  <div className="marquee-card" key={`bottom-${i}`}>
+                    <div className="marquee-header">
+                      <span className="stars">★★★★★</span>
+                      <span className="verify">{r.label}</span>
+                    </div>
+                    <div className="marquee-title">{r.title}</div>
+                    <p className="marquee-text">{r.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
