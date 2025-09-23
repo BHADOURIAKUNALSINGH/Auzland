@@ -8,7 +8,7 @@
   justify-content: center;
   text-align: center;
   color: white;
-  margin-top: 80px; /* Account for fixed header */
+  padding-top: 80px; /* Account for fixed header without creating outside gap */
 }
 
 .hero-background {
@@ -172,6 +172,8 @@
   outline: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
+  position: relative;
+  z-index: 20;
 }
 
 .search-container:hover {
@@ -313,7 +315,8 @@
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  width: 560px;
+  width: 640px;
+  max-width: 96vw;
   padding: 10px;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.35);
@@ -321,7 +324,7 @@
   max-height: 44vh;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  z-index: 50;
+  z-index: 9999;
   /* Transparent scrollbar for Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.35) transparent;
@@ -379,15 +382,54 @@
 }
 
 @media (max-width: 640px) {
+  .hero .container {
+    padding: 0 0.5rem;
+  }
+
+  .search-container {
+    width: 100%;
+    border-radius: 16px;
+    padding: 6px;
+  }
+
+  .filters-wrapper {
+    width: 100%;
+  }
+
   .filters-dropdown-over {
-    width: 90vw;
-    right: 50%;
-    transform: translateX(50%);
-    bottom: calc(100% + 8px);
-    max-height: 65vh;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+    transform: none;
+    top: calc(100% + 10px);
+    bottom: auto;
+    max-height: 72vh;
+    padding: 12px;
+    z-index: 9999;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* Force white body when the dropdown also has the .glass class */
+  .filters-dropdown-over.glass {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
   .filters-dropdown-over .filters-grid {
     grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .filters-dropdown-over .filter-input,
+  .filters-dropdown-over .filter-select {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
   }
 }
 
@@ -404,6 +446,19 @@
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
   backdrop-filter: blur(28px) saturate(120%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(120%) !important;
+}
+
+/* Strongest mobile override: force solid white body even if .glass is present */
+@media (max-width: 640px) {
+  .hero .filters-dropdown-over,
+  .hero .filters-dropdown-over.glass {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.18) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    z-index: 99999 !important;
+  }
 }
 
 /* Ensure inner form controls stay light on glass */
@@ -664,6 +719,8 @@
   justify-content: center;
   gap: 2rem;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-item {
@@ -694,8 +751,7 @@
 @media (max-width: 768px) {
   .hero {
     min-height: 70vh;
-    padding: 1.5rem 1rem;
-    margin-top: 60px; /* Reduced for mobile */
+    padding: 60px 1rem 1.5rem; /* top padding equals header height */
   }
   
   .hero-content {
@@ -790,7 +846,7 @@
 @media (max-width: 480px) {
   .hero {
     min-height: 60vh;
-    padding: 1rem 0.5rem;
+    padding: 60px 0.5rem 1rem; /* keep top padding for header height */
   }
   
   .hero-content {

@@ -1615,9 +1615,9 @@
 
 .sell-buy-image img {
   width: 100%;
-  height: auto;
+  height: 100%;
   max-height: 100%;
-  object-fit: contain;
+  object-fit: cover; /* Fill like the larger sold image */
   object-position: center;
   transition: transform 0.3s ease;
   border-radius: 12px;
@@ -1845,7 +1845,9 @@
 /* Responsive Design for Sell & Buy Section */
 @media (max-width: 1024px) {
   .sell-buy-row {
+    grid-template-columns: 1fr; /* Stack vertically on tablets and smaller */
     gap: 2rem;
+    margin-bottom: 4rem;
   }
   
   .sell-buy-title {
@@ -1855,11 +1857,21 @@
   .sell-buy-image {
     min-height: 300px;
     max-height: 400px;
+    width: 100%;
   }
   
   .sell-buy-content {
     min-height: 300px;
     max-height: 400px;
+    padding: 1rem;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Reset any order overrides when stacked */
+  .sell-buy-row.reverse .sell-buy-content,
+  .sell-buy-row.reverse .sell-buy-image {
+    order: unset;
   }
 }
 

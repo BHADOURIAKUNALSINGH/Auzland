@@ -889,7 +889,16 @@ const HomePage = () => {
           {/* Sell with AuzLandRE */}
           <div className="sell-buy-row">
             <div className="sell-buy-image">
-              <img src={SellImage} alt="Family selling their home" />
+              <img 
+                src={SellImage} 
+                alt="Family selling their home" 
+                onError={(e) => {
+                  try {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/2149383571.webp';
+                  } catch (_) {}
+                }}
+              />
             </div>
             <div className="sell-buy-content">
               <h2 className="sell-buy-title handwriting-font">| Sell with AuzLandRE</h2>
@@ -915,7 +924,16 @@ const HomePage = () => {
               </button>
             </div>
             <div className="sell-buy-image">
-              <img src={BuyImage} alt="Happy couple buying their home" />
+              <img 
+                src={BuyImage} 
+                alt="Happy couple buying their home" 
+                onError={(e) => {
+                  try {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/Downsizing-in-Your-50s.jpg';
+                  } catch (_) {}
+                }}
+              />
             </div>
           </div>
         </div>

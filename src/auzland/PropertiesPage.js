@@ -454,7 +454,8 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
           bathrooms: toNumber(r.bath),
           parking: toNumber(r.garage),
           media: r.media || r.media_url || '', // Store the raw media data
-          description: r.description || '', // Add description field
+          remark: r.remark || r.Remark || r.REMARK || '',
+          description: r.description || r.Description || r.DESCRIPTION || '', // Add description field
           images: [], // Will be populated with real images
           image: placeholder[idx % placeholder.length], // Fallback for old compatibility
           priceNumber: (() => { const raw = (r.price || r.price_guide || '').toString(); const n = Number(raw.replace(/[^0-9]/g, '')); return Number.isFinite(n) ? n : undefined; })(),
@@ -717,11 +718,11 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
               {(typeFilter || suburb || priceMin || priceMax || frontageMin || frontageMax || buildMin || buildMax || bedMin || bathMin || garageMin) && (
-                <button className="filter-toggle-btn" style={{ height: 36, marginTop: 20 }} onClick={clearFilters}>
+                <button className="filter-toggle-btn" style={{ height: 36 }} onClick={clearFilters}>
                   Clear Filters
                 </button>
               )}
-              <button className="filter-toggle-btn" style={{ height: 36, marginTop: 20 }} onClick={() => setShowFilters((s) => !s)}>
+              <button className="filter-toggle-btn" style={{ height: 36 }} onClick={() => setShowFilters((s) => !s)}>
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
             </div>

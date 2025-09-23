@@ -347,6 +347,14 @@ const PropertyModal = ({ property, isOpen, onClose }) => {
                 </div>
               )}
 
+              {/* Remark - Inline under Description */}
+              {property.remark && (
+                <div className="property-description-inline">
+                  <h3>Remark</h3>
+                  <p>{property.remark}</p>
+                </div>
+              )}
+
               <div className="action-buttons">
                 <button className="btn btn-primary" onClick={handleContactAgent}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

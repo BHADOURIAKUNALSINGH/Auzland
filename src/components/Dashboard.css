@@ -2380,14 +2380,14 @@ aside.filters-sidebar,
 
 /* Table header styling */
 .properties-table th {
-  background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%);
-  color: #f1f5f9;
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  color: #ffffff;
   font-weight: 700;
   font-size: 0.4rem; /* Very small header text */
   text-transform: uppercase;
   letter-spacing: 0.05em; /* Tighter letter spacing */
   padding: 0.03125rem 0.25rem; /* Ultra minimal header padding */
-  border-bottom: 0.25px solid rgba(59, 130, 246, 0.05); /* Ultra thin border */
+  border-bottom: 0.25px solid rgba(255, 255, 255, 0.25); /* Ultra thin border */
   position: sticky;
   top: 0;
   z-index: 10;
@@ -2395,6 +2395,12 @@ aside.filters-sidebar,
   min-height: 4px !important; /* Ultra thin minimum height */
   max-height: 4px !important; /* Ultra thin maximum height */
   line-height: 0.8; /* Ultra tight line height */
+}
+
+/* Ensure purple header in dashboard view with higher specificity */
+.properties-main .properties-table thead th {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%) !important;
+  color: #ffffff !important;
 }
 
 /* Force specific th elements in properties-main to be 50px height */
