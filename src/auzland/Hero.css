@@ -402,7 +402,8 @@
     left: 0;
     right: 0;
     transform: none;
-    top: calc(100% + 10px);
+    /* Place the dropdown below the red Search button on phones */
+    top: calc(100% + 64px);
     bottom: auto;
     max-height: 72vh;
     padding: 12px;
