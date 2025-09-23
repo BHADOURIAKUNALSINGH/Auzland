@@ -331,56 +331,157 @@ elevenlabs-convai {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   color: #f8fafc;
-  padding: 1.25rem 2.5rem;
+  padding: 0.125rem 0.75rem; /* Ultra compact padding */
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.1),
+    0 1px 1px -1px rgba(0, 0, 0, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
   position: relative;
-  z-index: 10;
+  z-index: 100; /* Ensure navigation stays on top */
+  min-height: 32px; /* Ultra compact height */
+  max-height: 32px; /* Fixed height */
+  width: 100%; /* Full width */
+  overflow: hidden; /* Prevent overflow */
+  flex-wrap: nowrap; /* Prevent wrapping */
 }
 
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 1.5rem; /* Reduced from 2rem to 1.5rem */
+  gap: 0.5rem; /* Responsive gap */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden; /* Hide overflow */
 }
 
 .nav-brand h2 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 0.9rem; /* Compact text */
+  font-weight: 700; /* Bold text */
   color: #f8fafc;
   letter-spacing: -0.025em;
   background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  line-height: 1.1; /* Tight line height */
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Show ellipsis for overflow */
+  max-width: 200px; /* Limit maximum width */
+}
+
+/* Responsive navigation brand - show AuzlandRE when space is limited */
+@media (max-width: 1400px) {
+  .nav-brand h2::before {
+    content: "AuzlandRE";
+  }
+  
+  .nav-brand h2 {
+    font-size: 0.8rem; /* Smaller for compact view */
+    max-width: 120px; /* Reduce max width */
+  }
+  
+  .nav-tab {
+    padding: 0.25rem 0.375rem; /* Smaller padding */
+    font-size: 0.7rem; /* Smaller font */
+  }
+  
+  .user-info {
+    gap: 0.125rem; /* Ultra compact gap */
+  }
+  
+  .username {
+    font-size: 0.7rem; /* Smaller username */
+  }
+  
+  .user-role {
+    font-size: 0.65rem; /* Smaller role text */
+    padding: 0.125rem 0.25rem; /* Smaller padding */
+  }
+  
+  .admin-tools-content .add-user-button,
+  .admin-tools-content .export-button,
+  .admin-tools-content .import-button {
+    padding: 0.125rem 0.25rem; /* Ultra compact padding */
+    font-size: 0.55rem; /* Ultra compact font */
+    margin-right: 0.125rem; /* Ultra compact margin */
+    height: 14px; /* Even more compact on smaller screens */
+    min-height: 14px;
+    max-height: 14px;
+    max-width: 60px; /* Even smaller max width */
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-brand h2 {
+    font-size: 0.75rem; /* Even smaller */
+    max-width: 120px; /* Further reduce max width */
+  }
+  
+  .nav-tab {
+    padding: 0.125rem 0.25rem; /* Ultra compact padding */
+    font-size: 0.65rem; /* Ultra compact font */
+  }
+  
+  .user-info {
+    gap: 0.125rem; /* Ultra compact gap */
+  }
+  
+  .username {
+    font-size: 0.65rem; /* Ultra compact username */
+  }
+  
+  .user-role {
+    font-size: 0.6rem; /* Ultra compact role text */
+    padding: 0.125rem 0.25rem; /* Ultra compact padding */
+  }
+  
+  .admin-tools-content .add-user-button,
+  .admin-tools-content .export-button,
+  .admin-tools-content .import-button {
+    padding: 0.125rem 0.25rem; /* Ultra compact padding */
+    font-size: 0.55rem; /* Ultra compact font */
+    margin-right: 0.125rem; /* Ultra compact margin */
+    height: 14px; /* Even more compact on mobile */
+    min-height: 14px;
+    max-height: 14px;
+    max-width: 60px; /* Even smaller max width */
+  }
 }
 
 .nav-tabs {
   display: flex;
   gap: 0;
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden; /* Hide overflow */
 }
 
 .nav-tab {
-  padding: 0.875rem 2rem;
+  padding: 0.25rem 0.5rem; /* Responsive padding */
   background: none;
   border: none;
   color: #94a3b8;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700; /* Made bold */
+  font-size: 0.75rem; /* Responsive font size */
+  line-height: 1.1; /* Tight line height */
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   border-radius: 8px 8px 0 0;
   letter-spacing: 0.025em;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Show ellipsis for overflow */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
 }
 
 .nav-tab:hover {
@@ -410,27 +511,67 @@ elevenlabs-convai {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Reduced from 1.5rem to 1rem */
+  gap: 0.5rem; /* Responsive gap */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden; /* Hide overflow */
 }
 
 .user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.125rem; /* Reduced from 0.25rem to 0.125rem */
+  display: flex !important;
+  flex-direction: row !important; /* Horizontal layout */
+  align-items: center !important; /* Center align items */
+  gap: 0.25rem; /* Ultra compact spacing */
+  flex-wrap: nowrap !important; /* Prevent wrapping to new line */
+  justify-content: flex-start !important; /* Align to start */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden; /* Hide overflow */
+}
+
+/* Ensure user role and sign out button are also horizontal */
+.user-info .user-role,
+.user-info .signout-button {
+  display: inline-block !important; /* Make them inline */
+  vertical-align: middle; /* Align vertically */
+  flex-shrink: 0; /* Prevent shrinking */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Hide welcome message on smaller screens to save space */
+@media (max-width: 1200px) {
+  .username {
+    display: none !important; /* Hide welcome message when space is limited */
+  }
+}
+
+/* Ensure user-role and signout button stay visible and horizontal */
+@media (max-width: 1200px) {
+  .user-info {
+    gap: 0.5rem; /* Reduce gap when welcome message is hidden */
+  }
 }
 
 .username {
-  font-weight: 500;
+  font-weight: 700; /* Bold text */
   color: #ffffff; /* White text */
+  font-size: 0.75rem; /* Compact text */
+  line-height: 1.1; /* Tight line height */
+  display: inline-block !important; /* Ensure horizontal layout */
+  vertical-align: middle; /* Align with other elements */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .user-role {
   background: rgba(71, 85, 105, 0.3); /* Dark gray with transparency */
-  padding: 0.125rem 0.5rem; /* Reduced from 0.25rem 0.75rem */
-  border-radius: 20px;
-  font-size: 0.875rem;
+  padding: 0.125rem 0.375rem; /* Ultra compact padding */
+  border-radius: 10px; /* Smaller radius */
+  font-size: 0.7rem; /* Compact text */
   color: #94a3b8; /* Light gray text */
+  line-height: 1.1; /* Tight line height */
+  font-weight: 700; /* Bold text */
+  display: inline-block; /* Ensure horizontal layout */
+  vertical-align: middle; /* Align with other elements */
 }
 
 /* Main Content Layout */
@@ -476,6 +617,8 @@ elevenlabs-convai {
   position: relative; /* For absolute positioning of toggle button */
   transition: margin-left 0.3s ease, margin-right 0.3s ease, width 0.3s ease; /* Smooth transition when sidebars toggle */
   order: 2; /* Position in middle */
+  z-index: 1; /* Ensure proper layering */
+  padding-top: 0.25rem; /* Minimal top padding */
 }
 
 /* Dynamic expansion of content area when sidebar is closed */
@@ -529,24 +672,105 @@ elevenlabs-convai {
   background: #F7F7F7; /* Light Gray - Neutral BG */
 }
 
-/* Filters Sidebar - Default Closed State */
+/* Filters Sidebar - Professional Clean Design */
 aside.filters-sidebar,
 .filters-sidebar {
-  width: 320px; /* Keep full width for content */
-  min-width: 320px; /* Keep full width for content */
-  max-width: 320px; /* Keep full width for content */
-  background: #0f1720; /* Dark background for sidebar */
-  border-right: 2px solid #475569; /* Keep border for visual separation */
+  width: 280px; /* More compact width */
+  min-width: 280px; /* More compact width */
+  max-width: 280px; /* More compact width */
+  background: #1e293b; /* Professional dark background */
+  border: none; /* Remove all borders */
   overflow: visible; /* Allow content to be visible */
   flex-shrink: 0;
-  padding: 12px; /* Keep padding for content */
+  padding: 0; /* No padding - clean edge-to-edge design */
   min-height: 0; /* Allow flex item to shrink */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   transition: all 0.3s ease; /* Smooth transition for open/close */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center filter contents horizontally */
+  align-items: stretch; /* Stretch filter contents to full width */
   box-sizing: border-box; /* Include padding in width calculation */
-  order: 1; /* Position first (left side) */
+}
+
+/* Professional Filter List Styling */
+.filters-sidebar .filter-list {
+  width: 100%;
+  padding: 1rem 0;
+  list-style: none;
+  margin: 0;
+}
+
+.filters-sidebar .filter-item {
+  width: 100%;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.filters-sidebar .filter-item:hover {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.filters-sidebar .filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  color: #f1f5f9;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.filters-sidebar .filter-header:hover {
+  color: #ffffff;
+}
+
+.filters-sidebar .filter-arrow {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.filters-sidebar .filter-item.open .filter-arrow {
+  transform: rotate(180deg);
+}
+
+.filters-sidebar .filter-content {
+  padding: 0 1rem 0.75rem 1rem;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.filters-sidebar .filter-content.hidden {
+  display: none;
+}
+
+/* Search Input Styling */
+.filters-sidebar .search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 0;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.filters-sidebar .search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #475569;
+}
+
+.filters-sidebar .search-input::placeholder {
+  color: #94a3b8;
 }
 
 /* Collapsible Sidebar States */
@@ -561,13 +785,13 @@ aside.filters-sidebar,
 }
 
 .filters-sidebar.open {
-  width: 320px !important;
-  padding: 12px !important;
-  border-right: 2px solid #475569 !important;
+  width: 280px !important;
+  padding: 8px !important;
+  border-right: 1px solid #475569 !important;
   overflow-y: auto !important;
   overflow-x: hidden !important; /* Force prevent horizontal scrolling */
-  min-width: 320px !important;
-  max-width: 320px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important; /* Center filter contents horizontally */
@@ -1039,19 +1263,19 @@ aside.filters-sidebar,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem; /* Reduced from 1.5rem */
-  padding: 0.75rem 1rem; /* Reduced from 1rem 1.25rem */
+  margin-bottom: 0.5rem; /* Much more compact */
+  padding: 0.5rem 0.75rem; /* Much more compact */
   background: #1e293b; /* Dark background for header */
-  border-radius: 8px; /* Reduced from 12px */
+  border-radius: 6px; /* More compact */
   border: 1px solid #475569; /* Dark gray border */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Dark shadow */
-  min-height: 36px; /* Reduced from 45px */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Lighter shadow */
+  min-height: 28px; /* Much more compact */
 }
 
 .filters-header h3 {
   margin: 0;
   color: #ffffff;
-  font-size: 1.5rem;
+  font-size: 1rem; /* More compact */
   font-weight: 700;
   letter-spacing: 0.025em;
   text-transform: uppercase;
@@ -1092,12 +1316,12 @@ aside.filters-sidebar,
 }
 
 .filter-category {
-  margin-bottom: 0.25rem; /* Much tighter spacing between categories */
-  padding: 4px; /* Much tighter internal padding */
+  margin-bottom: 0.125rem; /* Ultra tight spacing between categories */
+  padding: 2px; /* Ultra tight internal padding */
   background: #1e293b; /* Dark background for filter categories */
-  border-radius: 10px; /* Increased from 8px for better visual appeal */
+  border-radius: 6px; /* More compact */
   border: 1px solid #475569; /* Dark gray border */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow for better depth */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Lighter shadow */
   width: 100%; /* Set to 100% to match parent filters-sidebar width */
   box-sizing: border-box; /* Ensure padding is included in width calculation */
 }
@@ -1124,12 +1348,12 @@ aside.filters-sidebar,
 }
 
 .filter-group {
-  margin-bottom: 0.125rem; /* Very tight spacing between filter groups */
+  margin-bottom: 0.0625rem; /* Ultra tight spacing between filter groups */
   display: flex;
   flex-direction: column;
-  gap: 0.125rem; /* Very tight internal spacing */
+  gap: 0.0625rem; /* Ultra tight internal spacing */
   width: 100%; /* Take full width of parent */
-  max-width: 360px !important; /* Prevent overflow - leave room for padding */
+  max-width: 260px !important; /* More compact width */
   box-sizing: border-box !important; /* Include padding in width calculation */
   overflow: hidden !important; /* Prevent any overflow */
 }
@@ -1156,14 +1380,15 @@ aside.filters-sidebar,
 .filter-group select,
 .filter-group input {
   width: 100%;
-  padding: 0.5rem; /* Much tighter padding for very compact look */
-  border: 2px solid #475569; /* Dark gray border */
-  border-radius: 8px;
-  font-size: 0.875rem;
+  padding: 0.375rem; /* Ultra compact padding */
+  border: 1px solid #475569; /* Thinner border */
+  border-radius: 4px; /* More compact */
+  font-size: 0.75rem; /* Smaller text */
   font-weight: 500;
   transition: all 0.2s ease;
   background: #0f1720; /* Dark background */
   color: #FFFFFF; /* White text */
+  min-height: 28px; /* Fixed compact height */
 }
 
 .filter-group select:focus,
@@ -1417,15 +1642,18 @@ aside.filters-sidebar,
   font-size: 1rem;
 }
 
-/* Properties Main Content */
+/* Properties Main Content - Ultra Compact */
 .properties-main {
   flex: 1;
-  padding: 1rem;
+  padding: 0.25rem; /* Ultra compact padding */
   background: #1A3C64; /* Navy Blue - Primary background */
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0; /* Allow flex item to shrink */
+  position: relative; /* Ensure proper positioning */
+  z-index: 1; /* Ensure proper layering */
+  margin-top: 0.25rem; /* Minimal top margin */
 }
 
 /* Custom Scrollbar Styles for Properties Main */
@@ -1530,15 +1758,25 @@ aside.filters-sidebar,
 .admin-tools-content .add-user-button,
 .admin-tools-content .export-button,
 .admin-tools-content .import-button {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  padding: 0.125rem 0.25rem;  /* Ultra compact padding */
+  border-radius: 3px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
-  font-size: 0.875rem;
-  margin-right: 1rem;
-  margin-bottom: 1rem;
+  font-size: 0.6rem;  /* Ultra compact font size */
+  margin-right: 0.125rem;  /* Ultra compact margin */
+  margin-bottom: 0.125rem;  /* Ultra compact bottom margin */
+  height: 16px;  /* Ultra compact height */
+  line-height: 1;  /* Very tight line height */
+  min-height: 16px;
+  max-height: 16px;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Show ellipsis for overflow */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
+  max-width: 80px; /* Limit maximum width to prevent overflow */
 }
 
 .admin-tools-content .add-user-button {
@@ -1583,19 +1821,21 @@ aside.filters-sidebar,
 
 
 .signout-button {
-  padding: 0.75rem 1.5rem;
+  padding: 0.375rem 0.75rem; /* Much smaller padding */
   background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: 6px; /* Smaller border radius */
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-size: 0.75rem; /* Smaller font size */
+  min-height: 28px; /* Much smaller height */
   box-shadow: 
-    0 8px 16px rgba(220, 38, 38, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(220, 38, 38, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
@@ -1612,58 +1852,76 @@ aside.filters-sidebar,
 
 /* Results Header */
 .results-header {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-  padding: 1.5rem 2.5rem;
-  margin-bottom: 1rem;
+  background: transparent; /* Remove background */
+  backdrop-filter: none; /* Remove backdrop filter */
+  -webkit-backdrop-filter: none; /* Remove backdrop filter */
+  border: none; /* Remove all borders */
+  padding: 0.125rem 0.75rem; /* Ultra compact padding like buttons */
+  margin-top: 0.5rem; /* Reduced top margin */
+  margin-bottom: -0.25rem; /* Negative margin to bring table closer */
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative; /* Ensure proper positioning */
+  z-index: 10; /* Ensure it's above other elements */
+  min-height: 20px; /* Even more compact height */
+  max-height: 20px; /* Even more compact height */
+  box-shadow: none; /* Remove all shadows */
 }
 
 .results-info {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 0.5rem; /* Ultra compact gap */
 }
 
 .results-count {
   font-weight: 600;
   color: #E9C46A; /* Gold/Amber - Accent */
+  font-size: 0.75rem; /* Ultra compact text */
+  line-height: 1; /* Very tight line height */
 }
 
 .sort-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem; /* Ultra compact gap */
   color: #FFFFFF; /* White text for dark background */
-  font-size: 0.875rem;
+  font-size: 0.7rem; /* Smaller text */
+  line-height: 1.1; /* Tight line height */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0; /* Allow shrinking below content size */
 }
 
 .sort-select {
-  padding: 0.5rem;
+  padding: 0.125rem 0.375rem; /* Ultra compact padding */
   border: 1px solid #E9C46A; /* Gold/Amber - Accent border */
-  border-radius: 6px;
+  border-radius: 3px; /* Smaller radius */
   background: #0f1720; /* Dark background */
   color: #FFFFFF; /* White text */
-  font-size: 0.875rem;
+  font-size: 0.65rem; /* Ultra compact text */
+  min-height: 20px; /* Fixed compact height */
+  line-height: 1; /* Very tight line height */
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 60px; /* Smaller minimum width */
+  max-width: 100px; /* Smaller maximum width */
 }
 
 .sort-order-btn {
-  padding: 0.5rem;
+  padding: 0.125rem 0.375rem; /* Ultra compact padding */
   background: #1e293b; /* Dark background */
   border: 1px solid #E9C46A; /* Gold/Amber - Accent border */
   color: #FFFFFF; /* White text */
-  border-radius: 6px;
+  border-radius: 3px; /* Smaller radius */
+  font-size: 0.65rem; /* Ultra compact text */
+  min-height: 20px; /* Fixed compact height */
+  line-height: 1; /* Very tight line height */
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 50px; /* Smaller minimum width */
+  max-width: 70px; /* Smaller maximum width */
 }
 
 .sort-order-btn:hover {
@@ -1675,17 +1933,17 @@ aside.filters-sidebar,
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: #ffffff;
   border: none;
-  padding: 0.875rem 1.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem; /* Much smaller padding */
+  border-radius: 6px; /* Smaller border radius */
+  font-size: 0.75rem; /* Smaller font size */
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: 0.75rem;
-  min-height: 44px;
+  margin-left: 0.5rem; /* Smaller margin */
+  min-height: 28px; /* Much smaller height */
   box-shadow: 
-    0 8px 16px rgba(5, 150, 105, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(5, 150, 105, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1707,14 +1965,15 @@ aside.filters-sidebar,
   background: #dc2626; /* Red background */
   color: #FFFFFF;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem; /* Much more compact */
+  border-radius: 4px; /* Smaller radius */
+  font-size: 0.7rem; /* Smaller text */
+  min-height: 20px; /* Fixed compact height */
+  line-height: 1.1; /* Tight line height */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-left: 0.75rem;
-  min-height: 40px;
 }
 
 .clear-filters-header-btn:hover {
@@ -1726,30 +1985,34 @@ aside.filters-sidebar,
 /* Properties Table */
 .properties-table {
   width: 100%;
-  min-width: max-content;
+  min-width: max-content; /* Allow table to expand horizontally */
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 16px;
+  border-radius: 8px; /* Smaller radius for compact look */
   margin: 0;
+  border-collapse: collapse; /* Ensure tight spacing */
+  border-spacing: 0; /* Remove any spacing between cells */
   box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 8px 12px -4px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.04),
     0 0 0 1px rgba(255, 255, 255, 0.05);
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  table-layout: auto;
+  font-size: 0.45rem; /* Very small base font size */
+  table-layout: auto; /* Auto layout for flexible column widths */
   flex: 1;
   color: #f8fafc;
   border: 1px solid rgba(148, 163, 184, 0.1);
-  overflow: hidden;
+  overflow: visible; /* Allow horizontal overflow */
   position: relative;
+  line-height: 0.8; /* Ultra tight line height for entire table */
+  width: max-content; /* Allow table to expand based on content */
 }
 
 /* Table wrapper for proper scrolling */
 .properties-table-wrapper {
   flex: 1;
-  overflow: auto;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
   min-height: 0; /* Allow flex item to shrink */
   background: #0f1720; /* Dark background */
   border-radius: 8px;
@@ -1757,6 +2020,8 @@ aside.filters-sidebar,
   display: flex;
   flex-direction: column;
   height: 100%; /* Take full height */
+  min-width: 0; /* Allow shrinking for horizontal scroll */
+  margin-top: 0.25rem; /* Minimal top margin to bring table closer to results */
 }
 
 /* Custom Scrollbar Styles */
@@ -1811,14 +2076,88 @@ aside.filters-sidebar,
 
 .properties-table th,
 .properties-table td {
-  padding: 0.75rem 0.75rem;
+  padding: 0.03125rem 0.25rem; /* Ultra minimal padding */
   text-align: left;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-  vertical-align: middle;
+  border-bottom: 0.25px solid rgba(148, 163, 184, 0.02); /* Ultra thin border */
+  vertical-align: top !important; /* Force top alignment like action buttons */
   word-wrap: break-word;
-  overflow: visible;
+  font-size: 0.45rem; /* Very small text */
+  line-height: 0.8; /* Ultra tight line height */
+  height: 4px !important; /* Ultra thin row height */
+  min-height: 4px !important; /* Ultra thin minimum height */
+  max-height: 4px !important; /* Ultra thin maximum height */
+  overflow: hidden; /* Hide overflow */
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: none; /* Remove transitions for performance */
+  width: auto; /* Allow flexible width */
+  min-width: 80px; /* Minimum width for readability */
+  display: table-cell; /* Ensure proper table cell display */
+}
+
+/* Force specific td elements in properties-main to be 50px height */
+.properties-main .properties-table td {
+  height: 50px !important; /* Force 50px height for td elements */
+  min-height: 50px !important; /* Force minimum 50px height */
+  max-height: 50px !important; /* Force maximum 50px height */
+  padding: 0.5rem 0.75rem; /* Normal padding for readability */
+  font-size: 0.875rem; /* Normal font size - back to original */
+  line-height: 1.4; /* Normal line height for readability */
+  vertical-align: top !important; /* Top align like action buttons */
+  box-sizing: border-box !important; /* Include padding in height calculation */
+}
+
+/* Override any other conflicting height rules */
+.properties-main table td,
+.properties-main .properties-table tbody td,
+.properties-main .properties-table tbody tr td {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 1.4 !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+/* Override media query rules that might be overriding height */
+@media (max-width: 1200px) {
+  .properties-main .properties-table td,
+  .properties-main .properties-table th,
+  .properties-main .properties-table tr {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .properties-main .properties-table td,
+  .properties-main .properties-table th,
+  .properties-main .properties-table tr {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* Override any nth-child rules that might affect height */
+.properties-main .properties-table td:nth-child(n),
+.properties-main .properties-table th:nth-child(n) {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 1.4 !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
 }
 
 /* Text selection prevention for view-only users */
@@ -1830,108 +2169,100 @@ aside.filters-sidebar,
   user-select: none;
 }
 
-/* Dynamic column widths - Updated for new column order */
-.properties-table th:nth-child(1),  /* PROPERTY TYPE */
-.properties-table td:nth-child(1) {
-  min-width: 120px;
-  max-width: 160px;
+/* COMPACT ROWS — override all the 50px rules to make rows much tighter */
+.properties-main .properties-table tr {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
 }
 
-.properties-table th:nth-child(2),  /* LOT */
-.properties-table td:nth-child(2) {
-  min-width: 80px;
-  max-width: 100px;
+.properties-main .properties-table th,
+.properties-main .properties-table td {
+  /* Keep readable font size but make rows very compact */
+  font-size: 0.875rem !important;    /* ~14px - readable size */
+  line-height: 1 !important;         /* very tight line height */
+  padding: 2px 6px !important;       /* minimal padding */
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  vertical-align: middle !important;
+  border-spacing: 0 !important;      /* remove any cell spacing */
+  border-collapse: collapse !important;
 }
 
-.properties-table th:nth-child(3),  /* ADDRESS */
-.properties-table td:nth-child(3) {
-  min-width: 200px;
-  max-width: 300px;
+/* If there are buttons/inputs inside cells, make them compact too */
+.properties-main .properties-table td * {
+  line-height: 1 !important;
 }
 
-.properties-table th:nth-child(4),  /* SUBURB */
-.properties-table td:nth-child(4) {
-  min-width: 120px;
-  max-width: 160px;
+.properties-main .properties-table td button,
+.properties-main .properties-table td input,
+.properties-main .properties-table td select {
+  padding: 2px 6px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  font-size: 0.875rem !important;
+  line-height: 1 !important;
 }
 
-.properties-table th:nth-child(5),  /* AVAILABILITY */
-.properties-table td:nth-child(5) {
-  min-width: 120px;
-  max-width: 150px;
+/* Override all the mega selector rules */
+.properties-main table *,
+.properties-main .properties-table *,
+.properties-main .properties-table td,
+.properties-main .properties-table th,
+.properties-main .properties-table tr,
+.properties-main .properties-table tbody td,
+.properties-main .properties-table tbody th,
+.properties-main .properties-table tbody tr,
+.properties-main .properties-table thead td,
+.properties-main .properties-table thead th,
+.properties-main .properties-table thead tr {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
 }
 
-.properties-table th:nth-child(6),  /* STATUS */
-.properties-table td:nth-child(6) {
-  min-width: 180px;
-  max-width: 220px;
-  white-space: normal;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+/* Override media query rules */
+@media (max-width: 1200px) {
+  .properties-main .properties-table td,
+  .properties-main .properties-table th,
+  .properties-main .properties-table tr {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 2px 6px !important;
+    font-size: 0.875rem !important;
+    line-height: 1 !important;
+  }
 }
 
-.properties-table th:nth-child(7),  /* PRICE */
-.properties-table td:nth-child(7) {
-  min-width: 120px;
-  max-width: 150px;
+@media (max-width: 768px) {
+  .properties-main .properties-table td,
+  .properties-main .properties-table th,
+  .properties-main .properties-table tr {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 2px 6px !important;
+    font-size: 0.875rem !important;
+    line-height: 1 !important;
+  }
 }
 
-.properties-table th:nth-child(8),  /* FRONTAGE */
-.properties-table td:nth-child(8) {
-  min-width: 80px;
-  max-width: 100px;
+/* Override nth-child rules */
+.properties-main .properties-table td:nth-child(n),
+.properties-main .properties-table th:nth-child(n) {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  font-size: 0.875rem !important;
+  padding: 2px 6px !important;
 }
 
-.properties-table th:nth-child(9),  /* LAND SIZE */
-.properties-table td:nth-child(9) {
-  min-width: 100px;
-  max-width: 120px;
-}
-
-.properties-table th:nth-child(10), /* BUILD SIZE */
-.properties-table td:nth-child(10) {
-  min-width: 100px;
-  max-width: 120px;
-}
-
-.properties-table th:nth-child(11), /* BED */
-.properties-table td:nth-child(11) {
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(12), /* BATH */
-.properties-table td:nth-child(12) {
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.properties-table th:nth-child(13), /* GARAGE */
-.properties-table td:nth-child(13) {
-  min-width: 80px;
-  max-width: 100px;
-}
-
-.properties-table th:nth-child(14), /* MEDIA */
-.properties-table td:nth-child(14) {
-  min-width: 150px;
-  max-width: 200px;
-  vertical-align: middle; /* Ensure media column is vertically centered */
-  text-align: left; /* Align with other columns instead of center */
-  padding-left: 0.5rem; /* Consistent padding with other columns */
-}
-
-.properties-table th:nth-child(15), /* REMARK */
-.properties-table td:nth-child(15) {
-  min-width: 150px;
-  max-width: 250px;
-}
-
-.properties-table th:nth-child(16), /* ACTIONS */
-.properties-table td:nth-child(16) {
-  min-width: 120px;
-  max-width: 150px;
-}
+/* Removed old fixed column widths - replaced with dynamic widths below */
 
 /* Allow text wrapping for longer content in dynamic columns */
 .properties-table td:nth-child(1),  /* PROPERTY TYPE */
@@ -1959,14 +2290,42 @@ aside.filters-sidebar,
   background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%);
   color: #f1f5f9;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.4rem; /* Very small header text */
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 1rem 0.75rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  letter-spacing: 0.05em; /* Tighter letter spacing */
+  padding: 0.03125rem 0.25rem; /* Ultra minimal header padding */
+  border-bottom: 0.25px solid rgba(59, 130, 246, 0.05); /* Ultra thin border */
   position: sticky;
   top: 0;
   z-index: 10;
+  height: 4px !important; /* Ultra thin header height */
+  min-height: 4px !important; /* Ultra thin minimum height */
+  max-height: 4px !important; /* Ultra thin maximum height */
+  line-height: 0.8; /* Ultra tight line height */
+}
+
+/* Force specific th elements in properties-main to be 50px height */
+.properties-main .properties-table th {
+  height: 50px !important; /* Force 50px height for th elements */
+  min-height: 50px !important; /* Force minimum 50px height */
+  max-height: 50px !important; /* Force maximum 50px height */
+  padding: 0.5rem 0.75rem; /* Normal padding for readability */
+  font-size: 0.875rem; /* Normal font size - back to original */
+  line-height: 1.4; /* Normal line height for readability */
+  vertical-align: top !important; /* Top align like action buttons */
+  box-sizing: border-box !important; /* Include padding in height calculation */
+}
+
+/* Override any other conflicting height rules for headers */
+.properties-main table th,
+.properties-main .properties-table thead th,
+.properties-main .properties-table thead tr th {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 1.2 !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
 }
 
 /* Removed special highlighting for availability column */
@@ -1977,16 +2336,158 @@ aside.filters-sidebar,
 
 
 
+/* Force ultra-compact table rows */
+.properties-table tr {
+  height: 4px !important; /* Ultra thin row height */
+  min-height: 4px !important; /* Ultra thin minimum height */
+  max-height: 4px !important; /* Ultra thin maximum height */
+  line-height: 0.8 !important; /* Ultra tight line height */
+}
+
+/* Force specific table rows in properties-main to be 50px height */
+.properties-main .properties-table tr {
+  height: 50px !important; /* Force 50px height for table rows */
+  min-height: 50px !important; /* Force minimum 50px height */
+  max-height: 50px !important; /* Force maximum 50px height */
+  line-height: 1.2 !important; /* Better line height for 50px */
+  box-sizing: border-box !important; /* Include padding in height calculation */
+}
+
+/* Override any other conflicting height rules for rows */
+.properties-main table tr,
+.properties-main .properties-table tbody tr,
+.properties-main .properties-table tbody tr {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 1.2 !important;
+  box-sizing: border-box !important;
+}
+
+/* Dynamic column widths based on content length */
+.properties-table th:nth-child(1), /* PROPERTY TYPE */
+.properties-table td:nth-child(1) {
+  width: auto; /* Dynamic width */
+  min-width: 140px; /* Enough for "PROPERTY TYPE" */
+  max-width: 180px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(2), /* LOT */
+.properties-table td:nth-child(2) {
+  width: auto; /* Dynamic width */
+  min-width: 60px; /* Compact for "LOT" */
+  max-width: 80px; /* Small maximum */
+}
+
+.properties-table th:nth-child(3), /* ADDRESS */
+.properties-table td:nth-child(3) {
+  width: auto; /* Dynamic width */
+  min-width: 200px; /* Wide for addresses */
+  max-width: 350px; /* Large maximum for long addresses */
+}
+
+.properties-table th:nth-child(4), /* SUBURB */
+.properties-table td:nth-child(4) {
+  width: auto; /* Dynamic width */
+  min-width: 120px; /* Enough for "SUBURB" */
+  max-width: 180px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(5), /* AVAILABILITY */
+.properties-table td:nth-child(5) {
+  width: auto; /* Dynamic width */
+  min-width: 140px; /* Enough for "AVAILABILITY" */
+  max-width: 180px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(6), /* STATUS */
+.properties-table td:nth-child(6) {
+  width: auto; /* Dynamic width */
+  min-width: 120px; /* Enough for "STATUS" */
+  max-width: 200px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(7), /* PRICE */
+.properties-table td:nth-child(7) {
+  width: auto; /* Dynamic width */
+  min-width: 100px; /* Enough for "PRICE" */
+  max-width: 150px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(8), /* FRONTAGE */
+.properties-table td:nth-child(8) {
+  width: auto; /* Dynamic width */
+  min-width: 100px; /* Enough for "FRONTAGE" */
+  max-width: 120px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(9), /* LAND SIZE */
+.properties-table td:nth-child(9) {
+  width: auto; /* Dynamic width */
+  min-width: 120px; /* Enough for "LAND SIZE" */
+  max-width: 150px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(10), /* BUILD SIZE */
+.properties-table td:nth-child(10) {
+  width: auto; /* Dynamic width */
+  min-width: 120px; /* Enough for "BUILD SIZE" */
+  max-width: 150px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(11), /* BED */
+.properties-table td:nth-child(11) {
+  width: auto; /* Dynamic width */
+  min-width: 60px; /* Compact for "BED" */
+  max-width: 80px; /* Small maximum */
+}
+
+.properties-table th:nth-child(12), /* BATH */
+.properties-table td:nth-child(12) {
+  width: auto; /* Dynamic width */
+  min-width: 60px; /* Compact for "BATH" */
+  max-width: 80px; /* Small maximum */
+}
+
+.properties-table th:nth-child(13), /* GARAGE */
+.properties-table td:nth-child(13) {
+  width: auto; /* Dynamic width */
+  min-width: 80px; /* Enough for "GARAGE" */
+  max-width: 100px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(14), /* MEDIA */
+.properties-table td:nth-child(14) {
+  width: auto; /* Dynamic width */
+  min-width: 120px; /* Enough for "MEDIA" */
+  max-width: 180px; /* Reasonable maximum */
+}
+
+.properties-table th:nth-child(15), /* REMARK */
+.properties-table td:nth-child(15) {
+  width: auto; /* Dynamic width */
+  min-width: 120px; /* Enough for "REMARK" */
+  max-width: 250px; /* Large maximum for remarks */
+}
+
+.properties-table th:nth-child(16), /* ACTIONS */
+.properties-table td:nth-child(16) {
+  width: auto; /* Dynamic width */
+  min-width: 140px; /* Enough for "ACTIONS" */
+  max-width: 180px; /* Reasonable maximum */
+  text-align: center; /* Center action buttons */
+}
+
 /* Table row hover effects */
 .properties-table tr:hover {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, rgba(139, 92, 246, 0.02) 100%);
+  transform: none; /* No transform for ultra-compact rows */
+  box-shadow: none; /* No shadow for ultra-compact rows */
 }
 
 .properties-table tr:hover td {
   background: transparent;
-  border-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.1); /* More subtle border */
 }
 
 /* Remove border from last row */
@@ -2090,17 +2591,20 @@ aside.filters-sidebar,
 /* Action Buttons */
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.125rem; /* Ultra small gap between buttons */
 }
 
 .edit-btn,
 .delete-btn {
-  padding: 0.5rem 0.75rem;
+  padding: 0.0625rem 0.25rem; /* Ultra small padding */
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 3px; /* Even smaller border radius */
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.875rem;
+  font-size: 0.65rem; /* Even smaller font size */
+  line-height: 1.1; /* Ultra tight line height */
+  height: auto; /* Allow natural height */
+  min-height: 16px; /* Smaller minimum height */
 }
 
 .edit-btn {
@@ -2803,6 +3307,43 @@ aside.filters-sidebar,
   }
 }
 
+/* CRITICAL: Force 50px height for all table elements in properties-main - HIGHEST PRIORITY */
+.properties-main table *,
+.properties-main .properties-table *,
+.properties-main .properties-table td,
+.properties-main .properties-table th,
+.properties-main .properties-table tr,
+.properties-main .properties-table tbody td,
+.properties-main .properties-table tbody th,
+.properties-main .properties-table tbody tr,
+.properties-main .properties-table thead td,
+.properties-main .properties-table thead th,
+.properties-main .properties-table thead tr {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 1.4 !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* ULTRA CRITICAL: Override any possible conflicting rules with maximum specificity */
+div.properties-main div.properties-table-wrapper table.properties-table tbody tr td,
+div.properties-main div.properties-table-wrapper table.properties-table thead tr th,
+div.properties-main div.properties-table-wrapper table.properties-table tbody tr,
+div.properties-main div.properties-table-wrapper table.properties-table thead tr {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  line-height: 1.4 !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+}
+
 /* Ensure sidebar is dark regardless of external CSS cascade */
 .dashboard-container .filters-sidebar {
   background-color: #0f1720 !important;
@@ -3286,17 +3827,19 @@ aside.filters-sidebar,
   background: #3b82f6;
   color: white;
   border: none;
-  padding: 6px 12px; /* Consistent with table cell padding */
-  border-radius: 6px;
-  font-size: 0.875rem;
+  padding: 0.0625rem 0.25rem; /* Ultra small padding */
+  border-radius: 3px; /* Even smaller border radius */
+  font-size: 0.65rem; /* Even smaller font size */
   cursor: pointer;
   transition: background-color 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.0625rem; /* Ultra small gap */
   white-space: nowrap;
   margin: 0; /* Remove any margin */
-  line-height: normal; /* Ensure consistent line height */
+  line-height: 0.7; /* Ultra tight line height */
+  height: auto; /* Allow natural height */
+  min-height: 16px; /* Smaller minimum height */
 }
 
 .view-media-btn:hover {
@@ -3723,12 +4266,7 @@ aside.filters-sidebar,
   }
 }
 
-.user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.125rem; /* Reduced from 0.25rem to 0.125rem */
-}
+/* Removed duplicate user-info style - using the horizontal one above */
 
 .user-email {
   font-size: 0.875rem;
@@ -4005,15 +4543,16 @@ aside.filters-sidebar,
   background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
   color: #ffffff;
   border: none;
-  padding: 0.875rem 1.75rem;
-  border-radius: 12px;
+  padding: 0.375rem 0.75rem; /* Much smaller padding */
+  border-radius: 6px; /* Smaller border radius */
   cursor: pointer;
   font-weight: 700;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: 0.5rem;
+  margin-left: 0.375rem; /* Smaller margin */
+  min-height: 28px; /* Much smaller height */
   box-shadow: 
-    0 8px 16px rgba(124, 58, 237, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(124, 58, 237, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -4157,6 +4696,24 @@ aside.filters-sidebar,
   color: #e5e7eb;
 }
 
+/* Sorting option text styling for Low to High / High to Low */
+.sort-option-low-high::before {
+  content: "Low to High";
+}
+
+.sort-option-high-low::before {
+  content: "High to Low";
+}
+
+/* Sort order button styling for Low to High / High to Low */
+.sort-order-btn.low-high::after {
+  content: "↑ Low to High";
+}
+
+.sort-order-btn.high-low::after {
+  content: "↓ High to Low";
+}
+
 .sort-order-btn {
   background: linear-gradient(135deg, rgba(55, 65, 81, 0.95) 0%, rgba(75, 85, 99, 0.95) 100%);
   backdrop-filter: blur(10px);
@@ -4215,22 +4772,29 @@ aside.filters-sidebar,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  background: #111827;
-  border-radius: 8px 8px 0 0;
-  border-bottom: 1px solid #1f2937;
+  padding: 0.125rem 0.75rem; /* Ultra compact padding like buttons */
+  background: transparent; /* Remove background */
+  border: none; /* Remove all borders */
+  margin-top: 0.5rem; /* Reduced top margin */
+  margin-bottom: -0.25rem; /* Negative margin to bring table closer */
+  position: relative; /* Ensure proper positioning */
+  z-index: 10; /* Ensure it's above other elements */
+  min-height: 20px; /* Even more compact height */
+  max-height: 20px; /* Even more compact height */
+  box-shadow: none; /* Remove all shadows */
 }
 
 .results-info {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.75rem; /* Ultra compact gap */
 }
 
 .results-count {
   color: #e5e7eb;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.8rem; /* Compact font size */
+  line-height: 1.1; /* Tight line height */
 }
 
 /* Customer Visibility Controls */
