@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { NewUser } from '../types';
+import { loadElevenLabsWidget } from '../utils/elevenLabsLoader';
 // import ChatbotSidebar from './ChatbotSidebar';
 import './Dashboard.css';
 
@@ -46,19 +47,9 @@ const Dashboard: React.FC = () => {
 
   // Load ElevenLabs Convai widget
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-    script.async = true;
-    script.type = 'text/javascript';
-    document.head.appendChild(script);
-
-    return () => {
-      // Cleanup script on component unmount
-      const existingScript = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
-      if (existingScript) {
-        document.head.removeChild(existingScript);
-      }
-    };
+    loadElevenLabsWidget().catch((error) => {
+      console.warn('Failed to load ElevenLabs widget:', error);
+    });
   }, []);
 
 

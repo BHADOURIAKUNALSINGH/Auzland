@@ -613,107 +613,56 @@ aside.filters-sidebar,
 }
 
 .sidebar-toggle-btn {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: transparent;
   color: #ffffff;
   border: none;
-  width: 48px;
-  height: 48px;
+  width: 0;
+  height: 0;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   user-select: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 
-    0 8px 32px rgba(59, 130, 246, 0.3),
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: visible;
+  /* Create arrow shape pointing right by default */
+  border-left: 20px solid #ffffff;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  /* Add shadow for depth */
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Beautiful tooltip */
-.sidebar-toggle-btn::after {
-  content: 'Toggle Filters';
-  position: absolute;
-  left: 65px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  color: #f8fafc;
-  padding: 0.625rem 1rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.2),
-    0 4px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  z-index: 1001;
+/* Arrow direction based on sidebar state */
+.filters-sidebar.open ~ .content-area .sidebar-toggle-btn,
+.filters-sidebar.open + .content-area .sidebar-toggle-btn {
+  /* Point left when sidebar is open (to close it) */
+  border-left: none;
+  border-right: 20px solid #ffffff;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
 }
 
-.sidebar-toggle-btn:hover::after {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(-50%) translateX(5px);
+.filters-sidebar.closed ~ .content-area .sidebar-toggle-btn,
+.filters-sidebar.closed + .content-area .sidebar-toggle-btn {
+  /* Point right when sidebar is closed (to open it) */
+  border-left: 20px solid #ffffff;
+  border-right: none;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
 }
 
-/* Modern icon-based toggle */
-.sidebar-toggle-btn::before {
-  content: '☰';
-  font-size: 20px;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  color: #ffffff;
+/* Ensure arrow direction changes are smooth */
+.sidebar-toggle-btn {
+  transition: all 0.3s ease, border 0.2s ease;
 }
 
-.filters-sidebar.open ~ .content-area .sidebar-toggle-btn::before,
-.filters-sidebar.open + .content-area .sidebar-toggle-btn::before {
-  content: '✕';
-  transform: rotate(0deg);
-}
-
-.filters-sidebar.closed ~ .content-area .sidebar-toggle-btn::before,
-.filters-sidebar.closed + .content-area .sidebar-toggle-btn::before {
-  content: '☰';
-  transform: rotate(0deg);
-}
-
-/* Enhanced hover and active states */
 .sidebar-toggle-btn:hover {
   transform: scale(1.1);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 1) 0%, rgba(139, 92, 246, 1) 100%);
-  box-shadow: 
-    0 12px 40px rgba(59, 130, 246, 0.4),
-    0 8px 20px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.sidebar-toggle-btn:hover::before {
-  transform: scale(1.1);
+  filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
+  /* Add subtle glow effect for white arrow */
+  filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
 .sidebar-toggle-btn:active {
   transform: scale(0.95);
-  box-shadow: 
-    0 4px 16px rgba(59, 130, 246, 0.3),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Add pulsing animation when sidebar is closed to draw attention */
-.filters-sidebar.closed ~ .content-area .sidebar-toggle-btn,
-.filters-sidebar.closed + .content-area .sidebar-toggle-btn {
-  animation: pulse-attention 2s infinite;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 @keyframes pulse-attention {
@@ -858,12 +807,10 @@ aside.filters-sidebar,
   }
   
   .sidebar-toggle-btn {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .sidebar-toggle-btn::before {
-    font-size: 20px;
+    border-left-width: 18px;
+    border-right-width: 18px;
+    border-top-width: 13px;
+    border-bottom-width: 13px;
   }
   
   .sidebar-toggle-btn::after {
@@ -915,12 +862,10 @@ aside.filters-sidebar,
   }
   
   .sidebar-toggle-btn {
-    width: 45px;
-    height: 45px;
-  }
-  
-  .sidebar-toggle-btn::before {
-    font-size: 18px;
+    border-left-width: 16px;
+    border-right-width: 16px;
+    border-top-width: 12px;
+    border-bottom-width: 12px;
   }
   
   .sidebar-toggle-btn::after {
@@ -973,12 +918,10 @@ aside.filters-sidebar,
   }
   
   .sidebar-toggle-btn {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .sidebar-toggle-btn::before {
-    font-size: 16px;
+    border-left-width: 14px;
+    border-right-width: 14px;
+    border-top-width: 10px;
+    border-bottom-width: 10px;
   }
   
   .sidebar-toggle-btn::after {

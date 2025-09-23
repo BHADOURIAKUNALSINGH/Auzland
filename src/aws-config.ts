@@ -23,6 +23,8 @@ try {
   const configured = (Amplify as any).getConfig?.();
   // eslint-disable-next-line no-console
   console.log('Amplify Auth configured:', configured?.Auth?.Cognito || configured?.Auth);
-} catch {}
+} catch (error) {
+  console.error('Error checking Amplify configuration:', error);
+}
 
 export default awsConfig;

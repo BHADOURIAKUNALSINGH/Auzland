@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 // aws-config is loaded in index.tsx
 import './App.css';
 
@@ -39,7 +40,15 @@ const AppContent: React.FC = () => {
   // The Dashboard automatically shows/hides features based on user groups
   return (
     <div className="employee-portal">
-      <Dashboard />
+      <ErrorBoundary fallback={
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <h2>Dashboard Error</h2>
+          <p>There was an error loading the dashboard. Please try refreshing the page.</p>
+          <button onClick={() => window.location.reload()}>Refresh Page</button>
+        </div>
+      }>
+        <Dashboard />
+      </ErrorBoundary>
     </div>
   );
 };
@@ -146,15 +155,17 @@ const EmployeePortal: React.FC = () => (
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Employee portal routes - WITH authentication (must come first) */}
-        <Route path="/properties/*" element={<EmployeePortal />} />
-        
-        {/* Public customer-facing routes - NO authentication */}
-        <Route path="/*" element={<PublicRoutes />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          {/* Employee portal routes - WITH authentication (must come first) */}
+          <Route path="/properties/*" element={<EmployeePortal />} />
+          
+          {/* Public customer-facing routes - NO authentication */}
+          <Route path="/*" element={<PublicRoutes />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 };
 

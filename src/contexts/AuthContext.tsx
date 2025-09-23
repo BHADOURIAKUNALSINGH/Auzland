@@ -82,7 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!configured?.Auth?.Cognito?.userPoolId || !configured?.Auth?.Cognito?.userPoolClientId) {
         Amplify.configure(awsConfig as any);
       }
-    } catch {}
+    } catch (error) {
+      console.error('Error ensuring Amplify configuration:', error);
+    }
   };
 
   useEffect(() => {
@@ -103,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser({ username: current.username, email, groups });
       setIsAuthenticated(true);
     } catch (error: any) {
+      console.log('User not authenticated or auth check failed:', error.message);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
