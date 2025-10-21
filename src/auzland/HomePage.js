@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import SellImage from '../media/Landing_humanm/2149383571.webp';
 import BuyImage from '../media/Landing_humanm/Downsizing-in-Your-50s.jpg';
-import PropertyCard from './PropertyCard';
+// import PropertyCard from './PropertyCard'; // Unused import
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 
