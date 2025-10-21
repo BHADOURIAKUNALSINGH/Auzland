@@ -27,8 +27,8 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage
+  // const [currentPage, setCurrentPage] = useState(1); // Unused
+  // const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage - Unused
   const [currentSlide, setCurrentSlide] = useState(0);
   // const [visibleSections, setVisibleSections] = useState(new Set()); // Unused
   // const [scrollProgress, setScrollProgress] = useState(0); // Unused
@@ -177,10 +177,10 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Pagination logic
-  const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
-  const startIndex = (currentPage - 1) * propertiesPerPage;
-  const endIndex = startIndex + propertiesPerPage;
+  // Pagination logic - commented out as unused
+  // const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
+  // const startIndex = (currentPage - 1) * propertiesPerPage;
+  // const endIndex = startIndex + propertiesPerPage;
   // const currentProperties = featuredProperties.slice(startIndex, endIndex); // Unused
 
   // Pagination functions - commented out as unused
@@ -203,10 +203,10 @@ const HomePage = () => {
   //   }
   // };
 
-  // Reset to page 1 when featured properties change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [featuredProperties.length]);
+  // Reset to page 1 when featured properties change - commented out as unused
+  // useEffect(() => {
+  //   setCurrentPage(1);
+  // }, [featuredProperties.length]);
 
   // Helper functions from PropertiesPage
   const parseCsv = (csv) => {
@@ -358,7 +358,7 @@ const HomePage = () => {
         // Approach 2: Try to extract file paths with regex
         // Robust regex that handles ANY special characters in filenames
         // Uses a more permissive approach: match "media/" followed by anything until a valid image extension
-        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]},]|$)/gi;
         const matches = mediaString.match(mediaPathRegex);
         
         if (matches && matches.length > 0) {
@@ -572,7 +572,7 @@ const HomePage = () => {
             } catch (e) {
               console.log('Failed to parse media:', r.media);
               // Try alternative parsing for malformed JSON
-              const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+              const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]},]|$)/gi;
               const matches = r.media.match(mediaPathRegex);
               if (matches && matches.length > 0) {
                 imageUrl = buildCloudFrontUrl(matches[0]);
@@ -689,6 +689,7 @@ const HomePage = () => {
     
     loadFeaturedProperties();
   }, []); // Run only once on component mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Debug logging for render
   console.log('🏠 HomePage render - isLoading:', isLoading, 'featuredProperties.length:', featuredProperties.length);

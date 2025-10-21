@@ -1492,35 +1492,35 @@ const Dashboard: React.FC = () => {
     return uploadedKeys;
   };
 
-  const deleteMediaFromS3 = async (key: string): Promise<boolean> => {
-    try {
-      console.log('Attempting to delete media with key:', key);
-      
-      const response = await fetch('https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ key })
-      });
+  // const deleteMediaFromS3 = async (key: string): Promise<boolean> => { // Commented out as unused
+  //   try {
+  //     console.log('Attempting to delete media with key:', key);
+  //     
+  //     const response = await fetch('https://868qsxaw23.execute-api.us-east-2.amazonaws.com/Prod/media', {
+  //       method: 'DELETE',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ key })
+  //     });
 
-      console.log('Delete response status:', response.status);
-      console.log('Delete response headers:', response.headers);
+  //     console.log('Delete response status:', response.status);
+  //     console.log('Delete response headers:', response.headers);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
-        console.error('Delete failed with error:', errorData);
-        throw new Error(errorData.error || `Delete failed: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+  //       console.error('Delete failed with error:', errorData);
+  //       throw new Error(errorData.error || `Delete failed: ${response.status}`);
+  //     }
 
-      const successData = await response.json().catch(() => ({ ok: true }));
-      console.log('Delete successful:', successData);
-      return true;
-    } catch (error: any) {
-      console.error(`Failed to delete media ${key}:`, error);
-      return false;
-    }
-  };
+  //     const successData = await response.json().catch(() => ({ ok: true }));
+  //     console.log('Delete successful:', successData);
+  //     return true;
+  //   } catch (error: any) {
+  //     console.error(`Failed to delete media ${key}:`, error);
+  //     return false;
+  //   }
+  // };
 
   // Build direct CloudFront URL for media key
   const buildCloudFrontUrl = (mediaKey: string): string => {
