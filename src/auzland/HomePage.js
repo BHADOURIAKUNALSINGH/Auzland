@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import SellImage from '../media/Landing_humanm/2149383571.webp';
@@ -389,7 +389,7 @@ const HomePage = () => {
   }, []);
 
   // Sample property data (keeping as fallback)
-  const fallbackProperties = [
+  const fallbackProperties = useMemo(() => [
     {
       id: 1,
       image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop',
@@ -462,7 +462,7 @@ const HomePage = () => {
       propertyType: 'Luxury Estate',
       status: 'For Sale'
     }
-  ];
+  ], []); // Empty dependency array since this is static data
 
   // Load real properties from API
   useEffect(() => {
@@ -688,8 +688,7 @@ const HomePage = () => {
     };
     
     loadFeaturedProperties();
-  }, []); // Run only once on component mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallbackProperties, getAllImagesFromMedia]); // Include dependencies
 
   // Debug logging for render
   console.log('🏠 HomePage render - isLoading:', isLoading, 'featuredProperties.length:', featuredProperties.length);

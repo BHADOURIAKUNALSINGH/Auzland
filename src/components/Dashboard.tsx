@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { NewUser } from '../types';
 import { loadElevenLabsWidget } from '../utils/elevenLabsLoader';
@@ -1565,26 +1565,26 @@ const Dashboard: React.FC = () => {
     window.open(url, '_blank');
   };
 
-  const nextMedia = () => {
+  const nextMedia = useCallback(() => {
     if (viewingMedia.length <= 1) return;
     setCurrentMediaIndex((prev) => 
       prev === viewingMedia.length - 1 ? 0 : prev + 1
     );
-  };
+  }, [viewingMedia.length]);
 
-  const prevMedia = () => {
+  const prevMedia = useCallback(() => {
     if (viewingMedia.length <= 1) return;
     setCurrentMediaIndex((prev) => 
       prev === 0 ? viewingMedia.length - 1 : prev - 1
     );
-  };
+  }, [viewingMedia.length]);
 
-  const closeMediaViewer = () => {
+  const closeMediaViewer = useCallback(() => {
     setShowMediaViewer(false);
     setViewingMedia([]);
     setCurrentMediaIndex(0);
     setMediaPresignedUrls({});
-  };
+  }, []);
 
   // Handle keyboard navigation for media viewer
   useEffect(() => {
