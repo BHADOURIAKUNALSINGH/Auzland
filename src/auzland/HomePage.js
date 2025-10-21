@@ -30,8 +30,8 @@ const HomePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [visibleSections, setVisibleSections] = useState(new Set());
-  const [scrollProgress, setScrollProgress] = useState(0);
+  // const [visibleSections, setVisibleSections] = useState(new Set()); // Unused
+  // const [scrollProgress, setScrollProgress] = useState(0); // Unused
   const [pageLoaded, setPageLoaded] = useState(false);
   const reviews = [
     {
@@ -112,7 +112,8 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll animation observer
+  // Scroll animation observer - commented out as unused
+  /*
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -131,6 +132,7 @@ const HomePage = () => {
       }
     };
   }, []);
+  */
 
   // Helper function to set section ref
   const setSectionRef = (id) => (el) => {
@@ -179,27 +181,27 @@ const HomePage = () => {
   const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
   const startIndex = (currentPage - 1) * propertiesPerPage;
   const endIndex = startIndex + propertiesPerPage;
-  const currentProperties = featuredProperties.slice(startIndex, endIndex);
+  // const currentProperties = featuredProperties.slice(startIndex, endIndex); // Unused
 
-  // Pagination functions
-  const goToPage = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // Pagination functions - commented out as unused
+  // const goToPage = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  // const goToNextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //     window.scrollTo({ top: 0, behavior: 'smooth' });
+  //   }
+  // };
 
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  // const goToPreviousPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //     window.scrollTo({ top: 0, behavior: 'smooth' });
+  //   }
+  // };
 
   // Reset to page 1 when featured properties change
   useEffect(() => {

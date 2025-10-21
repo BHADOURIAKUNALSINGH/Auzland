@@ -156,10 +156,10 @@ const Dashboard: React.FC = () => {
   const [csvUploadError, setCsvUploadError] = useState<string | null>(null);
   const [showCsvUploadModal, setShowCsvUploadModal] = useState(false);
 
-  // Excel file states
-  const [excelSheets, setExcelSheets] = useState<string[]>([]);
-  const [selectedSheet, setSelectedSheet] = useState<string>('');
-  const [showSheetSelector, setShowSheetSelector] = useState(false);
+  // Excel file states - commented out as unused
+  // const [excelSheets, setExcelSheets] = useState<string[]>([]);
+  // const [selectedSheet, setSelectedSheet] = useState<string>('');
+  // const [showSheetSelector, setShowSheetSelector] = useState(false);
 
   // Sidebar state - filters closed by default
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -1240,12 +1240,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const showExistingMediaList = (existingMedia: string[]) => {
-    // Open the media viewer with existing media
-    setViewingMedia(existingMedia);
-    setCurrentMediaIndex(0);
-    setShowMediaViewer(true);
-  };
+  // const showExistingMediaList = (existingMedia: string[]) => { // Unused
+  //   // Open the media viewer with existing media
+  //   setViewingMedia(existingMedia);
+  //   setCurrentMediaIndex(0);
+  //   setShowMediaViewer(true);
+  // };
 
   const removeExistingMedia = (mediaKey: string, existingMedia: string[]) => {
     const fileName = mediaKey?.split('/').pop() || 'this file';
@@ -1640,7 +1640,8 @@ const Dashboard: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // Handle media deletion from table
+  // Handle media deletion from table - commented out as unused
+  /*
   const handleDeleteMedia = async (property: any, mediaKey: string) => {
     // Additional safety check for access control
     if (!hasEditAccess) {
@@ -1690,6 +1691,7 @@ const Dashboard: React.FC = () => {
       alert(`Error deleting media: ${error.message}`);
     }
   };
+  */
 
 
 
@@ -1807,7 +1809,7 @@ const Dashboard: React.FC = () => {
         throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const result = await response.json();
+      // const result = await response.json(); // Unused
       
       setMessage({ 
         type: 'success', 
@@ -2253,9 +2255,9 @@ const Dashboard: React.FC = () => {
       if (file.name.toLowerCase().endsWith('.xlsx')) {
         readExcelSheets(file);
       } else {
-        setExcelSheets([]);
-        setSelectedSheet('');
-        setShowSheetSelector(false);
+        // setExcelSheets([]); // Commented out as unused
+        // setSelectedSheet(''); // Commented out as unused
+        // setShowSheetSelector(false); // Commented out as unused
       }
     }
   };
@@ -2264,9 +2266,9 @@ const Dashboard: React.FC = () => {
     try {
       // We'll need to use a library like SheetJS to read Excel files
       // For now, we'll show a message that Excel support is being implemented
-      setExcelSheets(['Sheet1']); // Placeholder
-      setSelectedSheet('Sheet1');
-      setShowSheetSelector(true);
+      // setExcelSheets(['Sheet1']); // Placeholder - commented out as unused
+      // setSelectedSheet('Sheet1'); // Commented out as unused
+      // setShowSheetSelector(true); // Commented out as unused
     } catch (error: any) {
       setCsvUploadError(`Error reading Excel file: ${error.message}`);
     }
