@@ -5,10 +5,10 @@
 }
 
 :root {
-  --primary-color: #dc2626;
+  --primary-color: #013B78;
   --primary-dark: #b91c1c;
   --secondary-color: #1f2937;
-  --accent-color: #dc2626;
+  --accent-color: #013B78;
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --text-light: #9ca3af;
@@ -85,17 +85,17 @@ input, select, textarea {
 /* Remove default focus outline and add custom one */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #dc2626;
+  box-shadow: 0 0 0 2px #013B78;
 }
 
 /* Mobile-friendly text selection */
 ::selection {
-  background-color: #dc2626;
+  background-color: #013B78;
   color: white;
 }
 
 ::-moz-selection {
-  background-color: #dc2626;
+  background-color: #013B78;
   color: white;
 }
 
@@ -120,24 +120,27 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn-primary {
-  background-color: #dc2626;
+  background-color: #013B78;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #b91c1c;
+  border: 1px solid #013B78;
+  color: #013B78;
+  background-color: white;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: white;
-  color: #dc2626;
-  border: 2px solid #dc2626;
+  background-color: #013B78;
+  color: white;
+  /* border:  solid #013B78; */
 }
 
 .btn-secondary:hover {
-  background-color: #dc2626;
-  color: white;
+  border: 1px solid #013B78;
+  background-color: white;
+  color: #013B78;
 }
 
 .btn-large {

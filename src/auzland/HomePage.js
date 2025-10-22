@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import SellImage from '../media/Landing_humanm/2149383571.webp';
 import BuyImage from '../media/Landing_humanm/Downsizing-in-Your-50s.jpg';
+import RentImage from '../media/Landing_humanm/rent.jpg';
+import ForSellImage from '../media/Landing_humanm/house-for-sell.jpg';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
+import { FaHome } from 'react-icons/fa';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 // Disable noisy console logs in production (keep warnings/errors)
 if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
@@ -101,8 +106,8 @@ const HomePage = () => {
   ];
   
   // Refs for scroll animations
-  const sectionRefs = useRef({});
-  const observerRef = useRef(null);
+  // const sectionRefs = useRef({});
+  // const observerRef = useRef(null);
 
   // Page load animation trigger
   useEffect(() => {
@@ -133,6 +138,75 @@ const HomePage = () => {
   }, []);
 
   // Helper function to set section ref
+  // const setSectionRef = (id) => (el) => {
+  //   if (el) {
+  //     sectionRefs.current[id] = el;
+  //     if (observerRef.current) {
+  //       observerRef.current.observe(el);
+  //     }
+  //   }
+  // };
+const [emblaRef, emblaApi] = useEmblaCarousel(
+    { align: 'center', loop: true },
+    [Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })]
+  );
+
+  
+
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+  const onSlideClick = useCallback((index) => {
+    if (emblaApi && emblaApi.selectedScrollSnap() !== index) {
+      emblaApi.scrollTo(index);
+    }
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+  }, [emblaApi, onSelect]);
+
+  // All your other state, refs, and functions remain here
+  const sectionRefs = useRef({});
+  const observerRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPageLoaded(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+    const refs = sectionRefs.current;
+    return () => {
+        Object.values(refs).forEach(ref => {
+            if(ref && observerRef.current) {
+                observerRef.current.unobserve(ref);
+            }
+        })
+    };
+  }, []);
+  
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const setSectionRef = (id) => (el) => {
     if (el) {
       sectionRefs.current[id] = el;
@@ -142,38 +216,30 @@ const HomePage = () => {
     }
   };
 
-  // Modal handlers
-  const handlePropertyClick = (property) => {
-    setSelectedProperty(property);
-    setIsModalOpen(true);
-  };
+  const handlePropertyClick = (property) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedProperty(null);
-  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProperty(null);
+  };
 
-  // Slideshow navigation
-  const goToSlide = (slideIndex) => {
-    setCurrentSlide(slideIndex);
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % 3);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + 3) % 3);
-  };
-
-  // Auto-advance slideshow
+  // Using mock data fetching for a runnable example
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3);
-    }, 5000); // Change slide every 5 seconds
-
-    return () => clearInterval(interval);
+    const mockData = [
+        { id: 1, address: '35 Hewitt Road', suburb: 'Lochinvar', landSize: 596, propertyType: 'Single story', status: 'Under Offer', bedrooms: 4, bathrooms: 2, image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=60' },
+        { id: 2, address: '37 Hewitt Road', suburb: 'Lochinvar', landSize: 596, propertyType: 'Single story', status: 'Under Offer', bedrooms: 4, bathrooms: 2, image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=60' },
+        { id: 3, address: '29b Frampton Drive', suburb: 'Gilead', landSize: 570, propertyType: 'Townhouse', status: 'Available', bedrooms: 3, bathrooms: 2, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=60' },
+        { id: 4, address: '101 Hilltop Crescent', suburb: 'Evergreen Valley', landSize: 800, propertyType: 'Villa', status: 'Sold', bedrooms: 5, bathrooms: 4, image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=60' }
+    ];
+    setTimeout(() => {
+        setFeaturedProperties(mockData);
+        setIsLoading(false);
+    }, 1000);
   }, []);
+
 
   // Pagination logic
   const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
@@ -485,9 +551,9 @@ const HomePage = () => {
         // Filter for specific properties from the images
         const specificProperties = visibleRows.filter(r => {
           const address = (r.address || '').toLowerCase();
-          return address.includes('29b frampton drive') || 
-                 address.includes('35 hewitt road') || 
-                 address.includes('37 hewitt road') 
+          return address.includes('29b frampton drive') ||
+                 address.includes('35 hewitt road') ||
+                 address.includes('37 hewitt road')
         });
         
         console.log(`🏠 Found ${specificProperties.length} specific properties out of ${visibleRows.length} visible properties`);
@@ -499,10 +565,10 @@ const HomePage = () => {
         if (selectedRows.length === 0) {
           console.log('🏠 No properties found, using fallback data');
           selectedRows = [
-            { 
-              id: 'fallback-1', 
-              address: '29b Frampton Drive', 
-              suburb: 'Gilead', 
+            {
+              id: 'fallback-1',
+              address: '29b Frampton Drive',
+              suburb: 'Gilead',
               propertyType: 'Townhouse',
               bed: 3,
               bath: 2,
@@ -512,10 +578,10 @@ const HomePage = () => {
               availability: 'For Sale',
               media: '[]'
             },
-            { 
-              id: 'fallback-2', 
-              address: '35 Hewitt Road', 
-              suburb: 'Lochinvar', 
+            {
+              id: 'fallback-2',
+              address: '35 Hewitt Road',
+              suburb: 'Lochinvar',
               propertyType: 'Single Story',
               bed: 4,
               bath: 2,
@@ -525,10 +591,10 @@ const HomePage = () => {
               availability: 'For Sale',
               media: '[]'
             },
-            { 
-              id: 'fallback-3', 
-              address: '37 Hewitt Road', 
-              suburb: 'Lochinvar', 
+            {
+              id: 'fallback-3',
+              address: '37 Hewitt Road',
+              suburb: 'Lochinvar',
               propertyType: 'Single Story',
               bed: 4,
               bath: 2,
@@ -599,10 +665,10 @@ const HomePage = () => {
             image: imageUrl, // Add the image property for slideshow
             price: r.price || '$0',
             status: r.availability || 'For Sale',
-            priceNumber: (() => { 
-              const raw = (r.price || '').toString(); 
-              const n = Number(raw.replace(/[^0-9]/g, '')); 
-              return Number.isFinite(n) ? n : 0; 
+            priceNumber: (() => {
+              const raw = (r.price || '').toString();
+              const n = Number(raw.replace(/[^0-9]/g, ''));
+              return Number.isFinite(n) ? n : 0;
             })(),
             propertyCustomerVisibility: r.propertyCustomerVisibility || '1',
             priceCustomerVisibility: r.priceCustomerVisibility || '0'
@@ -697,140 +763,128 @@ const HomePage = () => {
       <Hero />
       
       {/* Featured Properties Section */}
-      <section 
-        id="featured-properties" 
-        ref={setSectionRef('featured-properties')}
-        className={`section featured-properties ${pageLoaded ? 'animate-in' : ''}`}
-      >
-        <div className="container">
-          <div className="section-header">
-            <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
-              We've Got The Right Properties For You
-            </h2>
-            <p className={`section-subtitle ${pageLoaded ? 'animate-subtitle' : ''}`}>
-              Your Gateway to South West Sydney Living.
-            </p>
-          </div>
-          
+      <section
+  id="featured-properties"
+  ref={setSectionRef('featured-properties')}
+  className={`section featured-properties ${pageLoaded ? 'animate-in' : ''}`}
+>
+  <div className="container">
+    <div className="section-header">
+      <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
+        We've Got The Right Properties For You
+      </h2>
+      <p className={`section-subtitle ${pageLoaded ? 'animate-subtitle' : ''}`}>
+        Your Gateway to South West Sydney Living.
+      </p>
+    </div>
 
-          
-          {isLoading && featuredProperties.length === 0 ? (
-            // Show loading placeholders
-            <div className="properties-vertical-container">
-              {Array.from({ length: 3 }, (_, index) => (
-                <div key={`loading-${index}`} className="property-card-loading">
-                  <div className="loading-image">
-                    <div className="loading-spinner">⏳</div>
-                    <p>Loading real listings...</p>
-                  </div>
-                  <div className="loading-content">
-                    <div className="loading-line loading-line-title"></div>
-                    <div className="loading-line loading-line-subtitle"></div>
-                    <div className="loading-line loading-line-features"></div>
-                  </div>
-                </div>
-              ))}
+    {isLoading && featuredProperties.length === 0 ? (
+      // Show loading placeholders (adapted for cards)
+      <div className="properties-vertical-container">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div key={`loading-${index}`} className="property-card-loading">
+            <div className="loading-image">
+              <div className="loading-spinner">⏳</div>
+              <p>Loading real listings...</p>
             </div>
-          ) : featuredProperties.length > 0 ? (
-            <>
-              <div className="properties-slideshow">
-                <div className="slideshow-container">
-                  {featuredProperties.slice(0, 3).map((property, index) => (
-                    <div 
-                      key={property.id} 
-                      className={`slideshow-slide ${index === currentSlide ? 'active' : ''}`}
-                      style={{ 
-                        backgroundImage: `url(${property.image})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
-                      }}
-                    >
-                      <div className="slide-overlay">
-                        <div className="slide-content">
-                          <div className="property-badge">HOT SELLING</div>
-                          <h1 className="slide-address">{property.address}</h1>
-                          <p className="slide-suburb">{property.suburb}</p>
-                          <div className="slide-details">
-                            <span className="slide-size">{property.landSize || 'N/A'} sqm</span>
-                            <span className="slide-type">{property.propertyType}</span>
-                            <span className="slide-status">{property.status}</span>
-                          </div>
-                          <div className="slide-description">
-                            <p>
-                              This exceptional {property.propertyType.toLowerCase()} in {property.suburb} is generating incredible interest in today's market. 
-                              With {property.bedrooms} bedrooms and {property.bathrooms} bathrooms, this stunning property offers the perfect blend of 
-                              modern living and timeless appeal. The {property.landSize || 'generous'} square meter block provides ample space for 
-                              families to grow and entertain.
-                            </p>
-                            <p>
-                              Don't miss your chance to secure this highly sought-after property. Contact us today to schedule an exclusive viewing 
-                              and discover why this home is the talk of {property.suburb}.
-                            </p>
-                          </div>
-                          <div className="slide-actions">
-                          <button
-                              className="btn btn-primary btn-large"
-                              onClick={() => handlePropertyClick(property)}
-                          >
-                              View Details
-                          </button>
-                          <button
-                              className="btn btn-secondary btn-large"
-                              onClick={() => navigate('/contact')}
-                          >
-                              Schedule Viewing
-                          </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                    </div>
-                    
-                {/* Navigation Dots */}
-                <div className="slideshow-dots">
-                  {featuredProperties.slice(0, 3).map((_, index) => (
-                    <button 
-                      key={index}
-                      className={`dot ${index === currentSlide ? 'active' : ''}`}
-                      onClick={() => goToSlide(index)}
-                    />
-                  ))}
-                </div>
-                
-                {/* Navigation Arrows */}
-                <button className="slideshow-arrow prev" onClick={prevSlide}>
-                  ←
-                </button>
-                <button className="slideshow-arrow next" onClick={nextSlide}>
-                  →
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="no-properties-message">
-              <p>No properties available at the moment. Please check back later.</p>
+            <div className="loading-content">
+              <div className="loading-line loading-line-title"></div>
+              <div className="loading-line loading-line-subtitle"></div>
+              <div className="loading-line loading-line-features"></div>
             </div>
-          )}
-          
-          <div className="view-all-container" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button 
-              className="btn btn-secondary btn-large"
-              onClick={() => navigate('/buy')}
-            >
-              View All Properties
-            </button>
-            <a className="btn btn-primary btn-large" href="/contact">
-              Request Appraisal Now
-            </a>
           </div>
+        ))}
+      </div>
+    ) : featuredProperties.length > 0 ? (
+      <>
+        <div className="card-carousel">
+          <div className="carousel-track">
+            {featuredProperties.slice(0, 3).map((property, index) => (
+              <div
+                key={property.id}
+                className={`carousel-card ${index === currentSlide ? 'active' : ''}`}
+              >
+                {/* Card Image with Overlay */}
+                <div className="card-image">
+                  <img src={property.image} alt={property.address} loading="lazy" />
+                  <div className="image-overlay">
+                    <div className="property-badge">HOT SELLING</div>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="card-content">
+                  <h5 className="card-address">{property.address}</h5>
+                  <p className="card-suburb">{property.suburb}</p>
+                  <div className="card-details">
+                    <span className="detail-item detail-size"><FaHome /> {property.landSize || 'N/A'} sqm</span>
+                    <span className="detail-item detail-type">{property.propertyType}</span>
+                    <span className="detail-item detail-status">{property.status}</span>
+                  </div>
+
+                  {/* <div className="card-description">
+                    <p>
+                      This exceptional {property.propertyType.toLowerCase()} in {property.suburb} is generating incredible interest in today's market.
+                      With {property.bedrooms} bedrooms and {property.bathrooms} bathrooms, this stunning property offers the perfect blend of
+                      modern living and timeless appeal. The {property.landSize || 'generous'} square meter block provides ample space for
+                      families to grow and entertain.
+                    </p>
+                    <p>
+                      Don't miss your chance to secure this highly sought-after property. Contact us today to schedule an exclusive viewing
+                      and discover why this home is the talk of {property.suburb}.
+                    </p>
+                  </div> */}
+
+                  <div className="card-actions">
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handlePropertyClick(property)}
+                    >
+                      View Details
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => navigate('/contact')}
+                    >
+                      Schedule Viewing
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Navigation Dots */}
+
+          {/* Navigation Arrows */}
+          <button className="carousel-arrow prev" onClick={scrollPrev}>←</button>
+          <button className="carousel-arrow next" onClick={scrollNext}>→</button>
         </div>
-      </section>
+      </>
+    ) : (
+      <div className="no-properties-message">
+        <p>No properties available at the moment. Please check back later.</p>
+      </div>
+    )}
+
+    <div className="view-all-container" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+      <button
+        className="btn btn-secondary btn-large"
+        onClick={() => navigate('/buy')}
+      >
+        View All Properties
+      </button>
+      <a className="btn btn-primary btn-large" href="/contact">
+        Request Appraisal Now
+      </a>
+    </div>
+  </div>
+</section>
+
       
       {/* Services Section */}
-      <section 
-        id="services-section" 
+      <section
+        id="services-section"
         ref={setSectionRef('services-section')}
         className={`section services-section ${pageLoaded ? 'animate-in' : ''}`}
       >
@@ -880,18 +934,18 @@ const HomePage = () => {
       </section>
 
       {/* Sell & Buy with AuzLandRE Section */}
-      <section 
-        id="sell-buy-section" 
+      <section
+        id="sell-buy-section"
         ref={setSectionRef('sell-buy-section')}
         className={`section sell-buy-section ${pageLoaded ? 'animate-in' : ''}`}
       >
         <div className="container">
-          {/* Sell with AuzLandRE */}
+          {/* Sell with AuzLandRE
           <div className="sell-buy-row">
             <div className="sell-buy-image">
-              <img 
-                src={SellImage} 
-                alt="Family selling their home" 
+              <img
+                src={SellImage}
+                alt="Family selling their home"
                 onError={(e) => {
                   try {
                     e.currentTarget.onerror = null;
@@ -909,39 +963,77 @@ const HomePage = () => {
                 Sell with AuzLandRE
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* Buy with AuzLandRE */}
           <div className="sell-buy-row reverse">
             <div className="sell-buy-content">
-              <h2 className="sell-buy-title handwriting-font">| Buy with AuzLandRE</h2>
+              <h2 className="sell-buy-title handwriting-font">Buy . Sell . Rent</h2>
               <p className="sell-buy-subtitle">We make it possible.</p>
               <p className="sell-buy-description">
                 Whether you're excited to be purchasing your very first home, or upsizing for greater comfort and convenience, AuzLandRE will help you select the best property for you and your family.
               </p>
-              <button className="btn btn-primary btn-large" onClick={() => navigate('/buy')}>
+              <button className="btn btn-primary" onClick={() => navigate('/buy')}>
                 Buy with AuzLandRE
               </button>
             </div>
             <div className="sell-buy-image">
-              <img 
-                src={BuyImage} 
-                alt="Happy couple buying their home" 
+              <div className="img-1">
+              <img
+                src={BuyImage}
+                alt="Happy couple buying their home"
                 onError={(e) => {
                   try {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/Downsizing-in-Your-50s.jpg';
                   } catch (_) {}
                 }}
+                />
+              </div>
+              <div className="img-2">
+              <img
+                src={ForSellImage}
+                alt="Family selling their home"
+                onError={(e) => {
+                  try {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/2149383571.webp';
+                  } catch (_) {}
+                }}
               />
+              </div>
+              <div className="img-3">
+              <img
+                src={RentImage}
+                alt="House Rented Successfully"
+                onError={(e) => {
+                  try {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/istockphoto-1320576454-612x612.jpg';
+                  } catch (_) {}
+                }}
+                />
+              </div>
+              <div className="img-4">
+                <img
+                src={SellImage}
+                alt="Family selling their home"
+                onError={(e) => {
+                  try {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/2149383571.webp';
+                  } catch (_) {}
+                }}
+              />
+                </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Client Satisfaction Section */}
-      <section 
-        id="client-satisfaction" 
+      <section
+        id="client-satisfaction"
         ref={setSectionRef('client-satisfaction')}
         className={`section client-satisfaction ${pageLoaded ? 'animate-in' : ''}`}
       >
@@ -990,7 +1082,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <PropertyModal 
+      <PropertyModal
         property={selectedProperty}
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -999,4 +1091,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

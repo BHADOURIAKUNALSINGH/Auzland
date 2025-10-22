@@ -34,7 +34,7 @@
 }
 
 .action-buttons-container .btn-primary {
-  background-color: #dc2626;
+  background-color: #013B78;
   color: white;
 }
 
@@ -52,8 +52,8 @@
 
 .action-buttons-container .btn-secondary:hover {
   background-color: #f1f5f9;
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: #013B78;
+  color: #013B78;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }

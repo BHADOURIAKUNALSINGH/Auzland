@@ -23,10 +23,15 @@ const Header = () => {
             <div className="logo-text">
               <h1>AuzLandRE</h1>
             </div>
-          </Link>
-
+            </Link>
           {/* Desktop Navigation */}
           <nav className="nav-desktop">
+            <Link 
+              to="/" 
+              className={location.pathname === '/buy' ? 'nav-link active' : 'nav-link'}
+            >
+              HOME
+            </Link>
             <Link 
               to="/buy" 
               className={location.pathname === '/buy' ? 'nav-link active' : 'nav-link'}

@@ -16,7 +16,7 @@
 .property-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  border-color: #dc2626;
+  border-color: #013B78;
 }
 
 /* Image Section */
@@ -51,7 +51,7 @@
 }
 
 .placeholder-icon {
-  color: #dc2626;
+  color: #013B78;
   opacity: 0.6;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .view-btn {
-  background: #dc2626;
+  background: #013B78;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -225,7 +225,7 @@
 }
 
 .status {
-  background: #dc2626;
+  background: #013B78;
   color: white;
   padding: 6px 12px;
   border-radius: 6px;
@@ -268,7 +268,7 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  background: #dc2626;
+  background: #013B78;
   border-radius: 4px;
   color: white;
   box-shadow: none;
@@ -343,7 +343,7 @@
 }
 
 .detail-item svg {
-  color: #dc2626;
+  color: #013B78;
   flex-shrink: 0;
   width: 12px;
   height: 12px;
@@ -360,7 +360,7 @@
 }
 
 .property-type {
-  background: #dc2626;
+  background: #013B78;
   color: white;
   padding: 10px 16px;
   border-radius: 12px;

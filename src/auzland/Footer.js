@@ -65,11 +65,8 @@ const Footer = () => {
             </ul>
           </div>
 
-        </div>
-
-        {/* Subscription Section */}
-        <div className="footer-subscription-section">
-          <h3 className="subscription-title">Subscribe to our mailing list</h3>
+          <div className="footer-subscription-section">
+          <h3 className="subscription-title">SUBSCRIBE US</h3>
           <form className="subscription-form" onSubmit={handleSubscribe}>
             <input
               type="email"
@@ -78,12 +75,15 @@ const Footer = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="subscription-input"
               required
-            />
+              />
             <button type="submit" className="subscription-button">
               Subscribe
             </button>
           </form>
         </div>
+        </div>
+        {/* Subscription Section */}
+        
 
         {/* Bottom Section */}
         <div className="footer-bottom">

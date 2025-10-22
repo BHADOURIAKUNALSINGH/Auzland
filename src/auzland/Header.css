@@ -1,123 +1,94 @@
+/* =================================================================
+   Responsive Header CSS (Mobile-First Approach)
+================================================================= */
+
+/* --- CSS Variables for Easy Customization --- */
+:root {
+  --header-bg: #013B78;
+  --header-text: white;
+  --header-logo-accent: #A0C6EB;
+  --header-height: 70px;
+  /* A consistent height for the header */
+  --transition-speed: 0.3s;
+}
+
+/* --- Main Header Styling --- */
 .header {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  background-color: var(--primary-color);
-  color: white;
+  width: 100%;
+  background-color: var(--header-bg);
+  color: var(--header-text);
   z-index: 1000;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: var(--header-height);
 }
 
-.container {
-  max-width: 1200px;
+/* --- Container: Manages width and centering --- */
+.header .container {
+  max-width: 100vw;
   margin: 0 auto;
-  padding: 0 1rem;
+  /* Centers the container */
+  padding: 0 3rem;
+  /* Provides space on the sides */
+  height: 100%;
 }
 
+/* --- Header Content: The main flex container --- */
 .header-content {
   display: flex;
   justify-content: space-between;
+  /* On mobile: logo left, hamburger right */
   align-items: center;
-  padding: 1rem 0;
+  width: 100%;
+  height: 100%;
 }
 
+/* --- Logo Styling --- */
 .logo {
   text-decoration: none;
-  color: white;
+  color: var(--header-logo-accent);
 }
 
 .logo-text h1 {
-  font-size: 1.75rem;
+  /* Fluid font size for smooth scaling */
+  font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 800;
   margin: 0;
   line-height: 1;
 }
 
-.logo-text p {
-  font-size: 0.875rem;
-  margin: 0;
-  opacity: 0.9;
+/* Hide desktop nav and button on mobile by default */
+.nav-desktop,
+.header-cta {
+  display: none;
 }
 
-.logo-since {
-  font-size: 0.625rem;
-  opacity: 0.7;
-  display: block;
-  margin-top: 0.25rem;
-}
 
-.nav-desktop {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: white;
-  font-weight: 700;
-  padding: 0.6rem 1.1rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-  position: relative;
-  font-size: 1.05rem;
-}
-
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.nav-link.active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.header-cta .btn {
-  background-color: transparent;
-  color: white;
-  border: 2px solid white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.header-cta .btn:hover {
-  background-color: white;
-  color: var(--primary-color);
-}
+/* =================================================================
+   Mobile Navigation & Hamburger Menu
+================================================================= */
 
 .mobile-menu-btn {
-  display: none;
+  display: flex;
+  /* Visible on mobile */
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.75rem;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  /* Ensure proper touch target */
-  min-width: 44px;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-}
-
-.mobile-menu-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.mobile-menu-btn:active {
-  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem;
+  z-index: 1002;
+  /* Must be on top of the mobile menu */
 }
 
 .hamburger {
   width: 28px;
   height: 3px;
-  background-color: white;
+  background-color: var(--header-text);
   position: relative;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
   border-radius: 2px;
 }
 
@@ -125,136 +96,137 @@
 .hamburger::after {
   content: '';
   position: absolute;
+  left: 0;
   width: 28px;
   height: 3px;
-  background-color: white;
-  transition: all 0.3s ease;
+  background-color: var(--header-text);
+  transition: all var(--transition-speed) ease;
   border-radius: 2px;
 }
 
 .hamburger::before {
-  top: -10px;
+  top: -9px;
 }
 
 .hamburger::after {
-  bottom: -10px;
+  bottom: -9px;
 }
 
-.hamburger.open {
+/* Hamburger "X" animation when menu is open */
+.mobile-menu-btn.open .hamburger {
   background-color: transparent;
 }
 
-.hamburger.open::before {
+.mobile-menu-btn.open .hamburger::before {
   transform: rotate(45deg);
   top: 0;
 }
 
-.hamburger.open::after {
+.mobile-menu-btn.open .hamburger::after {
   transform: rotate(-45deg);
   bottom: 0;
 }
 
-/* Mobile Navigation */
+/* --- Mobile Menu Overlay --- */
 .nav-mobile {
-  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  /* Full screen height */
+  background-color: var(--header-bg);
+  z-index: 1001;
+  display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: var(--primary-color);
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  /* Smooth fade-in/out transition */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-20px);
+  transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease, transform var(--transition-speed) ease;
 }
 
 .nav-mobile.open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .nav-mobile .nav-link {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--header-text);
+  text-decoration: none;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
-.nav-mobile .btn {
-  margin-top: 1rem;
-  width: 100%;
-}
+/* =================================================================
+   Desktop Navigation (Tablet & larger screens)
+================================================================= */
+@media (min-width: 1133px) {
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .nav-desktop,
-  .header-cta {
+  /* Hide mobile elements */
+  .mobile-menu-btn,
+  .nav-mobile {
     display: none;
   }
-  
-  .mobile-menu-btn {
+
+  /* Show desktop elements */
+  .nav-desktop,
+  .header-cta {
     display: flex;
+    align-items: center;
   }
-  
+
+  /* THIS IS THE KEY TO THE DESKTOP LAYOUT */
   .header-content {
-    padding: 0.75rem 0;
+    justify-content: normal;
+    /* Turn off space-between */
   }
-  
-  .logo-text h1 {
-    font-size: 1.5rem;
-    font-weight: 800;
+
+  .nav-desktop {
+    /* These two lines perfectly center the nav */
+    margin-left: auto;
+    margin-right: auto;
+    gap: 2.5rem;
+    white-space: nowrap;
+    /* Prevents "Our Story" from wrapping */
   }
-  
-  .logo-text p {
-    font-size: 0.875rem;
+
+  .nav-link {
+    text-decoration: none;
+    color: var(--header-text);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
   }
-  
-  .logo-since {
-    font-size: 0.625rem;
+
+  .nav-link:hover,
+  .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .header-cta .btn {
+    background-color: transparent;
+    color: var(--header-text);
+    border: 2px solid var(--header-text);
+    padding: 0.25rem 0.5rem;
+    border-radius: 7px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .header-cta .btn:hover {
+    background-color: var(--header-text);
+    color: var(--header-bg);
   }
 }
-
-@media (max-width: 480px) {
-  .header-content {
-    padding: 0.75rem 0;
-  }
-  
-  .logo-text h1 {
-    font-size: 1.25rem;
-  }
-  
-  .logo-text p {
-    font-size: 0.75rem;
-  }
-  
-  .mobile-menu-btn {
-    padding: 0.5rem;
-    min-width: 40px;
-    min-height: 40px;
-  }
-  
-  .hamburger {
-    width: 24px;
-    height: 2px;
-  }
-  
-  .hamburger::before,
-  .hamburger::after {
-    width: 24px;
-    height: 2px;
-  }
-  
-  .hamburger::before {
-    top: -8px;
-  }
-  
-  .hamburger::after {
-    bottom: -8px;
-  }
-}
-
-/* Touch-friendly improvements for mobile */
-@media (hover: none) and (pointer: coarse) {
-  .mobile-menu-btn {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-  
-  .mobile-menu-btn:active {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: scale(0.95);
-  }
-} 
