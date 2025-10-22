@@ -1,27 +1,9 @@
-declare namespace JSX {
-  interface IntrinsicElements {
-    "elevenlabs-convai": any;
-  }
-}
-
+/// <reference path="../custom-elements.d.ts" />
 import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { NewUser } from "../types";
 import { loadElevenLabsWidget } from "../utils/elevenLabsLoader";
-// import ChatbotSidebar from './ChatbotSidebar';
 import "./Dashboard.css";
-
-// Declare custom elements for TypeScript
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "elevenlabs-convai": {
-        "agent-id": string;
-        children?: React.ReactNode;
-      };
-    }
-  }
-}
 
 // Disable noisy console logs in production (keep warnings/errors)
 if (
@@ -2699,6 +2681,7 @@ const Dashboard: React.FC = () => {
       <div className="call-agent-header">
         <h2>AI Call Agent</h2>
         <div className="call-agent-widget">
+          {/* @ts-expect-error Custom element elevenlabs-convai */}
           <elevenlabs-convai agent-id="agent_5601k4yd25r9fy4vq8vpd5ehq3kw"></elevenlabs-convai>
         </div>
         <p>

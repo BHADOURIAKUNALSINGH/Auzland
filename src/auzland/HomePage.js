@@ -5,7 +5,7 @@ import SellImage from '../media/Landing_humanm/2149383571.webp';
 import BuyImage from '../media/Landing_humanm/Downsizing-in-Your-50s.jpg';
 import RentImage from '../media/Landing_humanm/rent.jpg';
 import ForSellImage from '../media/Landing_humanm/house-for-sell.jpg';
-import PropertyCard from './PropertyCard';
+// import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 import { FaHome } from 'react-icons/fa';
@@ -34,7 +34,7 @@ const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const [currentPage, setCurrentPage] = useState(1); // Unused
   // const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage - Unused
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide] = useState(0);
   // const [visibleSections, setVisibleSections] = useState(new Set()); // Unused
   // const [scrollProgress, setScrollProgress] = useState(0); // Unused
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -148,7 +148,7 @@ const HomePage = () => {
   //     }
   //   }
   // };
-const [emblaRef, emblaApi] = useEmblaCarousel(
+const [, emblaApi] = useEmblaCarousel(
     { align: 'center', loop: true },
     [Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })]
   );
@@ -157,16 +157,17 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
-  const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
-  const onSlideClick = useCallback((index) => {
-    if (emblaApi && emblaApi.selectedScrollSnap() !== index) {
-      emblaApi.scrollTo(index);
-    }
-  }, [emblaApi]);
+  // const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+  // const onSlideClick = useCallback((index) => {
+  //   if (emblaApi && emblaApi.selectedScrollSnap() !== index) {
+  //     emblaApi.scrollTo(index);
+  //   }
+  // }, [emblaApi]);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
+    // setSelectedIndex(emblaApi.selectedScrollSnap());
+    emblaApi.selectedScrollSnap(); // Call to maintain side effects
   }, [emblaApi]);
 
   useEffect(() => {
@@ -208,7 +209,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
     };
   }, []);
   
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  // const [selectedIndex, setSelectedIndex] = useState(0); // Unused
   const setSectionRef = (id) => (el) => {
     if (el) {
       sectionRefs.current[id] = el;
