@@ -2,28 +2,21 @@
   "name": "aws-cognito-auth-app",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@aws-amplify/ui-react": "^6.0.0",
-<<<<<<< HEAD
-=======
-    "@emailjs/browser": "^4.3.2",
-    "@types/node": "^16.18.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@types/react-router-dom": "^5.3.3",
->>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
-    "aws-amplify": "^6.0.0",
-    "embla-carousel-autoplay": "^8.0.0",
-    "embla-carousel-react": "^8.0.0",
-    "openai": "^6.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-icons": "^5.2.1",
-    "react-router-dom": "^6.23.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5"
-  },
+"dependencies": {
+  "@aws-amplify/ui-react": "^6.0.0",
+  "@emailjs/browser": "^4.3.2",
+  "aws-amplify": "^6.0.0",
+  "embla-carousel-autoplay": "^8.0.0",
+  "embla-carousel-react": "^8.0.0",
+  "openai": "^6.1.0",
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-icons": "^5.2.1",
+  "react-router-dom": "^6.23.1",
+  "react-scripts": "5.0.1",
+  "web-vitals": "^2.1.4",
+  "xlsx": "^0.18.5"
+},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
