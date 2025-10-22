@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import SellImage from '../media/Landing_humanm/2149383571.webp';
 import BuyImage from '../media/Landing_humanm/Downsizing-in-Your-50s.jpg';
+<<<<<<< HEAD
 import RentImage from '../media/Landing_humanm/rent.jpg';
 import ForSellImage from '../media/Landing_humanm/house-for-sell.jpg';
 import PropertyCard from './PropertyCard';
+=======
+// import PropertyCard from './PropertyCard'; // Unused import
+>>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 import { FaHome } from 'react-icons/fa';
@@ -32,11 +36,11 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage
+  // const [currentPage, setCurrentPage] = useState(1); // Unused
+  // const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage - Unused
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [visibleSections, setVisibleSections] = useState(new Set());
-  const [scrollProgress, setScrollProgress] = useState(0);
+  // const [visibleSections, setVisibleSections] = useState(new Set()); // Unused
+  // const [scrollProgress, setScrollProgress] = useState(0); // Unused
   const [pageLoaded, setPageLoaded] = useState(false);
   const reviews = [
     {
@@ -117,7 +121,8 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll animation observer
+  // Scroll animation observer - commented out as unused
+  /*
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -136,6 +141,7 @@ const HomePage = () => {
       }
     };
   }, []);
+  */
 
   // Helper function to set section ref
   // const setSectionRef = (id) => (el) => {
@@ -240,37 +246,45 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
     }, 1000);
   }, []);
 
+<<<<<<< HEAD
 
   // Pagination logic
   const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
   const startIndex = (currentPage - 1) * propertiesPerPage;
   const endIndex = startIndex + propertiesPerPage;
   const currentProperties = featuredProperties.slice(startIndex, endIndex);
+=======
+  // Pagination logic - commented out as unused
+  // const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
+  // const startIndex = (currentPage - 1) * propertiesPerPage;
+  // const endIndex = startIndex + propertiesPerPage;
+  // const currentProperties = featuredProperties.slice(startIndex, endIndex); // Unused
+>>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
 
-  // Pagination functions
-  const goToPage = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // Pagination functions - commented out as unused
+  // const goToPage = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  // const goToNextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //     window.scrollTo({ top: 0, behavior: 'smooth' });
+  //   }
+  // };
 
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  // const goToPreviousPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //     window.scrollTo({ top: 0, behavior: 'smooth' });
+  //   }
+  // };
 
-  // Reset to page 1 when featured properties change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [featuredProperties.length]);
+  // Reset to page 1 when featured properties change - commented out as unused
+  // useEffect(() => {
+  //   setCurrentPage(1);
+  // }, [featuredProperties.length]);
 
   // Helper functions from PropertiesPage
   const parseCsv = (csv) => {
@@ -422,7 +436,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
         // Approach 2: Try to extract file paths with regex
         // Robust regex that handles ANY special characters in filenames
         // Uses a more permissive approach: match "media/" followed by anything until a valid image extension
-        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]},]|$)/gi;
         const matches = mediaString.match(mediaPathRegex);
         
         if (matches && matches.length > 0) {
@@ -453,7 +467,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
   }, []);
 
   // Sample property data (keeping as fallback)
-  const fallbackProperties = [
+  const fallbackProperties = useMemo(() => [
     {
       id: 1,
       image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop',
@@ -526,7 +540,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
       propertyType: 'Luxury Estate',
       status: 'For Sale'
     }
-  ];
+  ], []); // Empty dependency array since this is static data
 
   // Load real properties from API
   useEffect(() => {
@@ -636,7 +650,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
             } catch (e) {
               console.log('Failed to parse media:', r.media);
               // Try alternative parsing for malformed JSON
-              const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+              const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]},]|$)/gi;
               const matches = r.media.match(mediaPathRegex);
               if (matches && matches.length > 0) {
                 imageUrl = buildCloudFrontUrl(matches[0]);
@@ -752,7 +766,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
     };
     
     loadFeaturedProperties();
-  }, []); // Run only once on component mount
+  }, [fallbackProperties, getAllImagesFromMedia]); // Include dependencies
 
   // Debug logging for render
   console.log('🏠 HomePage render - isLoading:', isLoading, 'featuredProperties.length:', featuredProperties.length);

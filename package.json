@@ -4,6 +4,14 @@
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^6.0.0",
+<<<<<<< HEAD
+=======
+    "@emailjs/browser": "^4.3.2",
+    "@types/node": "^16.18.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/react-router-dom": "^5.3.3",
+>>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
     "aws-amplify": "^6.0.0",
     "embla-carousel-autoplay": "^8.0.0",
     "embla-carousel-react": "^8.0.0",

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ContactPage.css';
 import { CONTACT_API_URL, hasContactApi } from './api';
+import emailjs from '@emailjs/browser';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -53,9 +54,37 @@ const ContactPage = () => {
       return;
     }
 
-    // No fallback - API must be configured
-    // Form not configured
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    // Fallback to EmailJS for free hosting
+    try {
+      setIsSubmitting(true);
+      
+      // EmailJS configuration (you'll need to set these up)
+      const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'your_service_id';
+      const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'your_template_id';
+      const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'your_public_key';
+      
+      const templateParams = {
+        from_name: name,
+        from_email: email,
+        phone: phone,
+        subject: subject,
+        message: message,
+        to_email: 'abhi@auzlandre.com.au'
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      
+      setShowSuccess(true);
+      setJustSent(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setTimeout(() => setShowSuccess(false), 5000);
+      setTimeout(() => setJustSent(false), 2000);
+    } catch (err) {
+      console.error('EmailJS send failed:', err);
+      alert('Failed to send message. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

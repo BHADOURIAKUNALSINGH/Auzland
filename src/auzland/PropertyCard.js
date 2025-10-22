@@ -6,16 +6,16 @@ const PropertyCard = ({ property }) => {
     images,
     address,
     suburb,
-    lot,
-    availability,
+    // lot, // Unused
+    // availability, // Unused
     status,
     price,
-    frontage,
+    // frontage, // Unused
     landSize,
-    buildSize,
-    bedrooms,
-    bathrooms,
-    parking,
+    // buildSize, // Unused
+    // bedrooms, // Unused
+    // bathrooms, // Unused
+    // parking, // Unused
     propertyType,
     priceCustomerVisibility
   } = property;

@@ -43,8 +43,8 @@ const PropertiesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [propertiesPerPage] = useState(12); // Show 12 properties per page
-  const [loadingImages, setLoadingImages] = useState(false);
-  const presignCacheRef = React.useRef(new Map());
+  // const [loadingImages, setLoadingImages] = useState(false); // Unused
+  // const presignCacheRef = React.useRef(new Map()); // Unused
   const loadedPropertyIdsRef = React.useRef(new Set());
   const loadVersionRef = React.useRef(0);
   const [resumeTick, setResumeTick] = useState(0);
@@ -204,7 +204,8 @@ const PropertiesPage = () => {
     return Number.isFinite(n) ? n : undefined;
   };
 
-  // Test function to verify special character handling
+  // Test function to verify special character handling - commented out as unused
+  /*
   const testSpecialCharacterHandling = () => {
     const testDescription = `Test description with ALL characters:
     • Emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯
@@ -228,8 +229,10 @@ const PropertiesPage = () => {
     
     return testDescription;
   };
+  */
 
-  // Test CSV parsing with multi-line description
+  // Test CSV parsing with multi-line description - commented out as unused
+  /*
   const testCsvParsing = () => {
     const testCsv = `id,address,suburb,description
 1,"123 Test St","Test Suburb","This is a test description
@@ -243,6 +246,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
     console.log('🧪 Parsed result:', result);
     return result;
   };
+  */
 
   // Build a direct CloudFront URL for a media key/path
   const buildCloudFrontUrl = (mediaKey) => {
@@ -338,7 +342,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
         // Approach 2: Try to extract file paths with regex
         // Robust regex that handles ANY special characters in filenames
         // Uses a more permissive approach: match "media/" followed by anything until a valid image extension
-        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]\},]|$)/gi;
+        const mediaPathRegex = /media\/.*?\.(jpg|jpeg|png|gif|webp|bmp|svg)(?=[\s"'\]},]|$)/gi;
         const matches = mediaString.match(mediaPathRegex);
         
         if (matches && matches.length > 0) {
@@ -499,7 +503,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
       }
     };
     load();
-  }, [getAllImagesFromMedia]);
+  }, [getAllImagesFromMedia]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
@@ -663,7 +667,7 @@ and emojis: 🏠 🛏️ 🛁 🚗 🌳 📍 ✅ ❌ ⭐ 💯"
 
     load();
     // Cleanup cancels this run by bumping version on next effect
-  }, [properties, currentProperties, loadImagesForProperties, resumeTick]);
+  }, [properties, currentProperties, loadImagesForProperties, resumeTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pagination functions
   const goToPage = (pageNumber) => {
