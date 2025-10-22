@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Hero from './Hero';
 import SellImage from '../media/Landing_humanm/2149383571.webp';
 import BuyImage from '../media/Landing_humanm/Downsizing-in-Your-50s.jpg';
-<<<<<<< HEAD
 import RentImage from '../media/Landing_humanm/rent.jpg';
 import ForSellImage from '../media/Landing_humanm/house-for-sell.jpg';
 import PropertyCard from './PropertyCard';
-=======
-// import PropertyCard from './PropertyCard'; // Unused import
->>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
 import { FaHome } from 'react-icons/fa';
@@ -246,20 +242,20 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
     }, 1000);
   }, []);
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
-  // Pagination logic
-  const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
-  const startIndex = (currentPage - 1) * propertiesPerPage;
-  const endIndex = startIndex + propertiesPerPage;
-  const currentProperties = featuredProperties.slice(startIndex, endIndex);
-=======
-  // Pagination logic - commented out as unused
-  // const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
-  // const startIndex = (currentPage - 1) * propertiesPerPage;
-  // const endIndex = startIndex + propertiesPerPage;
-  // const currentProperties = featuredProperties.slice(startIndex, endIndex); // Unused
->>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
+//   // Pagination logic
+//   const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
+//   const startIndex = (currentPage - 1) * propertiesPerPage;
+//   const endIndex = startIndex + propertiesPerPage;
+//   const currentProperties = featuredProperties.slice(startIndex, endIndex);
+// =======
+//   // Pagination logic - commented out as unused
+//   // const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
+//   // const startIndex = (currentPage - 1) * propertiesPerPage;
+//   // const endIndex = startIndex + propertiesPerPage;
+//   // const currentProperties = featuredProperties.slice(startIndex, endIndex); // Unused
+// >>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
 
   // Pagination functions - commented out as unused
   // const goToPage = (pageNumber) => {
