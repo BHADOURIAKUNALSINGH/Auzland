@@ -8,9 +8,10 @@ import ForSellImage from '../media/Landing_humanm/house-for-sell.jpg';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 import './HomePage.css';
-import { FaHome } from 'react-icons/fa';
+import { FaHome, FaMapMarkerAlt } from 'react-icons/fa';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import PropertyCarousel from './PropertyCarousel';
 
 // Disable noisy console logs in production (keep warnings/errors)
 if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
@@ -32,83 +33,34 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [currentPage, setCurrentPage] = useState(1); // Unused
-  // const [propertiesPerPage] = useState(3); // Show 3 properties per page on homepage - Unused
   const [currentSlide, setCurrentSlide] = useState(0);
-  // const [visibleSections, setVisibleSections] = useState(new Set()); // Unused
-  // const [scrollProgress, setScrollProgress] = useState(0); // Unused
   const [pageLoaded, setPageLoaded] = useState(false);
   const reviews = [
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Seller of house in Blair Athol, NSW',
-      time: '1 year ago',
+    { rating: 5, label: 'Verified review', title: 'Seller of house in Blair Athol, NSW', time: '1 year ago',
       text:
-        'I recently sold my home with Abhi and was very pleased. His professionalism and skills were outstanding. Highly recommended.'
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Buyer of house in Austral, NSW',
-      time: '1 year 1 month ago',
+        'I recently sold my home with Abhi and was very pleased. His professionalism and skills were outstanding. Highly recommended.'},
+    { rating: 5, label: 'Verified review', title: 'Buyer of house in Austral, NSW', time: '1 year 1 month ago',
       text:
-        'The buying process was smooth. Abhi was very helpful and kept us informed the whole time. He explained everything clearly and guided us.'
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Seller of house in Austral, NSW',
-      time: '1 year 1 month ago',
+        'The buying process was smooth. Abhi was very helpful and kept us informed the whole time. He explained everything clearly and guided us.'},
+    { rating: 5, label: 'Verified review', title: 'Seller of house in Austral, NSW', time: '1 year 1 month ago',
       text:
-        'Sold my property through Abhi and had an excellent experience. He was professional, communicative, and secured a great price. Highly satisfied with the outcome.'
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Buyer of house in Blair Athol, NSW',
-      time: '1 year 1 month ago',
+        'Sold my property through Abhi and had an excellent experience. He was professional, communicative, and secured a great price. Highly satisfied with the outcome.'},
+    { rating: 5, label: 'Verified review', title: 'Buyer of house in Blair Athol, NSW', time: '1 year 1 month ago',
       text:
-        "I recently bought a home through Abhi and had a great experience. He was patient, knowledgeable, and provided clear advice, making everything easy. I'm very happy with the home he found for me."
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Seller of house in Austral, NSW',
-      time: '1 year 1 month ago',
+        "I recently bought a home through Abhi and had a great experience. He was patient, knowledgeable, and provided clear advice, making everything easy. I'm very happy with the home he found for me."},
+    { rating: 5, label: 'Verified review', title: 'Seller of house in Austral, NSW', time: '1 year 1 month ago',
       text:
-        'It was a great experience working with Abhi. He was professional, knowledgeable, and always available to help. He made the process smooth and easy. Highly recommend!'
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Buyer of house in Austral, NSW',
-      time: '1 year 3 months ago',
+        'It was a great experience working with Abhi. He was professional, knowledgeable, and always available to help. He made the process smooth and easy. Highly recommend!'},
+    { rating: 5, label: 'Verified review', title: 'Buyer of house in Austral, NSW', time: '1 year 3 months ago',
       text:
-        'Abhi was very helpful to us in our purchase. We really appreciated how much he helped us negotiate every step along the way. We found him to be friendly, honest and professional.'
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Buyer of residential land in Leppington, NSW',
-      time: '1 year 4 months ago',
+        'Abhi was very helpful to us in our purchase. We really appreciated how much he helped us negotiate every step along the way. We found him to be friendly, honest and professional.'},
+    { rating: 5, label: 'Verified review', title: 'Buyer of residential land in Leppington, NSW', time: '1 year 4 months ago',
       text:
-        'Abhi is really amazing. He helped us a lot to seal the deal. He was always quick, patient, and understood our situation well. We liked how he was always honest and clear with us. He made everything seem easy. Thanks a lot, Abhi! We hope to work with you again in the future.'
-    },
-    {
-      rating: 5,
-      label: 'Verified review',
-      title: 'Buyer of residential land in Leppington, NSW',
-      time: '1 year 4 months ago',
+        'Abhi is really amazing. He helped us a lot to seal the deal. He was always quick, patient, and understood our situation well. We liked how he was always honest and clear with us. He made everything seem easy. Thanks a lot, Abhi! We hope to work with you again in the future.'},
+    { rating: 5, label: 'Verified review', title: 'Buyer of residential land in Leppington, NSW', time: '1 year 4 months ago',
       text:
-        'Abhi was exceptional in helping me purchase land in Leppington, demonstrating deep market knowledge and outstanding professionalism. He provided invaluable insights, was always available for questions, and secured a great deal. Highly recommend Abhi for his dedication and expertise.'
-    }
+        'Abhi was exceptional in helping me purchase land in Leppington, demonstrating deep market knowledge and outstanding professionalism. He provided invaluable insights, was always available for questions, and secured a great deal. Highly recommend Abhi for his dedication and expertise.'}
   ];
-  
-  // Refs for scroll animations
-  // const sectionRefs = useRef({});
-  // const observerRef = useRef(null);
-
   // Page load animation trigger
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -117,68 +69,30 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll animation observer - commented out as unused
-  /*
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections(prev => new Set([...prev, entry.target.id]));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, []);
-  */
-
-  // Helper function to set section ref
-  // const setSectionRef = (id) => (el) => {
-  //   if (el) {
-  //     sectionRefs.current[id] = el;
-  //     if (observerRef.current) {
-  //       observerRef.current.observe(el);
-  //     }
-  //   }
-  // };
-const [emblaRef, emblaApi] = useEmblaCarousel(
-    { align: 'center', loop: true },
-    [Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })]
-  );
-
-  
-
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
-  const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
-  const onSlideClick = useCallback((index) => {
-    if (emblaApi && emblaApi.selectedScrollSnap() !== index) {
-      emblaApi.scrollTo(index);
-    }
-  }, [emblaApi]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
-  }, [emblaApi, onSelect]);
-
-  // All your other state, refs, and functions remain here
   const sectionRefs = useRef({});
-  const observerRef = useRef(null);
+  const observerRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  const setSectionRef = (id) => (el) => {
+    if (el && observerRef.current) {
+      sectionRefs.current[id] = el;
+      observerRef.current.observe(el);
+    }
+  };
+
+  const handlePropertyClick = (property) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProperty(null);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -208,25 +122,6 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
     };
   }, []);
   
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const setSectionRef = (id) => (el) => {
-    if (el) {
-      sectionRefs.current[id] = el;
-      if (observerRef.current) {
-        observerRef.current.observe(el);
-      }
-    }
-  };
-
-  const handlePropertyClick = (property) => {
-    setSelectedProperty(property);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedProperty(null);
-  };
 
   // Using mock data fetching for a runnable example
   useEffect(() => {
@@ -242,45 +137,6 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
     }, 1000);
   }, []);
 
-// <<<<<<< HEAD
-
-//   // Pagination logic
-//   const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
-//   const startIndex = (currentPage - 1) * propertiesPerPage;
-//   const endIndex = startIndex + propertiesPerPage;
-//   const currentProperties = featuredProperties.slice(startIndex, endIndex);
-// =======
-//   // Pagination logic - commented out as unused
-//   // const totalPages = Math.ceil(featuredProperties.length / propertiesPerPage);
-//   // const startIndex = (currentPage - 1) * propertiesPerPage;
-//   // const endIndex = startIndex + propertiesPerPage;
-//   // const currentProperties = featuredProperties.slice(startIndex, endIndex); // Unused
-// >>>>>>> eee2284c2c3fad8c810f9d76637bee651c8128e2
-
-  // Pagination functions - commented out as unused
-  // const goToPage = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // };
-
-  // const goToNextPage = () => {
-  //   if (currentPage < totalPages) {
-  //     setCurrentPage(currentPage + 1);
-  //     window.scrollTo({ top: 0, behavior: 'smooth' });
-  //   }
-  // };
-
-  // const goToPreviousPage = () => {
-  //   if (currentPage > 1) {
-  //     setCurrentPage(currentPage - 1);
-  //     window.scrollTo({ top: 0, behavior: 'smooth' });
-  //   }
-  // };
-
-  // Reset to page 1 when featured properties change - commented out as unused
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  // }, [featuredProperties.length]);
 
   // Helper functions from PropertiesPage
   const parseCsv = (csv) => {
@@ -563,7 +419,9 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
           const address = (r.address || '').toLowerCase();
           return address.includes('29b frampton drive') ||
                  address.includes('35 hewitt road') ||
-                 address.includes('37 hewitt road')
+                 address.includes('37 hewitt road') ||
+                 address.includes('grassbird') ||
+                 address.includes('sharp street');
         });
         
         console.log(`🏠 Found ${specificProperties.length} specific properties out of ${visibleRows.length} visible properties`);
@@ -613,7 +471,46 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
               price: '$875,000',
               availability: 'For Sale',
               media: '[]'
-            }
+            },
+            {
+              id: 'fallback-4',
+              address: '35 Hewitt Road',
+              suburb: 'Lochinvar',
+              propertyType: 'Single Story',
+              bed: 4,
+              bath: 2,
+              garage: 2,
+              landSize: 596,
+              price: '$850,000',
+              availability: 'For Sale',
+              media: '[]'
+            },
+            {
+              id: 'fallback-5',
+              address: '37 Hewitt Road',
+              suburb: 'Lochinvar',
+              propertyType: 'Single Story',
+              bed: 4,
+              bath: 2,
+              garage: 2,
+              landSize: 596,
+              price: '$875,000',
+              availability: 'For Sale',
+              media: '[]'
+            },
+            {
+              id: 'fallback-5',
+              address: '37 Hewitt Road',
+              suburb: 'Lochinvar',
+              propertyType: 'Single Story',
+              bed: 4,
+              bath: 2,
+              garage: 2,
+              landSize: 596,
+              price: '$875,000',
+              availability: 'For Sale',
+              media: '[]'
+            },
           ];
         }
         
@@ -621,7 +518,9 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
         const fallbackImages = [
           'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=800&fit=crop&q=80', // Townhouse
           'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop&q=80', // Single story
-          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop&q=80'  // Single story
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop&q=80', // Single story
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=800&fit=crop&q=80', // Townhouse
+          'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop&q=80', // Single story
         ];
 
         const mapped = selectedRows.map((r, idx) => {
@@ -779,119 +678,70 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
   className={`section featured-properties ${pageLoaded ? 'animate-in' : ''}`}
 >
   <div className="container">
-    <div className="section-header">
-      <h2 className={`section-title handwriting-font ${pageLoaded ? 'animate-title' : ''}`}>
-        We've Got The Right Properties For You
-      </h2>
-      <p className={`section-subtitle ${pageLoaded ? 'animate-subtitle' : ''}`}>
-        Your Gateway to South West Sydney Living.
-      </p>
-    </div>
-
-    {isLoading && featuredProperties.length === 0 ? (
-      // Show loading placeholders (adapted for cards)
-      <div className="properties-vertical-container">
-        {Array.from({ length: 3 }, (_, index) => (
-          <div key={`loading-${index}`} className="property-card-loading">
-            <div className="loading-image">
-              <div className="loading-spinner">⏳</div>
-              <p>Loading real listings...</p>
-            </div>
-            <div className="loading-content">
-              <div className="loading-line loading-line-title"></div>
-              <div className="loading-line loading-line-subtitle"></div>
-              <div className="loading-line loading-line-features"></div>
-            </div>
-          </div>
-        ))}
-      </div>
-    ) : featuredProperties.length > 0 ? (
-      <>
-        <div className="card-carousel">
-          <div className="carousel-track">
-            {featuredProperties.slice(0, 3).map((property, index) => (
-              <div
-                key={property.id}
-                className={`carousel-card ${index === currentSlide ? 'active' : ''}`}
-              >
-                {/* Card Image with Overlay */}
-                <div className="card-image">
-                  <img src={property.image} alt={property.address} loading="lazy" />
-                  <div className="image-overlay">
-                    <div className="property-badge">HOT SELLING</div>
-                  </div>
-                </div>
-
-                {/* Card Content */}
-                <div className="card-content">
-                  <h5 className="card-address">{property.address}</h5>
-                  <p className="card-suburb">{property.suburb}</p>
-                  <div className="card-details">
-                    <span className="detail-item detail-size"><FaHome /> {property.landSize || 'N/A'} sqm</span>
-                    <span className="detail-item detail-type">{property.propertyType}</span>
-                    <span className="detail-item detail-status">{property.status}</span>
-                  </div>
-
-                  {/* <div className="card-description">
-                    <p>
-                      This exceptional {property.propertyType.toLowerCase()} in {property.suburb} is generating incredible interest in today's market.
-                      With {property.bedrooms} bedrooms and {property.bathrooms} bathrooms, this stunning property offers the perfect blend of
-                      modern living and timeless appeal. The {property.landSize || 'generous'} square meter block provides ample space for
-                      families to grow and entertain.
-                    </p>
-                    <p>
-                      Don't miss your chance to secure this highly sought-after property. Contact us today to schedule an exclusive viewing
-                      and discover why this home is the talk of {property.suburb}.
-                    </p>
-                  </div> */}
-
-                  <div className="card-actions">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => handlePropertyClick(property)}
-                    >
-                      View Details
-                    </button>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => navigate('/contact')}
-                    >
-                      Schedule Viewing
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="section-header">
+            <h2 className="section-title handwriting-font">
+              We've Got The Right Properties For You
+            </h2>
+            <p className="section-subtitle">
+              Your Gateway to South West Sydney Living.
+            </p>
           </div>
 
-          {/* Navigation Dots */}
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : featuredProperties.length > 0 ? (
+            <PropertyCarousel>
+              {featuredProperties.map((property) => (
+                <div className="carousel-card" key={property.id}>
+                  <div className="card-image">
+                    <img src={property.image} alt={property.address} loading="lazy" />
+                    <div className="image-overlay">
+                      <div className="property-badge">{property.status}</div>
+                    </div>
+                  </div>
+                  <div className="card-content">
+                    <h5 className="card-address">{property.address}</h5>
+                    <p className="card-suburb">{property.suburb}</p>
+                    <div className="card-details">
+                      <span className="detail-item"><FaHome /> {property.propertyType}</span>
+                      <span className="detail-item"><FaMapMarkerAlt /> {property.landSize || 'N/A'} sqm</span>
+                    </div>
+                    <div className="card-actions">
+                      <button className="btn btn-primary" onClick={() => handlePropertyClick(property)}>
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </PropertyCarousel>
+          ) : (
+            <div>No properties available.</div>
+          )}
 
-          {/* Navigation Arrows */}
-          <button className="carousel-arrow prev" onClick={scrollPrev}>←</button>
-          <button className="carousel-arrow next" onClick={scrollNext}>→</button>
-        </div>
-      </>
-    ) : (
-      <div className="no-properties-message">
-        <p>No properties available at the moment. Please check back later.</p>
-      </div>
-    )}
+           <div className="view-all-container" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
 
-    <div className="view-all-container" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
       <button
-        className="btn btn-secondary btn-large"
-        onClick={() => navigate('/buy')}
-      >
-        View All Properties
-      </button>
-      <a className="btn btn-primary btn-large" href="/contact">
-        Request Appraisal Now
-      </a>
-    </div>
-  </div>
-</section>
 
-      
+        className="btn btn-secondary btn-large"
+
+        onClick={() => navigate('/buy')}
+
+      >
+
+        View All Properties
+
+      </button>
+
+      <a className="btn btn-primary btn-large" href="/contact">
+
+        Request Appraisal Now
+
+      </a>
+
+    </div>
+        </div>
+</section>      
       {/* Services Section */}
       <section
         id="services-section"
@@ -950,31 +800,6 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
         className={`section sell-buy-section ${pageLoaded ? 'animate-in' : ''}`}
       >
         <div className="container">
-          {/* Sell with AuzLandRE
-          <div className="sell-buy-row">
-            <div className="sell-buy-image">
-              <img
-                src={SellImage}
-                alt="Family selling their home"
-                onError={(e) => {
-                  try {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = (process && process.env && process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '') + '/media/Landing_humanm/2149383571.webp';
-                  } catch (_) {}
-                }}
-              />
-            </div>
-            <div className="sell-buy-content">
-              <h2 className="sell-buy-title handwriting-font">| Sell with AuzLandRE</h2>
-              <p className="sell-buy-description">
-                Your home is one of your most significant assets. At AuzLandRE we make it possible to sell your home in a simple and stress-free way, supporting you every step of the way.
-              </p>
-              <button className="btn btn-primary btn-large" onClick={() => navigate('/contact')}>
-                Sell with AuzLandRE
-              </button>
-            </div>
-          </div> */}
-
           {/* Buy with AuzLandRE */}
           <div className="sell-buy-row reverse">
             <div className="sell-buy-content">
