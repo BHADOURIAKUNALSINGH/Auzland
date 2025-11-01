@@ -272,7 +272,7 @@ const ContactPage = () => {
            
            {/* Office 1 - Oran Park Map */}
            <div style={{ marginBottom: '2rem' }}>
-             <h3 style={{ marginBottom: '1rem', color: '#013B78', fontSize: '1.5rem' }}>Office 1 - Oran Park</h3>
+             <h3 style={{ marginBottom: '1rem', color: '#dc2626', fontSize: '1.5rem' }}>Office 1 - Oran Park</h3>
              <div className="map-container card" style={{ overflow: 'hidden', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.25)' }}>
                <iframe
                  title="AuzLandRE Oran Park Location"
@@ -307,7 +307,7 @@ const ContactPage = () => {
 
            {/* Office 2 - Austral Map */}
            <div>
-             <h3 style={{ marginBottom: '1rem', color: '#013B78', fontSize: '1.5rem' }}>Office 2 - Austral</h3>
+             <h3 style={{ marginBottom: '1rem', color: '#dc2626', fontSize: '1.5rem' }}>Office 2 - Austral</h3>
              <div className="map-container card" style={{ overflow: 'hidden', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.25)' }}>
                <iframe
                  title="AuzLandRE Austral Location"

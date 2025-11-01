@@ -4,9 +4,9 @@
 
 /* --- CSS Variables for Easy Customization --- */
 :root {
-  --header-bg: #013B78;
+  --header-bg: #dc2626;
   --header-text: white;
-  --header-logo-accent: #A0C6EB;
+  --header-logo-accent: #ffffff;
   --header-height: 70px;
   /* A consistent height for the header */
   --transition-speed: 0.3s;

@@ -10,6 +10,8 @@ import { NewUser } from "../types";
 import { loadElevenLabsWidget } from "../utils/elevenLabsLoader";
 // import ChatbotSidebar from './ChatbotSidebar';
 import "./Dashboard.css";
+import ProfileDropdown from "./ProfileDropdown";
+import "./ProfileDropdown.css";
 
 // Declare custom elements for TypeScript
 declare global {
@@ -189,7 +191,7 @@ const Dashboard: React.FC = () => {
   // const [showSheetSelector, setShowSheetSelector] = useState(false);
 
   // Sidebar state - filters closed by default
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     propertyType: false,
     suburb: false,
@@ -2048,26 +2050,53 @@ const Dashboard: React.FC = () => {
   const renderFiltersSidebar = () => (
     <aside className="filters-sidebar">
       <div className="filters-section">
-        {/* Quick Search */}
-        <div className="filter-group quick-search-group">
-          <div
-            className="search-input-container"
-            title="You can search using property type, address, suburb, lot number, or any property details"
-          >
-            <input
-              type="text"
-              placeholder="Quick search..."
-              value={filters.quickSearch}
-              onChange={(e) =>
-                handleFilterChange("quickSearch", e.target.value)
-              }
-              className="universal-search-input"
-            />
-          </div>
+        <div className="nav-brand">
+          <h2>AuzlandRE</h2>
         </div>
+        {/* <div className="nav-tabs">
+          <button
+            className={`nav-tab ${activeTab === "properties" ? "active" : ""}`}
+            onClick={() => setActiveTab("properties")}
+          >
+            Properties
+          </button>
+          {hasEditAccess && (
+            
+          )}
+        </div> */}
 
         {/* Collapsible Filter Groups */}
         <ul className="filter-list">
+          <li className="filter-item">
+            <button
+              className={`filter-header ${
+                activeTab === "properties" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("properties")}
+            >
+              PROPERTIES
+            </button>
+          </li>
+          <li className="filter-item">
+            <button
+              className={`filter-header ${
+                activeTab === "call-agent" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("call-agent")}
+            >
+              CALL AGENT
+            </button>
+          </li>
+          <li className="filter-item">
+            <button
+              className={`filter-header ${
+                activeTab === "admin" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("admin")}
+            >
+              ADMIN TOOLS
+            </button>
+          </li>
           <li
             className={`filter-item ${openSections.propertyType ? "open" : ""}`}
           >
@@ -2532,22 +2561,6 @@ const Dashboard: React.FC = () => {
           )}
 
           {/* Admin-only buttons */}
-          {hasEditAccess && (
-            <>
-              <button className="export-button" onClick={handleExport}>
-                Export
-              </button>
-              <button className="export-button" onClick={handleNewProperty}>
-                Add New Entry
-              </button>
-              <button
-                className="import-button"
-                onClick={() => setShowCsvUploadModal(true)}
-              >
-                Import CSV
-              </button>
-            </>
-          )}
         </div>
       </div>
 
@@ -3392,52 +3405,50 @@ const Dashboard: React.FC = () => {
         <div className="content-area">
           {/* Combined Navigation Bar - Merged welcome and properties nav */}
           <nav className="combined-nav">
-            <div className="nav-left">
-              <div className="nav-brand">
-                <h2>AuzlandRE</h2>
-              </div>
-              <div className="nav-tabs">
-                <button
-                  className={`nav-tab ${
-                    activeTab === "properties" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("properties")}
-                >
-                  Properties
-                </button>
-                <button
-                  className={`nav-tab ${
-                    activeTab === "call-agent" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("call-agent")}
-                >
-                  Call Agent
-                </button>
-                {hasEditAccess && (
-                  <button
-                    className={`nav-tab ${
-                      activeTab === "admin" ? "active" : ""
-                    }`}
-                    onClick={() => setActiveTab("admin")}
-                  >
-                    Admin Tools
-                  </button>
-                )}
+            {/* Quick Search */}
+            <div className="filter-group quick-search-group">
+              <div
+                className="search-input-container"
+                title="You can search using property type, address, suburb, lot number, or any property details"
+              >
+                <input
+                  type="text"
+                  placeholder="Quick search..."
+                  value={filters.quickSearch}
+                  onChange={(e) =>
+                    handleFilterChange("quickSearch", e.target.value)
+                  }
+                  className="universal-search-input"
+                />
               </div>
             </div>
+            <div className="nav-left"></div>
 
             <div className="nav-right">
-              <div className="user-info">
-                <span className="username">
-                  Welcome, {user?.email || user?.username}
-                </span>
-                <span className="user-role">
-                  {hasEditAccess ? "Administrator" : "View Access"}
-                </span>
+              {hasEditAccess && (
+                <>
+                  <button className="export-button" onClick={handleExport}>
+                    Export
+                  </button>
+                  <button className="export-button" onClick={handleNewProperty}>
+                    Add New Entry
+                  </button>
+                  <button
+                    className="import-button"
+                    onClick={() => setShowCsvUploadModal(true)}
+                  >
+                    Import CSV
+                  </button>
+                </>
+              )}
+              <div className="navbar-profile-section">
+                {/* Profile Dropdown */}
+                <ProfileDropdown
+                  user={user?.email ? { ...user, email: user.email } : null}
+                  hasEditAccess={!!hasEditAccess}
+                  signOut={signOut}
+                />
               </div>
-              <button onClick={signOut} className="signout-button">
-                Sign Out
-              </button>
             </div>
           </nav>
 

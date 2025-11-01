@@ -1,0 +1,156 @@
+/* Main container to position the dropdown */
+.profile-container {
+    position: relative;
+    display: inline-block;
+    z-index: 9999;
+}
+
+/* The circular button you click */
+.profile-trigger-btn {
+    background-color: #bd2600;
+    /* Example background */
+    border: none;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0;
+}
+
+.profile-trigger-initials {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+.profile-trigger-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* The dropdown card that appears */
+.profile-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    /* Position 10px below the button */
+    right: 0;
+    width: 280px;
+    /* Set a width */
+    background-color: #0e0e0e;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    /* Ensures rounded corners apply to content */
+    animation: fadeIn 0.15s ease-out;
+}
+
+/* Header part of the card (for the large avatar) */
+.profile-header {
+    background-color: #040404;
+    /* Light gray background for the top */
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* This pushes the avatar up like the example */
+    /* margin-bottom: 30px; */
+}
+
+.profile-avatar-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* This pulls the avatar up to overlap the header */
+    margin-top: 1rem;
+}
+
+/* Container for your user info and button */
+.profile-details {
+    padding: 0 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* STYLING FOR YOUR EXISTING CLASSES */
+
+/* This is your .user-info div */
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 16px;
+    text-align: center;
+    width: 100%;
+}
+
+.username {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f5eeee;
+    word-break: break-all;
+}
+
+.user-role {
+    font-size: 0.9rem;
+    color: #f8f5f5;
+    margin-top: 4px;
+}
+
+/* Added links section */
+.profile-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.profile-links a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.profile-links a:hover {
+    text-decoration: underline;
+}
+
+/* This is your .signout-button */
+.signout-button {
+    background-color: #f0f2f5;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 10px 16px;
+    border-radius: 20px;
+    /* Make it rounded */
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    /* Make it full-width */
+    transition: background-color 0.2s ease;
+}
+
+.signout-button:hover {
+    background-color: #e4e6e9;
+}
+
+/* Simple fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

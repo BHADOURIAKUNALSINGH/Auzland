@@ -55,10 +55,10 @@ exports.handler = async (event) => {
                   <style>
                     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background-color: #013B78; color: white; padding: 20px; text-align: center; }
+                    .header { background-color: #dc2626; color: white; padding: 20px; text-align: center; }
                     .content { padding: 20px; background-color: #f9f9f9; }
                     .field { margin-bottom: 15px; }
-                    .label { font-weight: bold; color: #013B78; }
+                    .label { font-weight: bold; color: #dc2626; }
                     .value { margin-top: 5px; }
                     .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
                   </style>
