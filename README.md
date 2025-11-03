@@ -181,7 +181,7 @@ npm run build
 
 ### User Workflow
 
-1. Login with view-access credentials
+1. Login with view-access credentials.
 2. View dashboard showing their role and permissions
 3. Cannot access admin features or create new users
 
