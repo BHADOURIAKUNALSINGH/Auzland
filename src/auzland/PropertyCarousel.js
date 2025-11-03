@@ -8,9 +8,6 @@ const PropertyCarousel = ({ children }) => {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const trackRef = useRef(null);
-
-  // 1. Create cloned slides for the infinite loop effect
-  // We add the last slide to the beginning, and the first slide to the end
   // [Slide 6 (Clone), Slide 1, Slide 2, Slide 3, Slide 4, Slide 5, Slide 6, Slide 1 (Clone)]
   const slides = useMemo(() => {
     if (totalSlides === 0) return [];
